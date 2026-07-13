@@ -1522,6 +1522,34 @@
         }
 
         /* ============================================================
+           新增统计表格样式
+           ============================================================ */
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+        .stats-table th {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 6px 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .stats-table td {
+            padding: 4px 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .stats-table .highlight {
+            background: var(--accent-weak);
+            color: var(--accent-light);
+            font-weight: 700;
+        }
+
+        /* ============================================================
            双设备适配微调
            ============================================================ */
         @media (max-width: 640px) {
@@ -1870,6 +1898,11 @@
                 <button class="btn" onclick="app.speakText('语音播报测试，功能正常')">🧪 测试</button>
                 <button class="btn btn-primary" onclick="app.manualAnnounce()">📢 播报</button>
                 <button class="btn" id="notify-btn" onclick="app.toggleNotification()">🔔 推送</button>
+                <!-- ===== 新增自动播报开关 ===== -->
+                <button class="btn" id="auto-announce-btn" onclick="app.toggleAutoAnnounce()">
+                    <span id="auto-announce-icon">🔕</span>
+                    <span id="auto-announce-label">自动播报关</span>
+                </button>
             </div>
             <div class="controls-group">
                 <span class="controls-label">🧠 算法</span>
@@ -1932,6 +1965,21 @@
                     </table>
                 </div>
             </div>
+
+            <!-- ===== 新增：出现次数 & 按天查询 ===== -->
+            <div id="extra-stats" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
+                <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;">
+                    <button class="btn" onclick="app.toggleFrequencyStats()">📊 出现次数</button>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span style="font-size:12px;color:var(--text-muted);">前</span>
+                        <input type="number" id="days-input" value="1" min="1" max="30" style="width:50px;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;">
+                        <span style="font-size:12px;color:var(--text-muted);">天</span>
+                        <button class="btn" onclick="app.queryDaysStats()">📅 查询</button>
+                    </div>
+                </div>
+                <div id="frequency-stats-display" style="display:none;overflow-x:auto;margin-bottom:10px;"></div>
+                <div id="days-stats-display" style="display:none;overflow-x:auto;"></div>
+            </div>
         </div>
 
         <!-- ===== History ===== -->
@@ -1980,8 +2028,7 @@
          * ============================================================
          *  清浔杀组预测 · 多源融合引擎 · Telegram Mini App 适配版
          *  功能完整保留：8算法、语音、投注、遗漏、导出、双主题
-         *  新增：Telegram Web App SDK 集成、PWA 支持、关闭按钮、
-         *       主题自动适配、分享功能、震动反馈
+         *  新增：出现次数统计、按天查询统计、自动播报开关
          * ============================================================
          */
 
@@ -2390,6 +2437,13 @@
                     tgMainBtn: this.$('tg-main-btn'),
                     tgCloseBtn: this.$('tg-close-btn'),
                     appContainer: this.$('app-container'),
+                    // 新增DOM引用
+                    frequencyStatsDisplay: this.$('frequency-stats-display'),
+                    daysStatsDisplay: this.$('days-stats-display'),
+                    daysInput: this.$('days-input'),
+                    autoAnnounceBtn: this.$('auto-announce-btn'),
+                    autoAnnounceIcon: this.$('auto-announce-icon'),
+                    autoAnnounceLabel: this.$('auto-announce-label'),
                 };
 
                 this.apiData = [];
@@ -2415,6 +2469,8 @@
                 this.currentSource = '';
                 this.isSettling = false;
                 this.isTelegram = isTelegram;
+                // 新增：自动播报开关状态
+                this.autoAnnounce = false;
 
                 this.voice = new VoiceEngine();
 
@@ -2715,9 +2771,11 @@
                     this.render();
                     this.setupCountdown();
                     this.saveCache();
-                    this.voice.announceOpenResult(this.apiData);
-                    this.voice.announcePrediction(this.apiData, this.currentAlgorithm, CONFIG.ALGORITHM_NAMES[this
-                        .currentAlgorithm]);
+                    // 自动播报：仅当开关开启且语音启用时播报
+                    if (this.autoAnnounce && this.voice.enabled) {
+                        this.voice.announceOpenResult(this.apiData);
+                        this.voice.announcePrediction(this.apiData, this.currentAlgorithm, CONFIG.ALGORITHM_NAMES[this.currentAlgorithm]);
+                    }
                     this.setStatus('ready', this.currentSource);
                     this.lastDataHash = newHash;
                     this.retryCount = 0;
@@ -3422,7 +3480,8 @@
                         voiceEnabled: this.voice.enabled,
                         voiceRate: this.voice.rate,
                         notifyEnabled: this.notifyEnabled,
-                        theme: document.documentElement.getAttribute('data-theme')
+                        theme: document.documentElement.getAttribute('data-theme'),
+                        autoAnnounce: this.autoAnnounce
                     };
                     localStorage.setItem(CONFIG.STORAGE_KEYS.PREFS, JSON.stringify(prefs));
                 } catch (_) {}
@@ -3458,11 +3517,136 @@
                             this.notifyEnabled = false;
                         }
                     }
+                    if (typeof prefs.autoAnnounce === 'boolean') {
+                        this.autoAnnounce = prefs.autoAnnounce;
+                        this.updateAutoAnnounceUI();
+                    }
                     if (prefs.theme) {
                         document.documentElement.setAttribute('data-theme', prefs.theme);
                         this.updateThemeIcon(prefs.theme);
                     }
                 } catch (_) {}
+            }
+
+            // ==================== 新增：自动播报开关 ====================
+            toggleAutoAnnounce() {
+                this.autoAnnounce = !this.autoAnnounce;
+                this.updateAutoAnnounceUI();
+                this.savePreferences();
+                this.showToast(this.autoAnnounce ? '自动播报已开启' : '自动播报已关闭', 'info');
+            }
+
+            updateAutoAnnounceUI() {
+                if (this.dom.autoAnnounceBtn) {
+                    this.dom.autoAnnounceBtn.classList.toggle('active', this.autoAnnounce);
+                    this.dom.autoAnnounceIcon.textContent = this.autoAnnounce ? '🔊' : '🔕';
+                    this.dom.autoAnnounceLabel.textContent = this.autoAnnounce ? '自动播报开' : '自动播报关';
+                }
+            }
+
+            // ==================== 新增：出现次数统计 ====================
+            toggleFrequencyStats() {
+                const display = this.dom.frequencyStatsDisplay;
+                if (display.style.display === 'block') {
+                    display.style.display = 'none';
+                    return;
+                }
+                if (!this.apiData.length) {
+                    this.showToast('暂无数据', 'warning');
+                    return;
+                }
+                // 统计和值出现次数
+                const sumCounts = new Array(28).fill(0);
+                const comboCounts = {
+                    '大': 0, '小': 0, '单': 0, '双': 0,
+                    '大单': 0, '大双': 0, '小单': 0, '小双': 0
+                };
+                this.apiData.forEach(item => {
+                    sumCounts[item.sum] = (sumCounts[item.sum] || 0) + 1;
+                    comboCounts[item.combo] = (comboCounts[item.combo] || 0) + 1;
+                    if (item.combo.startsWith('大')) comboCounts['大']++;
+                    else comboCounts['小']++;
+                    if (item.combo.endsWith('单')) comboCounts['单']++;
+                    else comboCounts['双']++;
+                });
+                // 构建和值表格
+                let html = `<div style="font-weight:700;margin-bottom:6px;">📈 和值出现次数</div>
+                            <table class="stats-table"><tr>`;
+                for (let i = 0; i <= 27; i++) {
+                    html += `<th>${i}</th>`;
+                }
+                html += `</tr><tr>`;
+                for (let i = 0; i <= 27; i++) {
+                    const cls = sumCounts[i] > 10 ? 'highlight' : '';
+                    html += `<td class="${cls}">${sumCounts[i]}</td>`;
+                }
+                html += `</tr></table>`;
+
+                // 构建形态表格
+                html += `<div style="font-weight:700;margin:12px 0 6px;">🎲 形态出现次数</div>
+                         <table class="stats-table"><tr>`;
+                const comboKeys = ['大', '小', '单', '双', '大单', '大双', '小单', '小双'];
+                comboKeys.forEach(k => { html += `<th>${k}</th>`; });
+                html += `</tr><tr>`;
+                comboKeys.forEach(k => {
+                    const cls = comboCounts[k] > 20 ? 'highlight' : '';
+                    html += `<td class="${cls}">${comboCounts[k]}</td>`;
+                });
+                html += `</tr></table>`;
+
+                display.innerHTML = html;
+                display.style.display = 'block';
+            }
+
+            // ==================== 新增：按天查询统计 ====================
+            queryDaysStats() {
+                const input = this.dom.daysInput;
+                let days = parseInt(input.value, 10);
+                if (isNaN(days) || days < 1) days = 1;
+                if (days > 30) days = 30;
+                input.value = days;
+
+                if (!this.apiData.length) {
+                    this.showToast('暂无数据', 'warning');
+                    return;
+                }
+                // 按期数倒序取最近 N 期（每天约480期，但用期数差估算：3分钟一期，每天480期，但用户可调整）
+                const total = this.apiData.length;
+                // 粗略估算：假设每天480期（3分钟一期），但实际数据可能不连续，我们取最近 days*480 期，但不超过总期数
+                const count = Math.min(days * 480, total);
+                const recent = this.apiData.slice(-count);
+                if (!recent.length) {
+                    this.showToast('数据不足', 'warning');
+                    return;
+                }
+                const sums = recent.map(d => d.sum);
+                const combos = recent.map(d => d.combo);
+                const avg = (sums.reduce((a,b) => a+b, 0) / sums.length).toFixed(1);
+                const maxSum = Math.max(...sums);
+                const minSum = Math.min(...sums);
+                const comboFreq = {};
+                combos.forEach(c => { comboFreq[c] = (comboFreq[c] || 0) + 1; });
+
+                const display = this.dom.daysStatsDisplay;
+                let html = `<div style="font-weight:700;margin-bottom:6px;">📅 最近 ${days} 天（${recent.length} 期）统计</div>
+                            <table class="stats-table">
+                                <tr><th>总期数</th><th>平均和值</th><th>最大和值</th><th>最小和值</th></tr>
+                                <tr><td>${recent.length}</td><td>${avg}</td><td>${maxSum}</td><td>${minSum}</td></tr>
+                            </table>
+                            <div style="font-weight:700;margin:10px 0 6px;">形态分布</div>
+                            <table class="stats-table"><tr>`;
+                const keys = ['大单','大双','小单','小双'];
+                keys.forEach(k => { html += `<th>${k}</th>`; });
+                html += `</tr><tr>`;
+                keys.forEach(k => {
+                    const val = comboFreq[k] || 0;
+                    const pct = ((val / recent.length) * 100).toFixed(1);
+                    html += `<td>${val} (${pct}%)</td>`;
+                });
+                html += `</tr></table>`;
+
+                display.innerHTML = html;
+                display.style.display = 'block';
             }
 
             // ==================== 交互 ====================
