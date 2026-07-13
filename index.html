@@ -1,0 +1,3533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>清浔 · 杀组预测 Pro</title>
+
+    <!-- ===== PWA 支持 ===== -->
+    <link rel="manifest" href="data:application/json,{%22name%22:%22清浔杀组预测%22,%22short_name%22:%22清浔%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230b0f1a%22,%22theme_color%22:%22%237c3aed%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%237c3aed'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-size='280' font-family='sans-serif' fill='white'%3E🔮%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22}]}" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%237c3aed'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-size='280' font-family='sans-serif' fill='white'%3E🔮%3C/text%3E%3C/svg%3E" />
+    <meta name="theme-color" content="#7c3aed" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <!-- ===== Telegram Web App SDK ===== -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ============================================================
+           CSS Variables — 暗色/亮色 双主题 + Telegram 适配
+           ============================================================ */
+        :root {
+            --bg-primary: #0b0f1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.75);
+            --bg-card-hover: rgba(30, 41, 59, 0.85);
+            --bg-glass: rgba(255, 255, 255, 0.04);
+            --bg-overlay: rgba(0, 0, 0, 0.35);
+
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #475569;
+
+            --accent: #7c3aed;
+            --accent-light: #a78bfa;
+            --accent-glow: rgba(124, 58, 237, 0.35);
+            --accent-weak: rgba(124, 58, 237, 0.08);
+
+            --cyan: #06b6d4;
+            --cyan-glow: rgba(6, 182, 212, 0.30);
+
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.25);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.25);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.25);
+
+            --border: rgba(255, 255, 255, 0.06);
+            --border-strong: rgba(255, 255, 255, 0.12);
+
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45);
+            --shadow-glow: 0 8px 40px rgba(124, 58, 237, 0.20);
+
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            --font: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'SF Mono', 'Fira Code', 'Inter', monospace;
+
+            --transition: all 0.30s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Telegram 适配变量 (会被JS覆盖) */
+            --tg-bg-color: #0b0f1a;
+            --tg-text-color: #f1f5f9;
+            --tg-hint-color: #94a3b8;
+            --tg-link-color: #7c3aed;
+            --tg-button-color: #7c3aed;
+            --tg-button-text-color: #ffffff;
+            --tg-secondary-bg-color: #111827;
+            --tg-header-bg-color: #0b0f1a;
+            --tg-section-bg-color: rgba(17, 24, 39, 0.75);
+            --tg-section-header-text-color: #f1f5f9;
+            --tg-subtitle-text-color: #94a3b8;
+            --tg-destructive-text-color: #ef4444;
+        }
+
+        /* 亮色主题覆盖 */
+        [data-theme="light"] {
+            --bg-primary: #f1f5f9;
+            --bg-secondary: #e2e8f0;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-card-hover: rgba(255, 255, 255, 0.95);
+            --bg-glass: rgba(255, 255, 255, 0.50);
+            --bg-overlay: rgba(0, 0, 0, 0.04);
+
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+
+            --accent: #7c3aed;
+            --accent-light: #8b5cf6;
+            --accent-glow: rgba(124, 58, 237, 0.20);
+            --accent-weak: rgba(124, 58, 237, 0.06);
+
+            --border: rgba(0, 0, 0, 0.06);
+            --border-strong: rgba(0, 0, 0, 0.12);
+
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.06);
+            --shadow-glow: 0 8px 40px rgba(124, 58, 237, 0.12);
+
+            --tg-bg-color: #f1f5f9;
+            --tg-text-color: #0f172a;
+            --tg-hint-color: #475569;
+            --tg-secondary-bg-color: #e2e8f0;
+        }
+
+        /* Telegram 环境下的主题覆盖 (通过JS动态设置) */
+        .tg-theme {
+            --bg-primary: var(--tg-bg-color, #0b0f1a);
+            --bg-secondary: var(--tg-secondary-bg-color, #111827);
+            --bg-card: var(--tg-section-bg-color, rgba(17, 24, 39, 0.75));
+            --text-primary: var(--tg-text-color, #f1f5f9);
+            --text-secondary: var(--tg-hint-color, #94a3b8);
+            --text-muted: var(--tg-subtitle-text-color, #475569);
+            --accent: var(--tg-button-color, #7c3aed);
+            --accent-light: var(--tg-link-color, #a78bfa);
+            --border: rgba(128, 128, 128, 0.12);
+            --border-strong: rgba(128, 128, 128, 0.20);
+        }
+
+        /* ============================================================
+           Reset & Base
+           ============================================================ */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html {
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* ============================================================
+           Background Glow
+           ============================================================ */
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .bg-glow::before,
+        .bg-glow::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.25;
+            animation: glow-float 30s ease-in-out infinite alternate;
+        }
+        .bg-glow::before {
+            width: 600px;
+            height: 600px;
+            background: var(--accent);
+            top: -200px;
+            right: -200px;
+        }
+        .bg-glow::after {
+            width: 500px;
+            height: 500px;
+            background: var(--cyan);
+            bottom: -200px;
+            left: -200px;
+            animation-delay: -10s;
+            animation-duration: 35s;
+        }
+        [data-theme="light"] .bg-glow::before,
+        [data-theme="light"] .bg-glow::after {
+            opacity: 0.10;
+        }
+        @keyframes glow-float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            50% {
+                transform: translate(40px, -50px) scale(1.1);
+            }
+            100% {
+                transform: translate(-30px, 40px) scale(0.9);
+            }
+        }
+
+        /* ============================================================
+           Container
+           ============================================================ */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 16px 16px 80px;
+        }
+
+        /* ============================================================
+           Navbar — 移动端触摸友好
+           ============================================================ */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0 18px;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+        .navbar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 20px var(--accent-glow);
+            flex-shrink: 0;
+        }
+        .navbar-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #fff, var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+        [data-theme="light"] .navbar-title {
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .navbar-sub {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: block;
+            margin-top: 0px;
+            line-height: 1.2;
+        }
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+            white-space: nowrap;
+        }
+        .status-badge:active {
+            transform: scale(0.94);
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 12px var(--success-glow);
+            animation: dot-blink 2s ease-in-out infinite;
+        }
+        .status-badge.error .status-dot {
+            background: var(--danger);
+            box-shadow: 0 0 12px var(--danger-glow);
+            animation: none;
+        }
+        @keyframes dot-blink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .theme-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+            flex-shrink: 0;
+        }
+        .theme-btn:active {
+            transform: scale(0.90);
+        }
+        .theme-btn:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        /* Telegram 关闭按钮 */
+        .tg-close-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+        }
+        .tg-close-btn:active {
+            transform: scale(0.90);
+        }
+        .tg-close-btn:hover {
+            border-color: var(--danger);
+            box-shadow: 0 0 20px var(--danger-glow);
+        }
+        .in-telegram .tg-close-btn {
+            display: flex;
+        }
+
+        /* ============================================================
+           Cards & Hero
+           ============================================================ */
+        .hero-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            padding: 22px 18px 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--cyan), var(--accent));
+            background-size: 200% 100%;
+            animation: shimmer 4s linear infinite;
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .hero-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .hero-period {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .hero-period strong {
+            color: var(--text-primary);
+            font-weight: 800;
+            font-family: var(--font-mono);
+        }
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 14px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 13px;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            color: #fff;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .hero-numbers {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 8px 0 4px;
+        }
+        .hero-ball {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            color: #fff;
+            box-shadow: 0 8px 30px var(--accent-glow);
+            animation: ball-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: scale(0);
+        }
+        @keyframes ball-pop {
+            0% {
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+        .hero-ball:nth-child(2) {
+            animation-delay: 0.08s;
+        }
+        .hero-ball:nth-child(3) {
+            animation-delay: 0.16s;
+        }
+        .hero-sep {
+            font-size: 20px;
+            color: var(--text-muted);
+            font-weight: 300;
+            opacity: 0.4;
+        }
+        .hero-eq {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--warning);
+            text-shadow: 0 0 30px var(--warning-glow);
+            font-family: var(--font-mono);
+            margin-left: 2px;
+        }
+        .hero-time {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Countdown */
+        .countdown-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 14px;
+            padding: 10px 14px;
+            background: var(--bg-glass);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .countdown-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .countdown-text {
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: var(--transition);
+        }
+        .countdown-text.urgent {
+            color: var(--danger);
+            text-shadow: 0 0 20px var(--danger-glow);
+            animation: urgent-pulse 1s ease-in-out infinite;
+        }
+        @keyframes urgent-pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+        .ring-wrap {
+            position: relative;
+            width: 68px;
+            height: 68px;
+            flex-shrink: 0;
+        }
+        .ring-svg {
+            transform: rotate(-90deg);
+            width: 68px;
+            height: 68px;
+        }
+        .ring-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 4;
+        }
+        .ring-progress {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
+        }
+        .ring-progress.urgent {
+            stroke: var(--danger);
+            animation: ring-flash 1s ease-in-out infinite;
+        }
+        @keyframes ring-flash {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+        .ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            line-height: 1.1;
+            transition: color 0.4s ease;
+        }
+        .ring-text.urgent {
+            color: var(--danger);
+        }
+
+        /* ============================================================
+           Predict Card
+           ============================================================ */
+        .predict-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            padding: 20px 18px 22px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .predict-card:hover {
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-glow);
+        }
+        .predict-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--accent), var(--cyan));
+            border-radius: 2px 0 0 2px;
+        }
+
+        .predict-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .predict-title {
+            font-size: 17px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .predict-algo-badge {
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            color: #fff;
+            box-shadow: 0 2px 16px var(--accent-glow);
+            white-space: nowrap;
+        }
+        .predict-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .meta-chip {
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .meta-chip.ready {
+            background: rgba(16, 185, 129, 0.10);
+            border-color: rgba(16, 185, 129, 0.25);
+            color: var(--success);
+        }
+        .meta-chip.loading {
+            background: rgba(245, 158, 11, 0.10);
+            border-color: rgba(245, 158, 11, 0.25);
+            color: var(--warning);
+            animation: pulse-opacity 1.8s ease-in-out infinite;
+        }
+        @keyframes pulse-opacity {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .predict-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 480px) {
+            .predict-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .predict-item {
+            padding: 16px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .predict-item:active {
+            transform: scale(0.98);
+        }
+        .predict-item.recommend {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.01));
+            border-color: rgba(16, 185, 129, 0.15);
+        }
+        .predict-item.recommend::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--success);
+            border-radius: 2px 0 0 2px;
+        }
+        .predict-item.kill {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(239, 68, 68, 0.01));
+            border-color: rgba(239, 68, 68, 0.15);
+        }
+        .predict-item.kill::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--danger);
+            border-radius: 2px 0 0 2px;
+        }
+
+        .predict-item-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .predict-item-value {
+            font-size: 22px;
+            font-weight: 800;
+            font-family: var(--font-mono);
+        }
+        .predict-item.recommend .predict-item-value {
+            color: var(--success);
+            text-shadow: 0 0 20px var(--success-glow);
+        }
+        .predict-item.kill .predict-item-value {
+            color: var(--danger);
+            text-shadow: 0 0 20px var(--danger-glow);
+        }
+        .predict-item-sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* ============================================================
+           Betting
+           ============================================================ */
+        .bet-section {
+            margin-top: 14px;
+            border-top: 1px solid var(--border);
+            padding-top: 14px;
+        }
+        .bet-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .bet-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+        @media (max-width: 480px) {
+            .bet-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .bet-btn {
+            padding: 12px 8px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .bet-btn:active {
+            transform: scale(0.94);
+        }
+        .bet-btn.active-bet {
+            background: linear-gradient(135deg, var(--warning), #f97316);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 20px var(--warning-glow);
+        }
+
+        .bet-summary {
+            margin-top: 10px;
+            padding: 12px 14px;
+            background: var(--bg-glass);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+        }
+        .bet-summary .stat {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .bet-summary .stat strong {
+            color: var(--text-primary);
+            font-weight: 800;
+        }
+        .bet-summary .stat .num {
+            font-family: var(--font-mono);
+            font-size: 16px;
+        }
+        .bet-summary .stat .num.profit {
+            color: var(--success);
+        }
+        .bet-summary .stat .num.loss {
+            color: var(--danger);
+        }
+
+        .bet-history-wrap {
+            max-height: 140px;
+            overflow-y: auto;
+            margin-top: 8px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-overlay);
+        }
+        .bet-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .bet-history-table th {
+            padding: 6px 6px;
+            text-align: center;
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+        }
+        .bet-history-table td {
+            padding: 6px 6px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .bet-history-table .win {
+            color: var(--success);
+            font-weight: 700;
+        }
+        .bet-history-table .lose {
+            color: var(--danger);
+            font-weight: 700;
+        }
+        .bet-history-table .pending {
+            color: var(--warning);
+            font-weight: 700;
+        }
+
+        /* ============================================================
+           Algorithm Compare
+           ============================================================ */
+        .algo-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .algo-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .algo-toggle:active {
+            background: var(--bg-glass);
+        }
+        .algo-toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .algo-toggle-arrow {
+            font-size: 13px;
+            color: var(--text-muted);
+            transition: transform 0.35s ease;
+        }
+        .algo-toggle.open .algo-toggle-arrow {
+            transform: rotate(180deg);
+        }
+        .algo-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+        }
+        .algo-body.open {
+            max-height: 1000px;
+            padding: 0 18px 18px;
+        }
+        .algo-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        @media (max-width: 640px) {
+            .algo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 400px) {
+            .algo-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .algo-item {
+            padding: 12px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            transition: var(--transition);
+        }
+        .algo-item:active {
+            transform: scale(0.97);
+        }
+        .algo-item.fusion {
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+        }
+        .algo-item.fusion::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: calc(var(--radius-sm) + 2px);
+            background: linear-gradient(135deg, var(--accent), var(--cyan), var(--warning), var(--accent));
+            background-size: 300% 300%;
+            animation: border-flow 4s linear infinite;
+            z-index: -1;
+        }
+        @keyframes border-flow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        .algo-item-name {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 2px;
+            color: var(--text-primary);
+        }
+        .algo-item-pred {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .algo-item-pred .p-red {
+            color: var(--success);
+            font-weight: 700;
+        }
+        .algo-item-pred .p-kill {
+            color: var(--danger);
+            font-weight: 700;
+        }
+        .algo-item-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .algo-item-stats .win {
+            color: var(--accent-light);
+            font-weight: 700;
+        }
+        .algo-item-stats .con {
+            color: var(--warning);
+            font-weight: 700;
+        }
+
+        /* ============================================================
+           Controls
+           ============================================================ */
+        .controls {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex: 1 1 auto;
+        }
+        .controls-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            backdrop-filter: blur(8px);
+            touch-action: manipulation;
+            white-space: nowrap;
+        }
+        .btn:active {
+            transform: scale(0.94);
+        }
+        .btn.active {
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+        .btn.speaking {
+            animation: voice-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes voice-pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 var(--warning-glow);
+            }
+            50% {
+                box-shadow: 0 0 0 10px transparent;
+            }
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            border-color: transparent;
+            color: #fff;
+        }
+        .btn-primary:active {
+            transform: scale(0.94);
+        }
+
+        select {
+            appearance: none;
+            padding: 8px 28px 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+            min-width: 110px;
+            touch-action: manipulation;
+        }
+        select:active {
+            transform: scale(0.97);
+        }
+        .select-wrap {
+            position: relative;
+        }
+        .select-wrap::after {
+            content: '▾';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 70px;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--bg-secondary);
+            outline: none;
+            border: 1px solid var(--border);
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            cursor: pointer;
+            box-shadow: 0 2px 12px var(--accent-glow);
+            transition: var(--transition);
+            border: 2px solid var(--bg-primary);
+        }
+        .speed-val {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            min-width: 32px;
+            font-family: var(--font-mono);
+        }
+
+        /* ============================================================
+           Monitor & Charts
+           ============================================================ */
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        @media (max-width: 500px) {
+            .monitor-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .monitor-item {
+            padding: 14px 16px;
+            background: var(--bg-glass);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        .monitor-item:active {
+            transform: scale(0.98);
+        }
+        .monitor-item .icon {
+            font-size: 22px;
+            margin-bottom: 2px;
+            display: block;
+        }
+        .monitor-item .label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        .monitor-item .value {
+            font-size: 17px;
+            font-weight: 800;
+            margin-top: 2px;
+        }
+        .monitor-item .value .sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .spark-wrap {
+            height: 40px;
+            margin-top: 6px;
+        }
+        .spark-wrap svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .trend-wrap {
+            height: 100px;
+            margin-top: 10px;
+            position: relative;
+        }
+        .trend-wrap canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: var(--radius-sm);
+        }
+
+        /* ============================================================
+           Missed Stats
+           ============================================================ */
+        .missed-section {
+            margin-top: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .missed-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 3px;
+            font-size: 12px;
+            min-width: 560px;
+        }
+        .missed-table th {
+            padding: 6px 4px;
+            text-align: center;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: var(--bg-glass);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            font-size: 10px;
+        }
+        .missed-table td {
+            padding: 6px 4px;
+            text-align: center;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            font-weight: 700;
+            transition: var(--transition);
+            font-family: var(--font-mono);
+            font-size: 13px;
+        }
+        .missed-table td:active {
+            transform: scale(1.06);
+        }
+        .missed-table .hot {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border-color: rgba(239, 68, 68, 0.25);
+            box-shadow: 0 0 16px var(--danger-glow);
+        }
+        .missed-table .cold {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border-color: rgba(16, 185, 129, 0.25);
+            box-shadow: 0 0 16px var(--success-glow);
+        }
+        .missed-table .neutral {
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+        }
+
+        /* ============================================================
+           History Table
+           ============================================================ */
+        .history-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            max-height: 420px;
+            overflow-y: auto;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 480px;
+        }
+        .history-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .history-table th {
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            color: #fff;
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            white-space: nowrap;
+        }
+        .history-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .history-table tbody tr:active {
+            background: var(--accent-weak);
+        }
+        .history-table tbody tr:nth-child(even) {
+            background: var(--bg-overlay);
+        }
+        .history-table .hit {
+            color: var(--success);
+            font-weight: 700;
+        }
+        .history-table .miss {
+            color: var(--danger);
+            font-weight: 700;
+        }
+        .badge-result {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .badge-result.hit {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: var(--success);
+        }
+        .badge-result.miss {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: var(--danger);
+        }
+
+        .stats-footer {
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent-weak), rgba(6, 182, 212, 0.04));
+            border-radius: var(--radius-md);
+            text-align: center;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid var(--accent-glow);
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            transition: var(--transition);
+        }
+        .stats-footer .rate {
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-light), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* ============================================================
+           Toast
+           ============================================================ */
+        .toast-container {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+            width: 92%;
+            max-width: 440px;
+        }
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: toast-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            pointer-events: auto;
+            backdrop-filter: blur(20px);
+            justify-content: space-between;
+        }
+        .toast.out {
+            animation: toast-out 0.3s ease forwards;
+        }
+        .toast .close {
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.4;
+            padding: 0 4px;
+            transition: var(--transition);
+        }
+        .toast .close:active {
+            opacity: 0.8;
+        }
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes toast-out {
+            to {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+        }
+
+        /* ============================================================
+           Footer
+           ============================================================ */
+        .footer {
+            text-align: center;
+            padding: 24px 16px 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            border-top: 1px solid var(--border);
+            margin-top: 16px;
+        }
+
+        /* ============================================================
+           Scrollbar
+           ============================================================ */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-secondary);
+            border-radius: 2px;
+            border: 1px solid var(--border);
+        }
+
+        /* ============================================================
+           Utilities
+           ============================================================ */
+        .fade-in {
+            animation: fadeUp 0.7s ease-out forwards;
+            opacity: 0;
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .delay-1 {
+            animation-delay: 0.05s;
+        }
+        .delay-2 {
+            animation-delay: 0.12s;
+        }
+        .delay-3 {
+            animation-delay: 0.20s;
+        }
+        .delay-4 {
+            animation-delay: 0.30s;
+        }
+        .delay-5 {
+            animation-delay: 0.40s;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .kbd {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        /* ============================================================
+           双设备适配微调
+           ============================================================ */
+        @media (max-width: 640px) {
+            .container {
+                padding: 10px 10px 70px;
+            }
+            .navbar-title {
+                font-size: 15px;
+            }
+            .navbar-sub {
+                font-size: 9px;
+            }
+            .navbar-icon {
+                width: 34px;
+                height: 34px;
+                font-size: 17px;
+            }
+            .hero-card {
+                padding: 16px 12px 16px;
+            }
+            .hero-ball {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+            .hero-eq {
+                font-size: 22px;
+            }
+            .hero-sep {
+                font-size: 16px;
+            }
+            .hero-numbers {
+                gap: 4px;
+            }
+            .predict-card {
+                padding: 16px 12px 18px;
+            }
+            .predict-item {
+                padding: 12px 14px;
+            }
+            .predict-item-value {
+                font-size: 20px;
+            }
+            .controls {
+                padding: 12px 12px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .controls-group {
+                justify-content: space-between;
+            }
+            .countdown-text {
+                font-size: 16px;
+            }
+            .ring-wrap {
+                width: 56px;
+                height: 56px;
+            }
+            .ring-svg {
+                width: 56px;
+                height: 56px;
+            }
+            .ring-text {
+                font-size: 11px;
+            }
+            .bet-btn {
+                font-size: 14px;
+                padding: 10px 6px;
+            }
+            .bet-summary {
+                font-size: 12px;
+                padding: 10px 10px;
+            }
+            .bet-summary .stat .num {
+                font-size: 14px;
+            }
+            .monitor-item .value {
+                font-size: 15px;
+            }
+            .history-table {
+                min-width: 380px;
+                font-size: 11px;
+            }
+            .history-table th,
+            .history-table td {
+                padding: 6px 4px;
+            }
+            .algo-item {
+                padding: 10px 10px;
+            }
+            .algo-item-pred {
+                font-size: 10px;
+            }
+            .btn {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            select {
+                font-size: 12px;
+                padding: 6px 24px 6px 10px;
+                min-width: 90px;
+            }
+            .theme-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            .status-badge {
+                font-size: 10px;
+                padding: 4px 10px;
+            }
+            .tg-close-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+        }
+        @media (max-width: 380px) {
+            .hero-ball {
+                width: 36px;
+                height: 36px;
+                font-size: 15px;
+            }
+            .hero-eq {
+                font-size: 18px;
+            }
+            .predict-item-value {
+                font-size: 17px;
+            }
+            .navbar-title {
+                font-size: 13px;
+            }
+            .bet-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .algo-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* ============================================================
+           Telegram 特有样式
+           ============================================================ */
+        .in-telegram .tg-only {
+            display: flex !important;
+        }
+        .in-telegram .tg-only-inline {
+            display: inline-flex !important;
+        }
+        .not-in-telegram .tg-only,
+        .not-in-telegram .tg-only-inline {
+            display: none !important;
+        }
+        .tg-main-btn {
+            display: none;
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--accent);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            touch-action: manipulation;
+        }
+        .tg-main-btn:active {
+            transform: scale(0.96);
+        }
+        .in-telegram .tg-main-btn {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Background ===== -->
+    <div class="bg-glow"></div>
+
+    <!-- ===== Toast Container ===== -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ===== Main ===== -->
+    <div class="container" id="app-container">
+
+        <!-- ===== Navbar ===== -->
+        <nav class="navbar fade-in">
+            <div class="navbar-brand">
+                <div class="navbar-icon">🔮</div>
+                <div>
+                    <div class="navbar-title">清浔 · 杀组</div>
+                    <span class="navbar-sub">多源融合 · 实时预测</span>
+                </div>
+            </div>
+            <div class="navbar-actions">
+                <div class="status-badge" id="api-status" onclick="app.fetchData()" title="点击刷新">
+                    <span class="status-dot"></span>
+                    <span>在线</span>
+                </div>
+                <button class="theme-btn" id="theme-toggle" onclick="app.toggleTheme()" title="切换主题 (T)">
+                    <span id="theme-icon">🌙</span>
+                </button>
+                <button class="tg-close-btn" id="tg-close-btn" onclick="app.closeTelegram()" title="关闭">
+                    ✕
+                </button>
+            </div>
+        </nav>
+
+        <!-- ===== Telegram 环境标识 ===== -->
+        <div id="tg-env-badge" style="display:none;text-align:center;font-size:11px;color:var(--text-muted);margin:-8px 0 12px;padding:4px 12px;background:var(--accent-weak);border-radius:999px;border:1px solid var(--border);">
+            📱 Telegram 小程序模式
+        </div>
+
+        <!-- ===== Hero: Latest Result ===== -->
+        <div class="hero-card fade-in delay-1" id="hero-card">
+            <div class="hero-top">
+                <span class="hero-period">📅 最新开奖 · 第 <strong id="cur-period">------</strong> 期</span>
+                <span class="hero-tag" id="cur-combo">--</span>
+            </div>
+            <div class="hero-numbers" id="latest-nums-container">
+                <div class="hero-ball" style="animation:none;opacity:0.3;">?</div>
+                <span class="hero-sep">+</span>
+                <div class="hero-ball" style="animation:none;opacity:0.3;">?</div>
+                <span class="hero-sep">+</span>
+                <div class="hero-ball" style="animation:none;opacity:0.3;">?</div>
+                <span class="hero-sep">=</span>
+                <span class="hero-eq" id="cur-sum">--</span>
+            </div>
+            <div class="hero-time" id="cur-time">加载中...</div>
+
+            <!-- Countdown -->
+            <div class="countdown-section" id="countdown-box">
+                <span class="countdown-label">⏱ 下一期开奖</span>
+                <span class="countdown-text" id="cd-text">--:--</span>
+                <div class="ring-wrap" id="ring-wrap">
+                    <svg class="ring-svg" viewBox="0 0 68 68">
+                        <circle class="ring-bg" cx="34" cy="34" r="30"></circle>
+                        <circle class="ring-progress" id="ring-progress" cx="34" cy="34" r="30" stroke-dasharray="188.496" stroke-dashoffset="0"></circle>
+                    </svg>
+                    <div class="ring-text" id="ring-text">--:--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Prediction ===== -->
+        <div class="predict-card fade-in delay-2" id="ai">
+            <div class="predict-header">
+                <div class="predict-title">🎯 本期预测</div>
+                <span class="predict-algo-badge" id="algorithm-tag">天机策</span>
+            </div>
+            <div class="predict-meta">
+                <span class="meta-chip" id="ai-nextperiod">预测期数：------</span>
+                <span class="meta-chip ready" id="status-indicator">等待数据</span>
+            </div>
+
+            <div class="predict-grid">
+                <div class="predict-item recommend">
+                    <div class="predict-item-label">🎯 双组推荐</div>
+                    <div class="predict-item-value" id="predict-combos">
+                        <span id="predict-combo1">--</span> + <span id="predict-combo2">--</span>
+                    </div>
+                    <div class="predict-item-sub">高概率组合</div>
+                </div>
+                <div class="predict-item kill">
+                    <div class="predict-item-label">🚫 排除杀组</div>
+                    <div class="predict-item-value" id="kill-group">--</div>
+                    <div class="predict-item-sub">本期不会开出</div>
+                </div>
+            </div>
+
+            <!-- ===== Betting ===== -->
+            <div class="bet-section">
+                <div class="flex-between">
+                    <span class="bet-label">💰 模拟投注 · 每注100筹码 · 命中得190</span>
+                    <span style="font-size:11px;color:var(--text-muted);">当前: <span id="current-bet" style="font-weight:700;color:var(--warning);">无</span></span>
+                </div>
+                <div class="bet-grid" id="bet-panel">
+                    <button class="bet-btn" data-bet="大单" onclick="app.placeBet('大单')">大单</button>
+                    <button class="bet-btn" data-bet="大双" onclick="app.placeBet('大双')">大双</button>
+                    <button class="bet-btn" data-bet="小单" onclick="app.placeBet('小单')">小单</button>
+                    <button class="bet-btn" data-bet="小双" onclick="app.placeBet('小双')">小双</button>
+                </div>
+
+                <div class="bet-summary">
+                    <span class="stat">💎 资金: <strong class="num" id="virtual-balance">10000</strong></span>
+                    <span class="stat">📊 盈亏: <strong class="num" id="total-profit">0</strong></span>
+                    <span class="stat">🎯 命中率: <strong id="bet-hit-rate">--%</strong></span>
+                    <span class="stat" id="bet-status-msg" style="font-size:12px;color:var(--text-muted);"></span>
+                </div>
+
+                <div style="margin-top:10px;">
+                    <div class="flex-between">
+                        <span style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">📋 投注记录</span>
+                        <button class="btn" style="padding:2px 10px;font-size:10px;" onclick="app.clearBetHistory()">清空</button>
+                    </div>
+                    <div class="bet-history-wrap" id="bet-history-wrap">
+                        <table class="bet-history-table">
+                            <thead><tr><th>期数</th><th>投注</th><th>开奖</th><th>盈亏</th></tr></thead>
+                            <tbody id="bet-history-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rules -->
+            <div style="margin-top:14px;padding:12px 16px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                <div style="font-size:10px;font-weight:700;color:var(--accent-light);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px;">📌 杀组规则</div>
+                <div style="font-size:13px;color:var(--text-secondary);line-height:2;">
+                    <span>杀组 = 本期绝对不会开出的形态 · 双组推荐 = 高概率组合</span><br>
+                    <span style="font-size:12px;color:var(--text-muted);">快捷键: <span class="kbd">R</span> 刷新 <span class="kbd">T</span> 主题 <span class="kbd">V</span> 语音 <span class="kbd">Space</span> 播报</span>
+                </div>
+            </div>
+
+            <!-- Telegram 主按钮 -->
+            <button class="tg-main-btn" id="tg-main-btn" onclick="app.tgMainAction()">
+                📤 分享预测
+            </button>
+        </div>
+
+        <!-- ===== Algorithm Compare ===== -->
+        <div class="algo-panel fade-in delay-3" id="algo-panel">
+            <div class="algo-toggle" id="algo-toggle" onclick="app.toggleAlgoCompare()">
+                <div class="algo-toggle-left">🔀 8算法同屏对比</div>
+                <span class="algo-toggle-arrow">▼</span>
+            </div>
+            <div class="algo-body" id="algo-body">
+                <div class="algo-grid" id="algo-grid"></div>
+            </div>
+        </div>
+
+        <!-- ===== Controls ===== -->
+        <div class="controls fade-in delay-4">
+            <div class="controls-group">
+                <span class="controls-label">🔊 语音</span>
+                <button class="btn" id="voice-toggle" onclick="app.toggleVoice()">
+                    <span id="voice-icon">🔇</span>
+                    <span id="voice-label">关闭</span>
+                </button>
+                <div style="display:flex;align-items:center;gap:4px;">
+                    <input type="range" id="voice-speed" min="0.5" max="2" step="0.1" value="1" oninput="app.updateSpeed()" />
+                    <span class="speed-val" id="speed-val">1.0x</span>
+                </div>
+                <button class="btn" onclick="app.speakText('语音播报测试，功能正常')">🧪 测试</button>
+                <button class="btn btn-primary" onclick="app.manualAnnounce()">📢 播报</button>
+                <button class="btn" id="notify-btn" onclick="app.toggleNotification()">🔔 推送</button>
+            </div>
+            <div class="controls-group">
+                <span class="controls-label">🧠 算法</span>
+                <div class="select-wrap">
+                    <select id="algorithm-select" onchange="app.changeAlgorithm()">
+                        <option value="shuying_v1">天机策</option>
+                        <option value="shuying_v2">玄机策</option>
+                        <option value="module1">逆形态</option>
+                        <option value="module2">趋势捕手</option>
+                        <option value="module3">冷热探针</option>
+                        <option value="module4">银河锚点</option>
+                        <option value="module5">威震天机</option>
+                        <option value="fusion_vote">五行之合</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="app.exportCSV()">📥 导出</button>
+            </div>
+        </div>
+
+        <!-- ===== Monitor ===== -->
+        <div class="card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);backdrop-filter:blur(20px);padding:18px 18px;margin-bottom:16px;box-shadow:var(--shadow-card);">
+            <div style="font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+                <span>📊</span> 算法监视
+                <span style="font-size:11px;color:var(--text-muted);font-weight:500;">实时胜率</span>
+            </div>
+            <div class="monitor-grid">
+                <div class="monitor-item">
+                    <span class="icon">🏆</span>
+                    <div class="label">最高胜率</div>
+                    <div class="value" id="highest-winrate">-- <span class="sub">--%</span></div>
+                    <div class="spark-wrap" id="winrate-spark"></div>
+                </div>
+                <div class="monitor-item">
+                    <span class="icon">🔥</span>
+                    <div class="label">最长连中</div>
+                    <div class="value" id="most-consecutive">-- <span class="sub">--期</span></div>
+                    <div class="spark-wrap" id="consecutive-spark"></div>
+                </div>
+            </div>
+
+            <!-- Trend -->
+            <div id="trend-card" style="display:none;margin-top:4px;">
+                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">📈 和值走势 (近30期)</div>
+                <div class="trend-wrap"><canvas id="trend-canvas"></canvas></div>
+            </div>
+
+            <!-- Missed -->
+            <div id="missed-stats" style="display:none;margin-top:12px;">
+                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">🧊 遗漏统计 <span style="font-size:11px;font-weight:400;color:var(--text-muted);">红=热号 绿=冷号</span></div>
+                <div class="missed-section">
+                    <table class="missed-table">
+                        <thead><tr><th colspan="28">和值遗漏 (0-27)</th></tr></thead>
+                        <tbody id="sum-missed-body"></tbody>
+                    </table>
+                </div>
+                <div class="missed-section">
+                    <table class="missed-table">
+                        <thead><tr><th colspan="8">形态组合遗漏</th></tr></thead>
+                        <tbody id="combo-missed-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== History ===== -->
+        <div class="card fade-in delay-5" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);backdrop-filter:blur(20px);padding:18px 18px;margin-bottom:16px;box-shadow:var(--shadow-card);">
+            <div class="flex-between" style="margin-bottom:10px;">
+                <div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;">
+                    <span>📜</span> 历史预测记录
+                    <span style="font-size:11px;color:var(--text-muted);font-weight:500;">最新50期</span>
+                </div>
+                <span class="predict-algo-badge" id="table-algorithm-tag" style="font-size:11px;">天机策</span>
+            </div>
+            <div class="history-wrap">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>期数</th>
+                            <th>开奖结果</th>
+                            <th>双组推荐</th>
+                            <th>排除杀组</th>
+                            <th>预测结果</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prediction-tbody"></tbody>
+                </table>
+            </div>
+            <div class="stats-footer" id="stats">
+                <span>基础胜率</span>
+                <span class="rate">--%</span>
+                <span>-- / --</span>
+            </div>
+        </div>
+
+        <!-- ===== Footer ===== -->
+        <div class="footer">
+            清浔杀组预测 Pro · 数据仅供参考 · 仅供学习娱乐<br>
+            <span style="font-size:11px;opacity:0.6;">随机事件无记忆性，理性看待预测结果</span>
+            <br><span style="font-size:10px;opacity:0.4;" id="tg-version-info"></span>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT — 完整应用逻辑 + Telegram Mini App 适配
+    ============================================================ -->
+    <script>
+        /**
+         * ============================================================
+         *  清浔杀组预测 · 多源融合引擎 · Telegram Mini App 适配版
+         *  功能完整保留：8算法、语音、投注、遗漏、导出、双主题
+         *  新增：Telegram Web App SDK 集成、PWA 支持、关闭按钮、
+         *       主题自动适配、分享功能、震动反馈
+         * ============================================================
+         */
+
+        // ==================== Telegram 环境检测 ====================
+        const isTelegram = !!(window.Telegram && window.Telegram.WebApp);
+        let tgInstance = null;
+        if (isTelegram) {
+            tgInstance = window.Telegram.WebApp;
+            // 告知 Telegram 应用已准备就绪
+            tgInstance.ready();
+            // 展开以全屏显示
+            tgInstance.expand();
+        }
+
+        // ==================== 配置 ====================
+        const CONFIG = {
+            API_URLS: [
+                'https://super.pc28998.com/history/JND28',
+                'https://api.example.com/jnd28',
+                'https://another-api.com/jnd28'
+            ],
+            FIELD_MAP: { period: 'expect', opencode: 'opencode', opentime: 'opentime_text', opentimeStamp: 'opentime' },
+            ALGORITHM_NAMES: {
+                shuying_v1: '天机策',
+                shuying_v2: '玄机策',
+                module1: '逆形态',
+                module2: '趋势捕手',
+                module3: '冷热探针',
+                module4: '银河锚点',
+                module5: '威震天机',
+                fusion_vote: '五行之合'
+            },
+            COMBO_MAP: {
+                '小单': ['大单', '小双'],
+                '小双': ['大双', '小单'],
+                '大单': ['大双', '小单'],
+                '大双': ['小双', '大单']
+            },
+            STORAGE_KEYS: {
+                THEME: 'qingxun-theme-v2',
+                PREFS: 'qingxun-prefs-v2',
+                BETS: 'qingxun-bets-v2',
+                CACHE: 'qingxun-cache-v2',
+                BET_HISTORY: 'qingxun-bet-history-v2'
+            },
+            FETCH_INTERVAL: 3 * 60 * 1000,
+            FETCH_TIMEOUT: 10000,
+            MAX_HISTORY: 50,
+            VIRTUAL_BALANCE: 10000,
+            RETRY_DELAY: 3000,
+            MAX_RETRIES: 3,
+            CACHE_TTL: 10 * 60 * 1000,
+            BET_AMOUNT: 100,
+            BET_WIN: 190
+        };
+
+        // ==================== 工具 ====================
+        const Utils = {
+            debounce(fn, ms) { let t; return (...a) => { clearTimeout(t);
+                    t = setTimeout(() => fn.apply(this, a), ms); }; },
+            throttle(fn, ms) { let last = 0; return (...a) => { const n = Date.now(); if (n - last > ms) { last = n;
+                        fn.apply(this, a); } }; },
+
+            drawSparkline(canvas, data, color) {
+                const ctx = canvas.getContext('2d');
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
+                const w = rect.width,
+                    h = rect.height;
+                const pad = 4;
+                const min = Math.min(...data),
+                    max = Math.max(...data, min + 1);
+                const step = (w - pad * 2) / (data.length - 1);
+                const scale = (v) => h - pad - ((v - min) / (max - min)) * (h - pad * 2);
+                ctx.clearRect(0, 0, w, h);
+                ctx.beginPath();
+                ctx.moveTo(pad, scale(data[0]));
+                for (let i = 1; i < data.length; i++) ctx.lineTo(pad + i * step, scale(data[i]));
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+                ctx.lineTo(pad + (data.length - 1) * step, h);
+                ctx.lineTo(pad, h);
+                ctx.closePath();
+                ctx.fillStyle = color.replace(')', ', 0.08)').replace('rgb', 'rgba');
+                ctx.fill();
+            },
+
+            barChart(labels, values, maxVal) {
+                const width = 400,
+                    height = 56;
+                const pad = { top: 4, bottom: 16, left: 2, right: 2 };
+                const cw = width - pad.left - pad.right,
+                    ch = height - pad.top - pad.bottom;
+                const gap = 4;
+                const bw = Math.max(2, (cw - gap * (labels.length - 1)) / labels.length);
+                let bars = '',
+                    texts = '';
+                labels.forEach((label, i) => {
+                    const val = values[i];
+                    const bh = maxVal > 0 ? Math.max(2, (val / maxVal) * ch) : 2;
+                    const x = pad.left + i * (bw + gap);
+                    const y = pad.top + ch - bh;
+                    const op = 0.30 + (val / maxVal) * 0.70;
+                    bars +=
+                        `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="var(--accent)" opacity="${op.toFixed(2)}"/>`;
+                    texts +=
+                        `<text x="${(x + bw / 2).toFixed(1)}" y="${(height - 2).toFixed(1)}" text-anchor="middle" font-size="7" fill="var(--text-muted)" font-weight="600">${label}</text>`;
+                });
+                return `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" width="100%" height="100%">${bars}${texts}</svg>`;
+            },
+
+            judgeSizeOdd(total) { return `${total >= 14 ? '大' : '小'}${total % 2 === 1 ? '单' : '双'}`; },
+            getPredictFromKill(kill) { return CONFIG.COMBO_MAP[kill] || ['--', '--']; },
+            isKillHit(kill, actual) { return kill !== '--' && kill !== actual; },
+            fmtNum(n) { return n.toString().padStart(2, '0'); },
+
+            downloadCSV(filename, rows) {
+                const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+                const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                link.click();
+                URL.revokeObjectURL(link.href);
+            }
+        };
+
+        // ==================== 算法引擎 ====================
+        const Algorithms = {
+            module1(prevGroup) {
+                const map = { "大双": "小双", "小双": "大单", "大单": "小单", "小单": "大双" };
+                return map[prevGroup] || null;
+            },
+            module2(recentSums) {
+                if (recentSums.length < 3) return null;
+                const last3 = recentSums.slice(0, 3);
+                const last4 = recentSums.slice(0, 4);
+                if (last4.length === 4 && last4.every(v => v <= 13)) return "大双";
+                if (last3.every(v => v <= 13)) return "大单";
+                if (last4.length === 4 && last4.every(v => v >= 14)) return "小单";
+                if (last3.every(v => v >= 14)) return "小双";
+                return null;
+            },
+            module3(historyGroups) {
+                if (!historyGroups.length) return null;
+                const findMiss = (target) => {
+                    const idx = historyGroups.findIndex(g => g === target);
+                    return idx === -1 ? historyGroups.length : idx;
+                };
+                const daDanMiss = findMiss("大单");
+                const daShuangMiss = findMiss("大双");
+                const recent5 = historyGroups.slice(0, 5);
+                const xiaoDanCnt = recent5.filter(g => g === "小单").length;
+                if (daDanMiss >= 5) return "小双";
+                if (daShuangMiss >= 5) return "小单";
+                if (xiaoDanCnt >= 3) return "大双";
+                return null;
+            },
+            module4(lastSum) { return lastSum === 14 ? "大双" : null; },
+            module5(x, y, z) {
+                let N = x * 100 + y * 10 + z;
+                let S = x + y + z;
+                let A = N + S;
+                let B = A;
+                if (x !== 0) B *= x;
+                if (y !== 0) B *= y;
+                if (z !== 0) B *= z;
+                let temp = B;
+                if (x !== 0) temp /= Math.sqrt(x);
+                if (y !== 0) temp /= Math.sqrt(y);
+                if (z !== 0) temp /= Math.sqrt(z);
+                temp = Math.floor(temp);
+                if (S !== 0) temp = Math.floor(temp / S);
+                let R = temp * S;
+                let lastTwo = Math.abs(R % 100);
+                let size = lastTwo < 50 ? "小" : "大";
+                let parity = (Math.abs(R) % 2 === 0) ? "双" : "单";
+                const pred = size + parity;
+                const opposite = { "小单": "大双", "小双": "大单", "大单": "小双", "大双": "小单" };
+                return opposite[pred] || null;
+            },
+            fusionVote(history, prevGroup, prevSum, currentNums, weights = [1, 1, 1, 1, 1]) {
+                const histGroups = history.slice().reverse().map(h => h.combo);
+                const histSums = history.slice().reverse().map(h => h.sum);
+                const votes = [
+                    Algorithms.module1(prevGroup),
+                    Algorithms.module2(histSums),
+                    Algorithms.module3(histGroups),
+                    Algorithms.module4(prevSum),
+                    Algorithms.module5(currentNums[0], currentNums[1], currentNums[2])
+                ];
+                const cnt = { "小单": 0, "小双": 0, "大单": 0, "大双": 0 };
+                votes.forEach((v, i) => { if (v && cnt[v] !== undefined) cnt[v] += weights[i]; });
+                let maxV = -Infinity,
+                    winner = "小单";
+                for (const g of ["小单", "小双", "大单", "大双"]) {
+                    if (cnt[g] > maxV) { maxV = cnt[g];
+                        winner = g; }
+                }
+                return winner;
+            },
+            shuyingV1(historyData) {
+                if (!historyData || historyData.length < 3) return { killGroup: '--', predictCombos: ['--', '--'] };
+                const [h1, h2, h3] = historyData;
+                const mul28 = h3.sum * 28;
+                const subPart = (h1.sum + h2.sum + h3.sum) * 3.14;
+                const intPart = Math.floor((mul28 - subPart) / 28);
+                const kill = Utils.judgeSizeOdd(intPart);
+                return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill) };
+            },
+            shuyingV2(historyData) {
+                if (!historyData || historyData.length < 3) return { killGroup: '--', predictCombos: ['--', '--'] };
+                const [h1, h2, h3] = historyData;
+                const num1 = parseInt(`${h1.nums[0]}${h2.nums[1]}${h1.nums[2]}`) || 0;
+                const num2 = parseInt(`${h3.nums[0]}${h2.nums[1]}${h3.nums[2]}`) || 0;
+                const intPart = Math.floor(((num1 + num2) / 28) / 3.14);
+                const kill = Utils.judgeSizeOdd(intPart);
+                return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill) };
+            },
+            predict(algName, history3, prevGroup, prevSum, currentNums, fullHistoryPrev, weights) {
+                let kill = null;
+                switch (algName) {
+                    case 'shuying_v1':
+                        return Algorithms.shuyingV1(history3);
+                    case 'shuying_v2':
+                        return Algorithms.shuyingV2(history3);
+                    case 'module1':
+                        kill = Algorithms.module1(prevGroup);
+                        break;
+                    case 'module2':
+                        kill = Algorithms.module2(fullHistoryPrev.slice().reverse().map(h => h.sum));
+                        break;
+                    case 'module3':
+                        kill = Algorithms.module3(fullHistoryPrev.slice().reverse().map(h => h.combo));
+                        break;
+                    case 'module4':
+                        kill = Algorithms.module4(prevSum);
+                        break;
+                    case 'module5':
+                        kill = Algorithms.module5(currentNums[0], currentNums[1], currentNums[2]);
+                        break;
+                    case 'fusion_vote':
+                        kill = Algorithms.fusionVote(fullHistoryPrev, prevGroup, prevSum, currentNums, weights);
+                        break;
+                    default:
+                        return Algorithms.shuyingV1(history3);
+                }
+                if (!kill) return { killGroup: '--', predictCombos: ['--', '--'] };
+                return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill) };
+            }
+        };
+
+        // ==================== 语音引擎 ====================
+        class VoiceEngine {
+            constructor() {
+                this.synth = window.speechSynthesis || null;
+                this.enabled = false;
+                this.rate = 1.0;
+                this.speaking = false;
+                this.lastAnnouncedPeriod = '';
+                this.lastPredictionPeriod = null;
+                this.voiceCache = null;
+            }
+            getChineseVoice() {
+                if (!this.synth) return null;
+                if (this.voiceCache) return this.voiceCache;
+                const voices = this.synth.getVoices();
+                const priorities = ['zh-CN', 'zh_TW', 'zh_HK', 'cmn-Hans-CN'];
+                for (const lang of priorities) {
+                    const v = voices.find(v => v.lang === lang && !v.localService) || voices.find(v => v.lang === lang);
+                    if (v) { this.voiceCache = v; return v; }
+                }
+                const fallback = voices.find(v => v.lang.startsWith('zh'));
+                if (fallback) { this.voiceCache = fallback; return fallback; }
+                return null;
+            }
+            speak(text) {
+                if (!this.synth || !text) return;
+                this.stop();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = this.rate;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+                const voice = this.getChineseVoice();
+                if (voice) utterance.voice = voice;
+                let resumeInterval;
+                const startResumeLoop = () => {
+                    resumeInterval = setInterval(() => {
+                        if (this.synth.paused || !this.synth.speaking) return;
+                        try { this.synth.resume(); } catch (_) {}
+                    }, 5000);
+                };
+                utterance.onstart = () => { this.speaking = true;
+                    this.updateUI();
+                    startResumeLoop(); };
+                utterance.onend = () => { clearInterval(resumeInterval);
+                    this.speaking = false;
+                    this.updateUI(); };
+                utterance.onerror = (e) => {
+                    clearInterval(resumeInterval);
+                    this.speaking = false;
+                    this.updateUI();
+                    if (e.error !== 'interrupted' && e.error !== 'canceled') {
+                        setTimeout(() => this.speak(text), 500);
+                    }
+                };
+                this.synth.speak(utterance);
+            }
+            stop() {
+                if (this.synth) { this.synth.cancel();
+                    this.speaking = false;
+                    this.updateUI(); }
+            }
+            updateUI() {
+                const btn = document.getElementById('voice-toggle');
+                btn?.classList.toggle('speaking', this.speaking);
+            }
+            announceOpenResult(data) {
+                if (!this.enabled || !data.length) return;
+                const latest = data[data.length - 1];
+                if (latest.period === this.lastAnnouncedPeriod) return;
+                this.lastAnnouncedPeriod = latest.period;
+                const numsStr = latest.nums.join(' 加 ');
+                this.speak(`最新开奖，第${latest.period}期，开奖号码${numsStr}，等于${latest.sum}，形态${latest.combo}`);
+            }
+            announcePrediction(data, algName, algDisplay) {
+                if (!this.enabled || data.length < 4) return;
+                const history3 = data.slice(data.length - 3);
+                const prev = data[data.length - 2];
+                const current = data[data.length - 1];
+                const fullPrev = data.slice(0, data.length - 1);
+                const pred = Algorithms.predict(algName, history3, prev.combo, prev.sum, current.nums, fullPrev);
+                if (pred.killGroup === '--') return;
+                const nextPeriod = Number(data[data.length - 1].period) + 1;
+                if (this.lastPredictionPeriod === nextPeriod) return;
+                this.lastPredictionPeriod = nextPeriod;
+                const text =
+                    `下一期预测，第${nextPeriod}期，使用${algDisplay}算法，推荐${pred.predictCombos[0]}加${pred.predictCombos[1]}，排除杀组${pred.killGroup}`;
+                setTimeout(() => this.speak(text), 3000);
+            }
+            announceBetResult(period, bet, actual, won, amount) {
+                if (!this.enabled) return;
+                const result = won ? '命中！恭喜！' : '未命中，再接再厉';
+                const profit = won ? `+${amount}` : `-${CONFIG.BET_AMOUNT}`;
+                this.speak(`第${period}期，投注${bet}，开奖${actual}，${result}，盈亏${profit}筹码`);
+            }
+        }
+
+        // ==================== 主应用 ====================
+        class QingxunApp {
+            constructor() {
+                this.$ = (id) => document.getElementById(id);
+                this.dom = {
+                    curPeriod: this.$('cur-period'),
+                    curTime: this.$('cur-time'),
+                    curCombo: this.$('cur-combo'),
+                    curSum: this.$('cur-sum'),
+                    latestNums: this.$('latest-nums-container'),
+                    cdText: this.$('cd-text'),
+                    ringWrap: this.$('ring-wrap'),
+                    ringProgress: this.$('ring-progress'),
+                    ringText: this.$('ring-text'),
+                    statusIndicator: this.$('status-indicator'),
+                    apiStatus: this.$('api-status'),
+                    highestWinrate: this.$('highest-winrate'),
+                    mostConsecutive: this.$('most-consecutive'),
+                    winrateSpark: this.$('winrate-spark'),
+                    consecSpark: this.$('consecutive-spark'),
+                    sumMissedBody: this.$('sum-missed-body'),
+                    comboMissedBody: this.$('combo-missed-body'),
+                    predictCombo1: this.$('predict-combo1'),
+                    predictCombo2: this.$('predict-combo2'),
+                    killGroup: this.$('kill-group'),
+                    algorithmTag: this.$('algorithm-tag'),
+                    tableAlgoTag: this.$('table-algorithm-tag'),
+                    aiNextPeriod: this.$('ai-nextperiod'),
+                    predictionTbody: this.$('prediction-tbody'),
+                    stats: this.$('stats'),
+                    virtualBalance: this.$('virtual-balance'),
+                    totalProfit: this.$('total-profit'),
+                    currentBet: this.$('current-bet'),
+                    betHitRate: this.$('bet-hit-rate'),
+                    betStatusMsg: this.$('bet-status-msg'),
+                    betHistoryBody: this.$('bet-history-body'),
+                    trendCanvas: this.$('trend-canvas'),
+                    algoGrid: this.$('algo-grid'),
+                    algoBody: this.$('algo-body'),
+                    algoToggle: this.$('algo-toggle'),
+                    algorithmSelect: this.$('algorithm-select'),
+                    voiceToggle: this.$('voice-toggle'),
+                    voiceIcon: this.$('voice-icon'),
+                    voiceLabel: this.$('voice-label'),
+                    voiceSpeed: this.$('voice-speed'),
+                    speedVal: this.$('speed-val'),
+                    notifyBtn: this.$('notify-btn'),
+                    themeIcon: this.$('theme-icon'),
+                    tgEnvBadge: this.$('tg-env-badge'),
+                    tgVersionInfo: this.$('tg-version-info'),
+                    tgMainBtn: this.$('tg-main-btn'),
+                    tgCloseBtn: this.$('tg-close-btn'),
+                    appContainer: this.$('app-container'),
+                };
+
+                this.apiData = [];
+                this.currentAlgorithm = 'shuying_v1';
+                this.algorithmStats = {};
+                this.missedStats = { sums: new Array(28).fill(0), combos: {} };
+                this.fetchTimer = null;
+                this.countdownRAF = null;
+                this.isFetching = false;
+                this.lastDataHash = '';
+                this.notifyEnabled = false;
+                this.virtualBalance = CONFIG.VIRTUAL_BALANCE;
+                this.currentBet = null;
+                this.currentBetPeriod = null;
+                this.betHistory = [];
+                this.totalWinCount = 0;
+                this.totalBetCount = 0;
+                this.algoCompareOpen = false;
+                this.fusionWeights = [1, 1, 1, 1, 1];
+                this.cacheTimestamp = 0;
+                this.retryCount = 0;
+                this.renderPending = false;
+                this.currentSource = '';
+                this.isSettling = false;
+                this.isTelegram = isTelegram;
+
+                this.voice = new VoiceEngine();
+
+                Object.keys(CONFIG.ALGORITHM_NAMES).forEach(k => {
+                    this.algorithmStats[k] = { total: 0, win: 0, currentConsecutive: 0, winRate: 0 };
+                });
+
+                // Telegram 初始化
+                this.initTelegram();
+
+                this.init();
+            }
+
+            // ==================== Telegram 初始化 ====================
+            initTelegram() {
+                if (this.isTelegram && tgInstance) {
+                    // 添加 Telegram 类标记
+                    document.body.classList.add('in-telegram');
+                    document.body.classList.remove('not-in-telegram');
+                    this.dom.tgEnvBadge.style.display = 'block';
+
+                    // 显示版本信息
+                    const version = tgInstance.version || 'unknown';
+                    this.dom.tgVersionInfo.textContent = `Telegram Mini App v${version}`;
+
+                    // 适配 Telegram 主题
+                    this.applyTelegramTheme();
+
+                    // 监听主题变化
+                    tgInstance.onEvent('themeChanged', () => {
+                        this.applyTelegramTheme();
+                    });
+
+                    // 监听关闭事件
+                    tgInstance.onEvent('close', () => {
+                        this.closeTelegram();
+                    });
+
+                    // 设置主按钮
+                    tgInstance.MainButton.setText('📤 分享预测');
+                    tgInstance.MainButton.onClick(() => this.tgMainAction());
+                    tgInstance.MainButton.show();
+
+                    // 震动反馈（移动端）
+                    if (tgInstance.HapticFeedback) {
+                        // 保存震动方法供后续使用
+                        this.tgHaptic = tgInstance.HapticFeedback;
+                    }
+
+                    // 通知 Telegram 准备就绪
+                    tgInstance.ready();
+
+                    console.log('[清浔] Telegram Mini App 已初始化, 版本:', version);
+                } else {
+                    document.body.classList.add('not-in-telegram');
+                    document.body.classList.remove('in-telegram');
+                }
+            }
+
+            applyTelegramTheme() {
+                if (!this.isTelegram || !tgInstance) return;
+                const theme = tgInstance.themeParams || {};
+                const root = document.documentElement;
+
+                // 映射 Telegram 主题变量到 CSS
+                const map = {
+                    '--tg-bg-color': theme.bg_color || '#0b0f1a',
+                    '--tg-text-color': theme.text_color || '#f1f5f9',
+                    '--tg-hint-color': theme.hint_color || '#94a3b8',
+                    '--tg-link-color': theme.link_color || '#7c3aed',
+                    '--tg-button-color': theme.button_color || '#7c3aed',
+                    '--tg-button-text-color': theme.button_text_color || '#ffffff',
+                    '--tg-secondary-bg-color': theme.secondary_bg_color || '#111827',
+                    '--tg-header-bg-color': theme.header_bg_color || '#0b0f1a',
+                    '--tg-section-bg-color': theme.section_bg_color || 'rgba(17,24,39,0.75)',
+                    '--tg-section-header-text-color': theme.section_header_text_color || '#f1f5f9',
+                    '--tg-subtitle-text-color': theme.subtitle_text_color || '#94a3b8',
+                    '--tg-destructive-text-color': theme.destructive_text_color || '#ef4444',
+                };
+
+                for (const [key, val] of Object.entries(map)) {
+                    if (val) root.style.setProperty(key, val);
+                }
+
+                // 添加 tg-theme 类以应用主题变量
+                root.classList.add('tg-theme');
+
+                // 同步暗色/亮色模式
+                const isDark = theme.bg_color && theme.bg_color !== '#f1f5f9' &&
+                    !theme.bg_color.startsWith('#f') && !theme.bg_color.startsWith('#e');
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = isDark ? 'dark' : 'light';
+                if (currentTheme !== newTheme) {
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    this.updateThemeIcon(newTheme);
+                }
+                console.log('[清浔] Telegram 主题已应用:', isDark ? '暗色' : '亮色');
+            }
+
+            // ==================== 关闭 Telegram ====================
+            closeTelegram() {
+                if (this.isTelegram && tgInstance) {
+                    tgInstance.close();
+                } else {
+                    // 浏览器环境：尝试关闭窗口或返回
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        window.close();
+                    }
+                }
+            }
+
+            // ==================== Telegram 主按钮动作 ====================
+            tgMainAction() {
+                if (!this.isTelegram || !tgInstance) return;
+                // 震动反馈
+                if (this.tgHaptic) {
+                    try { this.tgHaptic.impactOccurred('medium'); } catch (_) {}
+                }
+
+                // 获取当前预测数据
+                if (!this.apiData || this.apiData.length < 4) {
+                    this.showToast('数据未就绪，请稍候', 'warning');
+                    return;
+                }
+                const latest = this.apiData[this.apiData.length - 1];
+                const history3 = this.apiData.slice(this.apiData.length - 3);
+                const prev = this.apiData[this.apiData.length - 2];
+                const current = this.apiData[this.apiData.length - 1];
+                const fullPrev = this.apiData.slice(0, this.apiData.length - 1);
+                const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
+                    fullPrev, this.fusionWeights);
+                const nextPeriod = Number(latest.period) + 1;
+                const algName = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
+
+                const shareText =
+                    `🔮 清浔杀组预测 Pro\n` +
+                    `📅 第${nextPeriod}期预测 (${algName})\n` +
+                    `🎯 推荐: ${pred.predictCombos[0]} + ${pred.predictCombos[1]}\n` +
+                    `🚫 排除: ${pred.killGroup}\n` +
+                    `📊 历史胜率: ${this.getCurrentWinRate()}%\n` +
+                    `---\n` +
+                    `🔗 清浔杀组 · 智能预测`;
+
+                // 尝试分享
+                if (tgInstance.shareToStory) {
+                    tgInstance.shareToStory(shareText);
+                    this.showToast('已打开分享', 'success');
+                } else if (navigator.share) {
+                    navigator.share({
+                        title: '清浔杀组预测',
+                        text: shareText,
+                    }).catch(() => {});
+                } else {
+                    // 复制到剪贴板
+                    navigator.clipboard.writeText(shareText).then(() => {
+                        this.showToast('已复制预测结果', 'success');
+                    }).catch(() => {
+                        this.showToast('请手动复制: ' + shareText, 'info');
+                    });
+                }
+            }
+
+            getCurrentWinRate() {
+                const stats = this.algorithmStats[this.currentAlgorithm];
+                if (!stats || stats.total === 0) return '0.0';
+                return (stats.win / stats.total * 100).toFixed(1);
+            }
+
+            // ==================== 核心逻辑 ====================
+            init() {
+                this.initTheme();
+                this.loadPreferences();
+                this.loadBets();
+                this.loadBetHistory();
+                this.loadCache();
+                this.bindKeyboard();
+
+                if (this.apiData.length > 0) this.render();
+
+                this.fetchData();
+                this.fetchTimer = setInterval(() => this.fetchData(), CONFIG.FETCH_INTERVAL);
+
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.onvoiceschanged = () => { this.voice.getChineseVoice(); };
+                }
+
+                // 如果是 Telegram 环境，发送就绪事件
+                if (this.isTelegram && tgInstance) {
+                    tgInstance.ready();
+                }
+            }
+
+            initTheme() {
+                const saved = localStorage.getItem(CONFIG.STORAGE_KEYS.THEME);
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const theme = saved || (prefersDark ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+                this.updateThemeIcon(theme);
+            }
+
+            toggleTheme() {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                const newTheme = isDark ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, newTheme);
+                this.updateThemeIcon(newTheme);
+                this.renderMonitor();
+                this.renderTrendChart();
+            }
+
+            updateThemeIcon(theme) {
+                this.dom.themeIcon.textContent = theme === 'dark' ? '🌙' : '☀️';
+            }
+
+            loadCache() {
+                try {
+                    const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.CACHE);
+                    if (!raw) return;
+                    const cache = JSON.parse(raw);
+                    if (Date.now() - cache.timestamp < CONFIG.CACHE_TTL) {
+                        this.apiData = cache.data || [];
+                        this.cacheTimestamp = cache.timestamp;
+                        this.currentSource = '缓存';
+                    }
+                } catch (_) {}
+            }
+
+            saveCache() {
+                try {
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.CACHE, JSON.stringify({
+                        data: this.apiData,
+                        timestamp: Date.now()
+                    }));
+                } catch (_) {}
+            }
+
+            // ==================== 数据获取 ====================
+            async fetchData() {
+                if (this.isFetching) return;
+                this.isFetching = true;
+                this.setStatus('loading');
+
+                let lastError = null;
+                let successSource = '';
+
+                for (let url of CONFIG.API_URLS) {
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), CONFIG.FETCH_TIMEOUT);
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            mode: 'cors',
+                            cache: 'no-cache',
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        const res = await response.json();
+                        if (res.code !== 1 || !Array.isArray(res.data) || !res.data.length) {
+                            throw new Error('数据格式异常');
+                        }
+
+                        const formatted = res.data
+                            .filter(item => item[CONFIG.FIELD_MAP.period] && item[CONFIG.FIELD_MAP.opencode])
+                            .map(item => {
+                                const nums = item[CONFIG.FIELD_MAP.opencode].split(',')
+                                    .map(n => parseInt(n.trim(), 10)).filter(n => !isNaN(n));
+                                const sum = nums.reduce((a, b) => a + b, 0);
+                                return {
+                                    period: String(item[CONFIG.FIELD_MAP.period]),
+                                    nums,
+                                    sum,
+                                    combo: Utils.judgeSizeOdd(sum),
+                                    opentime: item[CONFIG.FIELD_MAP.opentime],
+                                    opentimeStamp: item[CONFIG.FIELD_MAP.opentimeStamp]
+                                };
+                            });
+
+                        this.apiData = formatted.reverse();
+                        if (this.apiData.length < 4) throw new Error('有效数据不足4期');
+                        successSource = url;
+                        break;
+                    } catch (e) {
+                        lastError = e;
+                        console.warn(`数据源 ${url} 失败：`, e.message);
+                    }
+                }
+
+                if (this.apiData.length >= 4) {
+                    this.currentSource = successSource || '未知源';
+                    this.settleBet();
+                    const newHash = this.apiData.map(d => d.period).join(',');
+                    this.calculateAllStats();
+                    this.updateMissedStats();
+                    this.render();
+                    this.setupCountdown();
+                    this.saveCache();
+                    this.voice.announceOpenResult(this.apiData);
+                    this.voice.announcePrediction(this.apiData, this.currentAlgorithm, CONFIG.ALGORITHM_NAMES[this
+                        .currentAlgorithm]);
+                    this.setStatus('ready', this.currentSource);
+                    this.lastDataHash = newHash;
+                    this.retryCount = 0;
+                    this.showToast(`数据已更新（来源：${this.currentSource}）`, 'success');
+
+                    // Telegram 通知
+                    if (this.isTelegram && tgInstance) {
+                        try { tgInstance.HapticFeedback?.impactOccurred('light'); } catch (_) {}
+                    }
+                } else {
+                    this.setStatus('error', lastError?.message || '所有数据源不可用');
+                    this.showToast(`数据加载失败: ${lastError?.message}`, 'error');
+                    if (this.apiData.length > 0) {
+                        this.showToast('使用本地缓存（可能已过期）', 'warning');
+                        this.currentSource = '缓存（过期）';
+                        this.render();
+                        this.setupCountdown();
+                    } else if (this.retryCount < CONFIG.MAX_RETRIES) {
+                        this.retryCount++;
+                        setTimeout(() => this.fetchData(), CONFIG.RETRY_DELAY * this.retryCount);
+                    }
+                }
+                this.isFetching = false;
+            }
+
+            // ==================== 投注结算 ====================
+            settleBet() {
+                if (this.isSettling) return;
+                this.isSettling = true;
+                const latest = this.apiData[this.apiData.length - 1];
+                if (!latest) { this.isSettling = false; return; }
+
+                if (this.currentBet && this.currentBetPeriod && this.currentBetPeriod !== latest.period) {
+                    const won = this.currentBet === latest.combo;
+                    const profit = won ? CONFIG.BET_WIN : -CONFIG.BET_AMOUNT;
+                    this.virtualBalance += profit;
+                    this.totalBetCount++;
+                    if (won) this.totalWinCount++;
+
+                    this.betHistory.push({
+                        period: latest.period,
+                        bet: this.currentBet,
+                        actual: latest.combo,
+                        won: won,
+                        profit: profit,
+                        balance: this.virtualBalance
+                    });
+
+                    this.voice.announceBetResult(latest.period, this.currentBet, latest.combo, won, profit);
+
+                    const icon = won ? '🎉' : '😅';
+                    const msg = won ?
+                        `第${latest.period}期 ${this.currentBet} → ${latest.combo} 命中！+${CONFIG.BET_WIN}筹码` :
+                        `第${latest.period}期 ${this.currentBet} → ${latest.combo} 未命中 -${CONFIG.BET_AMOUNT}筹码`;
+                    this.showToast(`${icon} ${msg}`, won ? 'success' : 'error');
+
+                    // Telegram 震动反馈
+                    if (this.isTelegram && tgInstance && this.tgHaptic) {
+                        try {
+                            this.tgHaptic.impactOccurred(won ? 'heavy' : 'light');
+                        } catch (_) {}
+                    }
+
+                    this.saveBetHistory();
+                    this.currentBet = null;
+                    this.currentBetPeriod = null;
+                    this.saveBets();
+                    this.updateBetSummary();
+                    this.renderBetHistory();
+                }
+                this.isSettling = false;
+            }
+
+            // ==================== 下注 ====================
+            placeBet(combo) {
+                if (!this.apiData.length) { this.showToast('请等待数据加载完成', 'warning'); return; }
+                if (this.virtualBalance < CONFIG.BET_AMOUNT) { this.showToast('资金不足！请重置', 'error'); return; }
+
+                const latest = this.apiData[this.apiData.length - 1];
+                this.currentBet = combo;
+                this.currentBetPeriod = latest.period;
+
+                document.querySelectorAll('.bet-btn').forEach(btn => {
+                    btn.classList.toggle('active-bet', btn.dataset.bet === combo);
+                });
+
+                this.saveBets();
+                this.updateBetSummary();
+                this.showToast(`已下注 ${combo}，等待第${latest.period}期开奖`, 'success');
+                this.dom.betStatusMsg.textContent = '⏳ 等待开奖...';
+
+                // Telegram 震动反馈
+                if (this.isTelegram && tgInstance && this.tgHaptic) {
+                    try { this.tgHaptic.impactOccurred('light'); } catch (_) {}
+                }
+            }
+
+            // ==================== 更新投注摘要 ====================
+            updateBetSummary() {
+                this.dom.virtualBalance.textContent = this.virtualBalance;
+                const profit = this.virtualBalance - CONFIG.VIRTUAL_BALANCE;
+                const el = this.dom.totalProfit;
+                el.textContent = profit >= 0 ? `+${profit}` : profit;
+                el.className = `num ${profit >= 0 ? 'profit' : 'loss'}`;
+
+                const rate = this.totalBetCount > 0 ? ((this.totalWinCount / this.totalBetCount) * 100).toFixed(1) : '--';
+                this.dom.betHitRate.textContent = this.totalBetCount > 0 ? `${rate}%` : '--%';
+
+                if (this.currentBet && this.currentBetPeriod) {
+                    this.dom.currentBet.textContent = `${this.currentBet} (第${this.currentBetPeriod}期)`;
+                    this.dom.betStatusMsg.textContent = '⏳ 等待开奖...';
+                } else {
+                    this.dom.currentBet.textContent = '无';
+                    this.dom.betStatusMsg.textContent = '';
+                }
+            }
+
+            // ==================== 投注历史 ====================
+            renderBetHistory() {
+                const tbody = this.dom.betHistoryBody;
+                tbody.innerHTML = '';
+                const history = this.betHistory.slice(-20).reverse();
+                if (!history.length) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="4" style="color:var(--text-muted);padding:12px;">暂无投注记录</td></tr>';
+                    return;
+                }
+                history.forEach(h => {
+                    const tr = document.createElement('tr');
+                    const cls = h.won ? 'win' : 'lose';
+                    const txt = h.won ? `+${h.profit}` : `${h.profit}`;
+                    tr.innerHTML = `<td>${h.period}</td><td>${h.bet}</td><td>${h.actual}</td><td class="${cls}">${txt}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            loadBetHistory() {
+                try {
+                    const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.BET_HISTORY);
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        this.betHistory = data.history || [];
+                        this.totalWinCount = data.totalWinCount || 0;
+                        this.totalBetCount = data.totalBetCount || 0;
+                    }
+                } catch (_) {}
+            }
+
+            saveBetHistory() {
+                try {
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.BET_HISTORY, JSON.stringify({
+                        history: this.betHistory,
+                        totalWinCount: this.totalWinCount,
+                        totalBetCount: this.totalBetCount
+                    }));
+                } catch (_) {}
+            }
+
+            clearBetHistory() {
+                if (this.betHistory.length === 0) return;
+                if (!confirm('确定要清空所有投注历史吗？')) return;
+                this.betHistory = [];
+                this.totalWinCount = 0;
+                this.totalBetCount = 0;
+                this.saveBetHistory();
+                this.renderBetHistory();
+                this.updateBetSummary();
+                this.showToast('投注历史已清空', 'info');
+            }
+
+            // ==================== 统计计算 ====================
+            calculateAllStats() {
+                if (this.apiData.length < 4) return;
+                const testPeriods = Math.min(this.apiData.length - 3, CONFIG.MAX_HISTORY);
+                const startI = Math.max(0, this.apiData.length - 3 - testPeriods);
+
+                const cache = {};
+                const getPred = (alg, idx) => {
+                    const key = `${alg}|${idx}`;
+                    if (cache[key]) return cache[key];
+                    const history3 = this.apiData.slice(idx, idx + 3);
+                    const prev = this.apiData[idx + 2];
+                    const current = this.apiData[idx + 3];
+                    const fullPrev = this.apiData.slice(0, idx + 3);
+                    const result = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev,
+                        this.fusionWeights);
+                    cache[key] = result;
+                    return result;
+                };
+
+                Object.keys(CONFIG.ALGORITHM_NAMES).forEach(alg => {
+                    let total = 0,
+                        win = 0,
+                        consecutive = 0;
+                    for (let i = startI; i < this.apiData.length - 3; i++) {
+                        const pred = getPred(alg, i);
+                        if (pred.killGroup === '--') continue;
+                        total++;
+                        if (Utils.isKillHit(pred.killGroup, this.apiData[i + 3].combo)) win++;
+                    }
+                    for (let i = this.apiData.length - 4; i >= 0; i--) {
+                        const pred = getPred(alg, i);
+                        if (pred.killGroup === '--') break;
+                        if (Utils.isKillHit(pred.killGroup, this.apiData[i + 3].combo)) consecutive++;
+                        else break;
+                    }
+                    this.algorithmStats[alg] = {
+                        total,
+                        win,
+                        currentConsecutive: consecutive,
+                        winRate: total > 0 ? (win / total) * 100 : 0
+                    };
+                });
+            }
+
+            updateMissedStats() {
+                if (!this.apiData.length) return;
+                const len = this.apiData.length;
+                this.missedStats.sums = new Array(28).fill(len);
+                const combos = ['大', '小', '单', '双', '大单', '大双', '小单', '小双'];
+                combos.forEach(c => this.missedStats.combos[c] = len);
+
+                for (let i = 0; i < len; i++) {
+                    const item = this.apiData[i];
+                    if (this.missedStats.sums[item.sum] === len) this.missedStats.sums[item.sum] = i;
+                    for (const key of combos) {
+                        let match = false;
+                        if (key === '大' && item.combo.startsWith('大')) match = true;
+                        else if (key === '小' && item.combo.startsWith('小')) match = true;
+                        else if (key === '单' && item.combo.endsWith('单')) match = true;
+                        else if (key === '双' && item.combo.endsWith('双')) match = true;
+                        else if (key === item.combo) match = true;
+                        if (match && this.missedStats.combos[key] === len) this.missedStats.combos[key] = i;
+                    }
+                }
+            }
+
+            // ==================== 渲染 ====================
+            render() {
+                if (this.renderPending) return;
+                this.renderPending = true;
+                requestAnimationFrame(() => {
+                    this.renderPending = false;
+                    this._doRender();
+                });
+            }
+
+            _doRender() {
+                this.renderLatest();
+                this.renderMissed();
+                this.renderPrediction();
+                this.renderHistory();
+                this.renderMonitor();
+                this.renderAlgoCompare();
+                this.renderTrendChart();
+                this.updateBetSummary();
+                this.renderBetHistory();
+            }
+
+            renderLatest() {
+                const latest = this.apiData[this.apiData.length - 1];
+                if (!latest) return;
+                this.dom.curPeriod.textContent = latest.period;
+                this.dom.curTime.textContent = latest.opentime;
+                this.dom.curCombo.textContent = latest.combo;
+                this.dom.curSum.textContent = latest.sum;
+
+                const container = this.dom.latestNums;
+                container.innerHTML = '';
+                latest.nums.forEach((num, idx) => {
+                    const ball = document.createElement('div');
+                    ball.className = 'hero-ball';
+                    ball.textContent = num;
+                    ball.style.animationDelay = `${idx * 0.1}s`;
+                    container.appendChild(ball);
+                    if (idx < latest.nums.length - 1) {
+                        const sep = document.createElement('span');
+                        sep.className = 'hero-sep';
+                        sep.textContent = '+';
+                        container.appendChild(sep);
+                    }
+                });
+                const sep = document.createElement('span');
+                sep.className = 'hero-sep';
+                sep.textContent = '=';
+                container.appendChild(sep);
+                const sumEl = document.createElement('span');
+                sumEl.className = 'hero-eq';
+                sumEl.textContent = latest.sum;
+                container.appendChild(sumEl);
+            }
+
+            renderMissed() {
+                if (!this.apiData.length) return;
+                document.getElementById('missed-stats').style.display = 'block';
+
+                let sumHTML = '<tr>' + Array.from({ length: 28 }, (_, i) =>
+                    `<td style="font-weight:700;color:var(--text-secondary);">${i}</td>`).join('') + '</tr>';
+                sumHTML += '<tr>' + this.missedStats.sums.map((v) => {
+                    const cls = v >= 20 ? 'hot' : (v <= 3 ? 'cold' : 'neutral');
+                    return `<td class="${cls}">${v}</td>`;
+                }).join('') + '</tr>';
+                this.dom.sumMissedBody.innerHTML = sumHTML;
+
+                const combos = ['大', '小', '单', '双', '大单', '大双', '小单', '小双'];
+                let comboHTML = '<tr>' + combos.map(c =>
+                    `<td style="font-weight:700;color:var(--text-secondary);">${c}</td>`).join('') + '</tr>';
+                comboHTML += '<tr>' + combos.map(c => {
+                    const v = this.missedStats.combos[c] || 0;
+                    const cls = v >= 10 ? 'hot' : (v <= 2 ? 'cold' : 'neutral');
+                    return `<td class="${cls}">${v}</td>`;
+                }).join('') + '</tr>';
+                this.dom.comboMissedBody.innerHTML = comboHTML;
+            }
+
+            renderPrediction() {
+                if (!this.apiData || this.apiData.length < 4) return;
+                const history3 = this.apiData.slice(this.apiData.length - 3);
+                const prev = this.apiData[this.apiData.length - 2];
+                const current = this.apiData[this.apiData.length - 1];
+                const fullPrev = this.apiData.slice(0, this.apiData.length - 1);
+                const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
+                    fullPrev, this.fusionWeights);
+                const nextPeriod = Number(this.apiData[this.apiData.length - 1].period) + 1;
+
+                this.dom.aiNextPeriod.textContent = `预测期数：${nextPeriod}`;
+                this.dom.predictCombo1.textContent = pred.predictCombos[0];
+                this.dom.predictCombo2.textContent = pred.predictCombos[1];
+                this.dom.killGroup.textContent = pred.killGroup;
+                const name = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
+                this.dom.algorithmTag.textContent = name;
+                this.dom.tableAlgoTag.textContent = name;
+
+                // Telegram 主按钮更新
+                if (this.isTelegram && tgInstance) {
+                    const winRate = this.getCurrentWinRate();
+                    tgInstance.MainButton.setText(`📤 分享预测 (胜率${winRate}%)`);
+                }
+            }
+
+            renderHistory() {
+                const tbody = this.dom.predictionTbody;
+                tbody.innerHTML = '';
+                if (!this.apiData || this.apiData.length < 4) {
+                    this.dom.stats.innerHTML = '<span>基础胜率</span><span class="rate">0.0%</span><span>0 / 0</span>';
+                    return;
+                }
+
+                let winCount = 0,
+                    totalCount = 0;
+                const maxShow = Math.min(CONFIG.MAX_HISTORY, this.apiData.length - 3);
+                const startI = Math.max(0, this.apiData.length - 3 - maxShow);
+                const fragment = document.createDocumentFragment();
+                const rows = [];
+
+                for (let i = startI; i < this.apiData.length - 3; i++) {
+                    const history3 = this.apiData.slice(i, i + 3);
+                    const prev = this.apiData[i + 2];
+                    const current = this.apiData[i + 3];
+                    const fullPrev = this.apiData.slice(0, i + 3);
+                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
+                        fullPrev, this.fusionWeights);
+                    if (pred.killGroup === '--') continue;
+                    const hit = Utils.isKillHit(pred.killGroup, current.combo);
+                    totalCount++;
+                    if (hit) winCount++;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${current.period}</td>
+                        <td>${current.nums.join('+')}=${current.sum}（${current.combo}）</td>
+                        <td>${pred.predictCombos.join('+')}</td>
+                        <td>${pred.killGroup}</td>
+                        <td><span class="badge-result ${hit ? 'hit' : 'miss'}">${hit ? '✓ 命中' : '✗ 未命中'}</span></td>
+                    `;
+                    rows.push(tr);
+                }
+
+                for (let i = rows.length - 1; i >= 0; i--) fragment.appendChild(rows[i]);
+                tbody.appendChild(fragment);
+
+                const winRate = totalCount > 0 ? ((winCount / totalCount) * 100).toFixed(1) : 0;
+                this.dom.stats.innerHTML = `
+                    <span>基础胜率</span>
+                    <span class="rate">${winRate}%</span>
+                    <span>${winCount} / ${totalCount}</span>
+                `;
+            }
+
+            renderMonitor() {
+                let bestWin = 'shuying_v1',
+                    bestCon = 'shuying_v1';
+                for (const alg of Object.keys(this.algorithmStats)) {
+                    if (this.algorithmStats[alg].winRate > this.algorithmStats[bestWin].winRate) bestWin = alg;
+                    if (this.algorithmStats[alg].currentConsecutive > this.algorithmStats[bestCon].currentConsecutive)
+                        bestCon = alg;
+                }
+                const winStats = this.algorithmStats[bestWin];
+                const conStats = this.algorithmStats[bestCon];
+
+                this.dom.highestWinrate.innerHTML =
+                    `${CONFIG.ALGORITHM_NAMES[bestWin]} <span class="sub">${winStats.winRate.toFixed(1)}%</span>`;
+                this.dom.mostConsecutive.innerHTML =
+                    `${CONFIG.ALGORITHM_NAMES[bestCon]} <span class="sub">连中${conStats.currentConsecutive}期</span>`;
+
+                const algNames = Object.keys(CONFIG.ALGORITHM_NAMES);
+                const shortNames = {
+                    shuying_v1: '天机',
+                    shuying_v2: '玄机',
+                    module1: '逆形',
+                    module2: '趋势',
+                    module3: '冷热',
+                    module4: '银河',
+                    module5: '威震',
+                    fusion_vote: '五行'
+                };
+                const winrates = algNames.map(a => this.algorithmStats[a].winRate);
+                const consecutives = algNames.map(a => this.algorithmStats[a].currentConsecutive);
+                const maxWR = Math.max(...winrates, 1);
+                const maxCon = Math.max(...consecutives, 1);
+
+                this.dom.winrateSpark.innerHTML = Utils.barChart(Object.values(shortNames), winrates, maxWR);
+                this.dom.consecSpark.innerHTML = Utils.barChart(Object.values(shortNames), consecutives, maxCon);
+            }
+
+            renderTrendChart() {
+                if (this.apiData.length < 2) return;
+                const recent = this.apiData.slice(-30);
+                const sums = recent.map(d => d.sum);
+                document.getElementById('trend-card').style.display = 'block';
+                const canvas = this.dom.trendCanvas;
+                const color = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#7c3aed';
+                requestAnimationFrame(() => Utils.drawSparkline(canvas, sums, color));
+            }
+
+            renderAlgoCompare() {
+                if (!this.algoCompareOpen || this.apiData.length < 4) return;
+                const history3 = this.apiData.slice(this.apiData.length - 3);
+                const prev = this.apiData[this.apiData.length - 2];
+                const current = this.apiData[this.apiData.length - 1];
+                const fullPrev = this.apiData.slice(0, this.apiData.length - 1);
+
+                let html = '';
+                Object.keys(CONFIG.ALGORITHM_NAMES).forEach(alg => {
+                    const pred = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev,
+                        this.fusionWeights);
+                    const stats = this.algorithmStats[alg];
+                    const isFusion = alg === 'fusion_vote';
+                    const cls = isFusion ? 'algo-item fusion' : 'algo-item';
+                    html += `<div class="${cls}">
+                        <div class="algo-item-name">${CONFIG.ALGORITHM_NAMES[alg]}</div>
+                        <div class="algo-item-pred">推荐 <span class="p-red">${pred.predictCombos.join('+')}</span> · 杀 <span class="p-kill">${pred.killGroup}</span></div>
+                        <div class="algo-item-stats">
+                            <span>胜率 <span class="win">${stats.winRate.toFixed(1)}%</span></span>
+                            <span>连中 <span class="con">${stats.currentConsecutive}</span></span>
+                        </div>
+                    </div>`;
+                });
+                this.dom.algoGrid.innerHTML = html;
+            }
+
+            // ==================== 倒计时 ====================
+            setupCountdown() {
+                if (this.countdownRAF) cancelAnimationFrame(this.countdownRAF);
+                const latest = this.apiData[this.apiData.length - 1];
+                if (!latest) return;
+
+                const lastOpenTime = latest.opentimeStamp ?
+                    new Date(latest.opentimeStamp * 1000) :
+                    new Date(latest.opentime);
+                const nextOpenTime = new Date(lastOpenTime.getTime() + 3 * 60 * 1000 + 30 * 1000);
+                const totalTime = nextOpenTime - lastOpenTime;
+                const circumference = 2 * Math.PI * 30;
+
+                this.dom.ringProgress.setAttribute('stroke-dasharray', circumference.toFixed(3));
+
+                let lastTimestamp = 0;
+                const update = (timestamp) => {
+                    if (!lastTimestamp) lastTimestamp = timestamp;
+                    if (timestamp - lastTimestamp < 900) { this.countdownRAF = requestAnimationFrame(update); return; }
+                    lastTimestamp = timestamp;
+
+                    const diff = nextOpenTime - Date.now();
+                    if (diff <= 0) {
+                        this.dom.cdText.textContent = '更新数据...';
+                        this.dom.cdText.classList.add('urgent');
+                        this.dom.ringText.textContent = '--:--';
+                        this.dom.ringText.classList.add('urgent');
+                        this.dom.ringProgress.style.strokeDashoffset = circumference.toFixed(3);
+                        this.dom.ringProgress.classList.add('urgent');
+                        setTimeout(() => this.fetchData(), 1500);
+                        return;
+                    }
+                    const progress = Math.max(0, diff / totalTime);
+                    const offset = circumference * (1 - progress);
+                    const m = Utils.fmtNum(Math.floor(diff / 60000));
+                    const s = Utils.fmtNum(Math.floor((diff % 60000) / 1000));
+
+                    this.dom.cdText.textContent = `${m}分${s}秒`;
+                    this.dom.ringText.textContent = `${m}:${s}`;
+                    this.dom.ringProgress.style.strokeDashoffset = offset.toFixed(3);
+
+                    const urgent = parseInt(m) < 1;
+                    this.dom.cdText.classList.toggle('urgent', urgent);
+                    this.dom.ringProgress.classList.toggle('urgent', urgent);
+                    this.dom.ringText.classList.toggle('urgent', urgent);
+
+                    this.countdownRAF = requestAnimationFrame(update);
+                };
+                this.countdownRAF = requestAnimationFrame(update);
+            }
+
+            // ==================== 保存/加载投注 ====================
+            saveBets() {
+                try {
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.BETS, JSON.stringify({
+                        balance: this.virtualBalance,
+                        currentBet: this.currentBet,
+                        currentBetPeriod: this.currentBetPeriod,
+                        totalWinCount: this.totalWinCount,
+                        totalBetCount: this.totalBetCount
+                    }));
+                } catch (_) {}
+            }
+
+            loadBets() {
+                try {
+                    const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.BETS);
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        this.virtualBalance = data.balance ?? CONFIG.VIRTUAL_BALANCE;
+                        this.currentBet = data.currentBet || null;
+                        this.currentBetPeriod = data.currentBetPeriod || null;
+                        this.totalWinCount = data.totalWinCount || 0;
+                        this.totalBetCount = data.totalBetCount || 0;
+                    }
+                } catch (_) {
+                    this.virtualBalance = CONFIG.VIRTUAL_BALANCE;
+                }
+            }
+
+            // ==================== 语音 ====================
+            toggleVoice() {
+                this.voice.enabled = !this.voice.enabled;
+                const btn = this.dom.voiceToggle;
+                if (this.voice.enabled) {
+                    btn.classList.add('active');
+                    this.dom.voiceIcon.textContent = '🔊';
+                    this.dom.voiceLabel.textContent = '开启';
+                } else {
+                    btn.classList.remove('active');
+                    this.dom.voiceIcon.textContent = '🔇';
+                    this.dom.voiceLabel.textContent = '关闭';
+                    this.voice.stop();
+                }
+                this.savePreferences();
+            }
+
+            updateSpeed() {
+                this.voice.rate = parseFloat(this.dom.voiceSpeed.value);
+                this.dom.speedVal.textContent = this.voice.rate.toFixed(1) + 'x';
+                this.savePreferences();
+            }
+
+            speakText(text) { this.voice.speak(text); }
+
+            manualAnnounce() {
+                if (!this.apiData || this.apiData.length < 4) return;
+                const latest = this.apiData[this.apiData.length - 1];
+                const numsStr = latest.nums.join(' 加 ');
+                const history3 = this.apiData.slice(this.apiData.length - 3);
+                const prev = this.apiData[this.apiData.length - 2];
+                const current = this.apiData[this.apiData.length - 1];
+                const fullPrev = this.apiData.slice(0, this.apiData.length - 1);
+                const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
+                    fullPrev, this.fusionWeights);
+                const nextPeriod = Number(latest.period) + 1;
+                const text =
+                    `当前最新开奖第${latest.period}期，${numsStr}等于${latest.sum}，形态${latest.combo}。下一期第${nextPeriod}期预测，${CONFIG.ALGORITHM_NAMES[this.currentAlgorithm]}算法，推荐${pred.predictCombos[0]}加${pred.predictCombos[1]}，排除${pred.killGroup}`;
+                this.voice.speak(text);
+
+                // Telegram 震动反馈
+                if (this.isTelegram && tgInstance && this.tgHaptic) {
+                    try { this.tgHaptic.impactOccurred('light'); } catch (_) {}
+                }
+            }
+
+            // ==================== 通知 ====================
+            toggleNotification() {
+                if (this.notifyEnabled) {
+                    this.notifyEnabled = false;
+                    this.updateNotifyBtn();
+                    this.savePreferences();
+                    return;
+                }
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    this.notifyEnabled = true;
+                    this.updateNotifyBtn();
+                    this.savePreferences();
+                    return;
+                }
+                if ('Notification' in window) {
+                    Notification.requestPermission().then(p => {
+                        if (p === 'granted') { this.notifyEnabled = true;
+                            this.updateNotifyBtn();
+                            this.savePreferences(); }
+                    });
+                }
+            }
+
+            updateNotifyBtn() {
+                this.dom.notifyBtn.classList.toggle('active', this.notifyEnabled);
+            }
+
+            sendNotification(title, body) {
+                if (!this.notifyEnabled || !('Notification' in window) || Notification.permission !== 'granted') return;
+                try {
+                    const n = new Notification(title, {
+                        body,
+                        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="80" font-size="80">🔮</text></svg>',
+                        tag: 'qingxun-prediction',
+                        renotify: true
+                    });
+                    n.onclick = () => { window.focus();
+                        n.close(); };
+                    setTimeout(() => n.close(), 5000);
+                } catch (_) {}
+            }
+
+            // ==================== 导出 ====================
+            exportCSV() {
+                if (!this.apiData.length) return;
+                const rows = [
+                    ['期数', '号码', '和值', '形态', '推荐1', '推荐2', '杀组', '结果']
+                ];
+                for (let i = 0; i < this.apiData.length - 3; i++) {
+                    const history3 = this.apiData.slice(i, i + 3);
+                    const prev = this.apiData[i + 2];
+                    const current = this.apiData[i + 3];
+                    const fullPrev = this.apiData.slice(0, i + 3);
+                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
+                        fullPrev, this.fusionWeights);
+                    const hit = Utils.isKillHit(pred.killGroup, current.combo);
+                    rows.push([
+                        current.period,
+                        current.nums.join(','),
+                        current.sum,
+                        current.combo,
+                        pred.predictCombos[0],
+                        pred.predictCombos[1],
+                        pred.killGroup,
+                        hit ? '命中' : '未命中'
+                    ]);
+                }
+                Utils.downloadCSV(`清浔历史_${new Date().toISOString().slice(0,10)}.csv`, rows);
+                this.showToast('CSV导出成功', 'success');
+            }
+
+            // ==================== UI 状态 ====================
+            setStatus(status, msg = '') {
+                const el = this.dom.statusIndicator;
+                const apiEl = this.dom.apiStatus;
+                if (status === 'loading') {
+                    el.className = 'meta-chip loading';
+                    el.textContent = '加载中...';
+                    apiEl.innerHTML = '<span class="status-dot" style="background:var(--warning);"></span><span>加载中...</span>';
+                    apiEl.className = 'status-badge';
+                } else if (status === 'ready') {
+                    el.className = 'meta-chip ready';
+                    el.textContent = '数据正常';
+                    const src = msg ? ` [${msg.replace(/^https?:\/\//, '').slice(0, 20)}]` : '';
+                    apiEl.innerHTML = `<span class="status-dot"></span><span>在线${src}</span>`;
+                    apiEl.className = 'status-badge';
+                } else if (status === 'error') {
+                    el.className = 'meta-chip loading';
+                    el.textContent = '加载失败';
+                    apiEl.innerHTML =
+                        `<span class="status-dot" style="background:var(--danger);box-shadow:0 0 12px var(--danger-glow);"></span><span>异常</span>`;
+                    apiEl.className = 'status-badge error';
+                }
+            }
+
+            showToast(message, type = 'info') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast`;
+                const icons = { success: '✓', error: '✗', warning: '⚠', info: 'ℹ' };
+                toast.innerHTML =
+                    `<span>${icons[type] || 'ℹ'} ${message}</span><span class="close" onclick="this.closest('.toast').remove()">×</span>`;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.classList.add('out');
+                    setTimeout(() => toast.remove(), 300);
+                }, 5000);
+            }
+
+            // ==================== 持久化 ====================
+            savePreferences() {
+                try {
+                    const prefs = {
+                        algorithm: this.currentAlgorithm,
+                        voiceEnabled: this.voice.enabled,
+                        voiceRate: this.voice.rate,
+                        notifyEnabled: this.notifyEnabled,
+                        theme: document.documentElement.getAttribute('data-theme')
+                    };
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.PREFS, JSON.stringify(prefs));
+                } catch (_) {}
+            }
+
+            loadPreferences() {
+                try {
+                    const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.PREFS);
+                    if (!raw) return;
+                    const prefs = JSON.parse(raw);
+                    if (prefs.algorithm) {
+                        this.currentAlgorithm = prefs.algorithm;
+                        if (this.dom.algorithmSelect) this.dom.algorithmSelect.value = prefs.algorithm;
+                    }
+                    if (typeof prefs.voiceEnabled === 'boolean') {
+                        this.voice.enabled = prefs.voiceEnabled;
+                        if (this.voice.enabled) {
+                            this.dom.voiceToggle?.classList.add('active');
+                            this.dom.voiceIcon.textContent = '🔊';
+                            this.dom.voiceLabel.textContent = '开启';
+                        }
+                    }
+                    if (typeof prefs.voiceRate === 'number') {
+                        this.voice.rate = prefs.voiceRate;
+                        if (this.dom.voiceSpeed) this.dom.voiceSpeed.value = prefs.voiceRate;
+                        if (this.dom.speedVal) this.dom.speedVal.textContent = prefs.voiceRate.toFixed(1) + 'x';
+                    }
+                    if (typeof prefs.notifyEnabled === 'boolean') {
+                        this.notifyEnabled = prefs.notifyEnabled;
+                        if (this.notifyEnabled && 'Notification' in window && Notification.permission === 'granted') {
+                            this.updateNotifyBtn();
+                        } else {
+                            this.notifyEnabled = false;
+                        }
+                    }
+                    if (prefs.theme) {
+                        document.documentElement.setAttribute('data-theme', prefs.theme);
+                        this.updateThemeIcon(prefs.theme);
+                    }
+                } catch (_) {}
+            }
+
+            // ==================== 交互 ====================
+            changeAlgorithm() {
+                this.currentAlgorithm = this.dom.algorithmSelect.value;
+                this.render();
+                this.savePreferences();
+            }
+
+            toggleAlgoCompare() {
+                const body = this.dom.algoBody;
+                const toggle = this.dom.algoToggle;
+                this.algoCompareOpen = !body.classList.contains('open');
+                body.classList.toggle('open', this.algoCompareOpen);
+                toggle.classList.toggle('open', this.algoCompareOpen);
+                if (this.algoCompareOpen) this.renderAlgoCompare();
+            }
+
+            bindKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+                    switch (e.key.toLowerCase()) {
+                        case 'r':
+                            e.preventDefault();
+                            this.fetchData();
+                            break;
+                        case 't':
+                            e.preventDefault();
+                            this.toggleTheme();
+                            break;
+                        case 'v':
+                            e.preventDefault();
+                            this.toggleVoice();
+                            break;
+                        case ' ':
+                            e.preventDefault();
+                            this.manualAnnounce();
+                            break;
+                    }
+                });
+            }
+        }
+
+        // ==================== 启动 ====================
+        const app = new QingxunApp();
+        window.app = app;
+
+        // ==================== 注册 Service Worker (PWA) ====================
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript,' + encodeURIComponent(`
+                self.addEventListener('install', e => { e.waitUntil(self.skipWaiting()); });
+                self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
+                self.addEventListener('fetch', e => {
+                    e.respondWith(fetch(e.request).catch(() => {
+                        return new Response('离线模式 - 请连接网络刷新', { status: 200, headers: { 'Content-Type': 'text/plain' } });
+                    }));
+                });
+            `)).then(() => {
+                console.log('[清浔] Service Worker 注册成功');
+            }).catch(() => {
+                console.log('[清浔] Service Worker 注册跳过');
+            });
+        }
+
+        console.log('[清浔] 应用已启动, Telegram模式:', isTelegram);
+    </script>
+</body>
+</html>
