@@ -20,112 +20,74 @@
 
     <style>
         /* ============================================================
-           CSS Variables — 暗色/亮色 双主题 + Telegram 适配
+           ROOT VARIABLES — 玻璃态暗色主题
            ============================================================ */
         :root {
-            --bg-primary: #0b0f1a;
-            --bg-secondary: #111827;
-            --bg-card: rgba(17, 24, 39, 0.75);
-            --bg-card-hover: rgba(30, 41, 59, 0.85);
+            --bg-primary: #0e0e18;
+            --bg-secondary: #16162a;
+            --bg-card: rgba(20, 20, 40, 0.60);
+            --bg-card-hover: rgba(30, 30, 60, 0.75);
             --bg-glass: rgba(255, 255, 255, 0.04);
-            --bg-overlay: rgba(0, 0, 0, 0.35);
+            --bg-overlay: rgba(0, 0, 0, 0.25);
 
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #475569;
+            --text-primary: #f0f0ff;
+            --text-secondary: #b0b0d0;
+            --text-muted: #6a6a8a;
 
-            --accent: #7c3aed;
+            --accent: #8b5cf6;
             --accent-light: #a78bfa;
-            --accent-glow: rgba(124, 58, 237, 0.35);
-            --accent-weak: rgba(124, 58, 237, 0.08);
+            --accent-glow: rgba(139, 92, 246, 0.35);
+            --accent-weak: rgba(139, 92, 246, 0.08);
 
-            --cyan: #06b6d4;
-            --cyan-glow: rgba(6, 182, 212, 0.30);
+            --cyan: #22d3ee;
+            --cyan-glow: rgba(34, 211, 238, 0.25);
 
-            --success: #10b981;
-            --success-glow: rgba(16, 185, 129, 0.25);
-            --danger: #ef4444;
-            --danger-glow: rgba(239, 68, 68, 0.25);
-            --warning: #f59e0b;
-            --warning-glow: rgba(245, 158, 11, 0.25);
+            --success: #34d399;
+            --success-glow: rgba(52, 211, 153, 0.20);
+            --danger: #f87171;
+            --danger-glow: rgba(248, 113, 113, 0.20);
+            --warning: #fbbf24;
+            --warning-glow: rgba(251, 191, 36, 0.20);
 
             --border: rgba(255, 255, 255, 0.06);
-            --border-strong: rgba(255, 255, 255, 0.12);
+            --border-strong: rgba(255, 255, 255, 0.10);
 
-            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45);
-            --shadow-glow: 0 8px 40px rgba(124, 58, 237, 0.20);
+            --shadow-card: 0 12px 48px rgba(0, 0, 0, 0.50);
+            --shadow-glow: 0 8px 40px rgba(139, 92, 246, 0.25);
 
-            --radius-sm: 8px;
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --radius-xl: 28px;
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
 
             --font: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'SF Mono', 'Fira Code', 'Inter', monospace;
 
             --transition: all 0.30s cubic-bezier(0.4, 0, 0.2, 1);
-
-            /* Telegram 适配变量 (会被JS覆盖) */
-            --tg-bg-color: #0b0f1a;
-            --tg-text-color: #f1f5f9;
-            --tg-hint-color: #94a3b8;
-            --tg-link-color: #7c3aed;
-            --tg-button-color: #7c3aed;
-            --tg-button-text-color: #ffffff;
-            --tg-secondary-bg-color: #111827;
-            --tg-header-bg-color: #0b0f1a;
-            --tg-section-bg-color: rgba(17, 24, 39, 0.75);
-            --tg-section-header-text-color: #f1f5f9;
-            --tg-subtitle-text-color: #94a3b8;
-            --tg-destructive-text-color: #ef4444;
         }
 
-        /* 亮色主题覆盖 */
         [data-theme="light"] {
-            --bg-primary: #f1f5f9;
-            --bg-secondary: #e2e8f0;
-            --bg-card: rgba(255, 255, 255, 0.85);
-            --bg-card-hover: rgba(255, 255, 255, 0.95);
+            --bg-primary: #f0f0fa;
+            --bg-secondary: #e4e4f0;
+            --bg-card: rgba(255, 255, 255, 0.70);
+            --bg-card-hover: rgba(255, 255, 255, 0.85);
             --bg-glass: rgba(255, 255, 255, 0.50);
-            --bg-overlay: rgba(0, 0, 0, 0.04);
-
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-
+            --bg-overlay: rgba(0, 0, 0, 0.03);
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a6a;
+            --text-muted: #8a8aaa;
             --accent: #7c3aed;
             --accent-light: #8b5cf6;
-            --accent-glow: rgba(124, 58, 237, 0.20);
-            --accent-weak: rgba(124, 58, 237, 0.06);
-
+            --accent-glow: rgba(124, 58, 237, 0.15);
+            --accent-weak: rgba(124, 58, 237, 0.05);
             --border: rgba(0, 0, 0, 0.06);
-            --border-strong: rgba(0, 0, 0, 0.12);
-
-            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.06);
-            --shadow-glow: 0 8px 40px rgba(124, 58, 237, 0.12);
-
-            --tg-bg-color: #f1f5f9;
-            --tg-text-color: #0f172a;
-            --tg-hint-color: #475569;
-            --tg-secondary-bg-color: #e2e8f0;
-        }
-
-        /* Telegram 环境下的主题覆盖 (通过JS动态设置) */
-        .tg-theme {
-            --bg-primary: var(--tg-bg-color, #0b0f1a);
-            --bg-secondary: var(--tg-secondary-bg-color, #111827);
-            --bg-card: var(--tg-section-bg-color, rgba(17, 24, 39, 0.75));
-            --text-primary: var(--tg-text-color, #f1f5f9);
-            --text-secondary: var(--tg-hint-color, #94a3b8);
-            --text-muted: var(--tg-subtitle-text-color, #475569);
-            --accent: var(--tg-button-color, #7c3aed);
-            --accent-light: var(--tg-link-color, #a78bfa);
-            --border: rgba(128, 128, 128, 0.12);
-            --border-strong: rgba(128, 128, 128, 0.20);
+            --border-strong: rgba(0, 0, 0, 0.10);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.05);
+            --shadow-glow: 0 8px 40px rgba(124, 58, 237, 0.08);
         }
 
         /* ============================================================
-           Reset & Base
+           RESET & BASE
            ============================================================ */
         * {
             box-sizing: border-box;
@@ -148,9 +110,6 @@
             transition: background 0.4s ease, color 0.4s ease;
         }
 
-        /* ============================================================
-           Background Glow
-           ============================================================ */
         .bg-glow {
             position: fixed;
             inset: 0;
@@ -163,91 +122,94 @@
             content: '';
             position: absolute;
             border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.25;
-            animation: glow-float 30s ease-in-out infinite alternate;
+            filter: blur(150px);
+            opacity: 0.20;
+            animation: glow-float 40s ease-in-out infinite alternate;
         }
         .bg-glow::before {
-            width: 600px;
-            height: 600px;
+            width: 700px;
+            height: 700px;
             background: var(--accent);
-            top: -200px;
-            right: -200px;
+            top: -250px;
+            right: -250px;
         }
         .bg-glow::after {
-            width: 500px;
-            height: 500px;
+            width: 600px;
+            height: 600px;
             background: var(--cyan);
             bottom: -200px;
             left: -200px;
-            animation-delay: -10s;
-            animation-duration: 35s;
+            animation-delay: -15s;
+            animation-duration: 45s;
         }
         [data-theme="light"] .bg-glow::before,
         [data-theme="light"] .bg-glow::after {
-            opacity: 0.10;
+            opacity: 0.08;
         }
         @keyframes glow-float {
             0% {
                 transform: translate(0, 0) scale(1);
             }
             50% {
-                transform: translate(40px, -50px) scale(1.1);
+                transform: translate(60px, -80px) scale(1.15);
             }
             100% {
-                transform: translate(-30px, 40px) scale(0.9);
+                transform: translate(-40px, 60px) scale(0.85);
             }
         }
 
-        /* ============================================================
-           Container
-           ============================================================ */
         .container {
             position: relative;
             z-index: 1;
-            max-width: 920px;
+            max-width: 960px;
             margin: 0 auto;
             padding: 16px 16px 80px;
         }
 
         /* ============================================================
-           Navbar — 移动端触摸友好
+           NAVBAR
            ============================================================ */
         .navbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 0 18px;
-            gap: 8px;
+            padding: 14px 20px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
             flex-wrap: wrap;
+            gap: 8px;
         }
         .navbar-brand {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             flex: 1 1 auto;
             min-width: 0;
         }
         .navbar-icon {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: var(--radius-md);
             background: linear-gradient(135deg, var(--accent), var(--cyan));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 4px 20px var(--accent-glow);
+            font-size: 22px;
+            box-shadow: 0 4px 24px var(--accent-glow);
             flex-shrink: 0;
         }
         .navbar-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 800;
-            letter-spacing: -0.3px;
+            letter-spacing: -0.5px;
             background: linear-gradient(135deg, #fff, var(--accent-light));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            white-space: nowrap;
         }
         [data-theme="light"] .navbar-title {
             background: linear-gradient(135deg, var(--text-primary), var(--accent));
@@ -255,24 +217,24 @@
             -webkit-text-fill-color: transparent;
         }
         .navbar-sub {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--text-muted);
             font-weight: 500;
             display: block;
-            margin-top: 0px;
-            line-height: 1.2;
+            margin-top: -2px;
         }
         .navbar-actions {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             flex-shrink: 0;
+            flex-wrap: wrap;
         }
         .status-badge {
             display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 6px 12px;
+            gap: 6px;
+            padding: 6px 14px;
             border-radius: 999px;
             background: var(--bg-glass);
             border: 1px solid var(--border);
@@ -282,14 +244,13 @@
             cursor: pointer;
             transition: var(--transition);
             backdrop-filter: blur(8px);
-            white-space: nowrap;
         }
         .status-badge:active {
             transform: scale(0.94);
         }
         .status-dot {
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: var(--success);
             box-shadow: 0 0 12px var(--success-glow);
@@ -310,31 +271,7 @@
             }
         }
 
-        .theme-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            background: var(--bg-glass);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            cursor: pointer;
-            transition: var(--transition);
-            backdrop-filter: blur(8px);
-            flex-shrink: 0;
-        }
-        .theme-btn:active {
-            transform: scale(0.90);
-        }
-        .theme-btn:hover {
-            border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-
-        /* ===== 音乐按钮专用 ===== */
-        .music-btn {
+        .icon-btn {
             width: 40px;
             height: 40px;
             border-radius: var(--radius-sm);
@@ -350,17 +287,16 @@
             flex-shrink: 0;
             position: relative;
         }
-        .music-btn:active {
+        .icon-btn:active {
             transform: scale(0.90);
         }
-        .music-btn:hover {
+        .icon-btn:hover {
             border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow);
+            box-shadow: 0 0 24px var(--accent-glow);
         }
-        /* 播放中脉冲动画 */
-        .music-btn.playing {
+        .icon-btn.playing {
             border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow);
+            box-shadow: 0 0 24px var(--accent-glow);
             animation: music-pulse 2s ease-in-out infinite;
         }
         @keyframes music-pulse {
@@ -369,13 +305,13 @@
                 box-shadow: 0 0 10px var(--accent-glow);
             }
             50% {
-                box-shadow: 0 0 28px var(--accent-glow), 0 0 40px rgba(124, 58, 237, 0.15);
+                box-shadow: 0 0 30px var(--accent-glow), 0 0 50px rgba(139, 92, 246, 0.15);
             }
         }
-        .music-btn .badge-dot {
+        .icon-btn .badge-dot {
             position: absolute;
-            top: 3px;
-            right: 3px;
+            top: 4px;
+            right: 4px;
             width: 8px;
             height: 8px;
             border-radius: 50%;
@@ -384,27 +320,26 @@
             opacity: 0;
             transition: var(--transition);
         }
-        .music-btn.playing .badge-dot {
+        .icon-btn.playing .badge-dot {
             opacity: 1;
             animation: dot-blink 1.5s ease-in-out infinite;
         }
-        /* 音量微调 */
         .music-vol-wrap {
             display: none;
             position: absolute;
-            bottom: -32px;
+            bottom: -34px;
             left: 50%;
             transform: translateX(-50%);
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
-            padding: 4px 8px;
+            padding: 4px 10px;
             backdrop-filter: blur(12px);
             white-space: nowrap;
             z-index: 20;
         }
-        .music-btn:hover .music-vol-wrap,
-        .music-btn:focus .music-vol-wrap {
+        .icon-btn:hover .music-vol-wrap,
+        .icon-btn:focus .music-vol-wrap {
             display: flex;
         }
         .music-vol-wrap input[type="range"] {
@@ -434,7 +369,6 @@
             margin-right: 4px;
         }
 
-        /* Telegram 关闭按钮 */
         .tg-close-btn {
             display: none;
             width: 40px;
@@ -463,30 +397,30 @@
         }
 
         /* ============================================================
-           Cards & Hero
+           CARDS
            ============================================================ */
-        .hero-card {
+        .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
             backdrop-filter: blur(20px);
-            padding: 22px 18px 20px;
-            margin-bottom: 16px;
+            padding: 20px 20px 22px;
+            margin-bottom: 18px;
             box-shadow: var(--shadow-card);
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
-            transition: var(--transition);
         }
-        .hero-card::before {
+        .card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 2px;
             background: linear-gradient(90deg, var(--accent), var(--cyan), var(--accent));
             background-size: 200% 100%;
-            animation: shimmer 4s linear infinite;
+            animation: shimmer 6s linear infinite;
         }
         @keyframes shimmer {
             0% {
@@ -496,57 +430,58 @@
                 background-position: 200% 0;
             }
         }
+        .card:hover {
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-glow);
+        }
 
-        .hero-top {
+        .card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 8px;
             margin-bottom: 14px;
         }
-        .hero-period {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-        .hero-period strong {
-            color: var(--text-primary);
+        .card-title {
+            font-size: 18px;
             font-weight: 800;
-            font-family: var(--font-mono);
-        }
-        .hero-tag {
-            display: inline-flex;
+            display: flex;
             align-items: center;
+            gap: 8px;
+        }
+        .card-badge {
             padding: 4px 14px;
             border-radius: 999px;
+            font-size: 12px;
             font-weight: 700;
-            font-size: 13px;
             background: linear-gradient(135deg, var(--accent), var(--cyan));
             color: #fff;
-            box-shadow: 0 4px 20px var(--accent-glow);
+            box-shadow: 0 4px 16px var(--accent-glow);
+            white-space: nowrap;
         }
 
+        /* ===== 最新开奖 ===== */
         .hero-numbers {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
-            padding: 8px 0 4px;
+            padding: 8px 0 6px;
         }
         .hero-ball {
-            width: 54px;
-            height: 54px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent), var(--cyan));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 800;
             color: #fff;
-            box-shadow: 0 8px 30px var(--accent-glow);
+            box-shadow: 0 8px 32px var(--accent-glow);
             animation: ball-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             opacity: 0;
             transform: scale(0);
@@ -568,34 +503,40 @@
             animation-delay: 0.16s;
         }
         .hero-sep {
-            font-size: 20px;
+            font-size: 22px;
             color: var(--text-muted);
+            opacity: 0.3;
             font-weight: 300;
-            opacity: 0.4;
         }
         .hero-eq {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 800;
             color: var(--warning);
             text-shadow: 0 0 30px var(--warning-glow);
             font-family: var(--font-mono);
-            margin-left: 2px;
         }
-        .hero-time {
-            text-align: center;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 2px;
+        .hero-meta {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 4px 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 6px 0 2px;
+        }
+        .hero-meta strong {
+            color: var(--text-primary);
+            font-weight: 700;
         }
 
-        /* Countdown */
+        /* ===== 倒计时 ===== */
         .countdown-section {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 16px;
             margin-top: 14px;
-            padding: 10px 14px;
+            padding: 12px 16px;
             background: var(--bg-glass);
             border-radius: var(--radius-md);
             border: 1px solid var(--border);
@@ -608,10 +549,9 @@
         }
         .countdown-text {
             font-family: var(--font-mono);
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             letter-spacing: 1px;
-            transition: var(--transition);
         }
         .countdown-text.urgent {
             color: var(--danger);
@@ -629,14 +569,14 @@
         }
         .ring-wrap {
             position: relative;
-            width: 68px;
-            height: 68px;
+            width: 72px;
+            height: 72px;
             flex-shrink: 0;
         }
         .ring-svg {
             transform: rotate(-90deg);
-            width: 68px;
-            height: 68px;
+            width: 72px;
+            height: 72px;
         }
         .ring-bg {
             fill: none;
@@ -669,121 +609,30 @@
             left: 50%;
             transform: translate(-50%, -50%);
             font-family: var(--font-mono);
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--text-primary);
             text-align: center;
             line-height: 1.1;
-            transition: color 0.4s ease;
         }
         .ring-text.urgent {
             color: var(--danger);
         }
 
-        /* ============================================================
-           Predict Card
-           ============================================================ */
-        .predict-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            backdrop-filter: blur(20px);
-            padding: 20px 18px 22px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-card);
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition);
-        }
-        .predict-card:hover {
-            border-color: var(--border-strong);
-            box-shadow: var(--shadow-glow);
-        }
-        .predict-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(180deg, var(--accent), var(--cyan));
-            border-radius: 2px 0 0 2px;
-        }
-
-        .predict-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-        .predict-title {
-            font-size: 17px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .predict-algo-badge {
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent), var(--cyan));
-            color: #fff;
-            box-shadow: 0 2px 16px var(--accent-glow);
-            white-space: nowrap;
-        }
-        .predict-meta {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
-        .meta-chip {
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 600;
-            background: var(--bg-glass);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-        }
-        .meta-chip.ready {
-            background: rgba(16, 185, 129, 0.10);
-            border-color: rgba(16, 185, 129, 0.25);
-            color: var(--success);
-        }
-        .meta-chip.loading {
-            background: rgba(245, 158, 11, 0.10);
-            border-color: rgba(245, 158, 11, 0.25);
-            color: var(--warning);
-            animation: pulse-opacity 1.8s ease-in-out infinite;
-        }
-        @keyframes pulse-opacity {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.4;
-            }
-        }
-
+        /* ===== 预测卡片 ===== */
         .predict-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 14px;
+            margin-top: 4px;
         }
         @media (max-width: 480px) {
             .predict-grid {
                 grid-template-columns: 1fr;
             }
         }
-
         .predict-item {
-            padding: 16px 16px;
+            padding: 18px 16px;
             border-radius: var(--radius-md);
             border: 1px solid var(--border);
             background: var(--bg-glass);
@@ -795,8 +644,8 @@
             transform: scale(0.98);
         }
         .predict-item.recommend {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.01));
-            border-color: rgba(16, 185, 129, 0.15);
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.04), rgba(52, 211, 153, 0.01));
+            border-color: rgba(52, 211, 153, 0.15);
         }
         .predict-item.recommend::before {
             content: '';
@@ -809,8 +658,8 @@
             border-radius: 2px 0 0 2px;
         }
         .predict-item.kill {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(239, 68, 68, 0.01));
-            border-color: rgba(239, 68, 68, 0.15);
+            background: linear-gradient(135deg, rgba(248, 113, 113, 0.04), rgba(248, 113, 113, 0.01));
+            border-color: rgba(248, 113, 113, 0.15);
         }
         .predict-item.kill::before {
             content: '';
@@ -822,17 +671,16 @@
             background: var(--danger);
             border-radius: 2px 0 0 2px;
         }
-
         .predict-item-label {
             font-size: 11px;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1.2px;
             font-weight: 700;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
         .predict-item-value {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 800;
             font-family: var(--font-mono);
         }
@@ -851,13 +699,60 @@
             margin-top: 2px;
         }
 
-        /* ============================================================
-           Betting
-           ============================================================ */
-        .bet-section {
+        /* ===== 共识投票 ===== */
+        .consensus-box {
             margin-top: 14px;
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--accent-weak), rgba(34, 211, 238, 0.04));
+            border: 1px solid var(--accent-glow);
+            transition: var(--transition);
+        }
+        .consensus-box .label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-light);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .consensus-box .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .consensus-box .row .tag {
+            background: var(--bg-glass);
+            padding: 2px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .consensus-box .row .tag.high {
+            border-color: var(--success);
+            color: var(--success);
+        }
+        .consensus-box .row .tag.kill {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        .consensus-box .row .tag .vote {
+            font-weight: 400;
+            opacity: 0.6;
+            font-size: 11px;
+        }
+
+        /* ===== 投注 ===== */
+        .bet-section {
+            margin-top: 16px;
             border-top: 1px solid var(--border);
-            padding-top: 14px;
+            padding-top: 16px;
         }
         .bet-label {
             font-size: 11px;
@@ -869,8 +764,8 @@
         .bet-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-top: 8px;
+            gap: 10px;
+            margin-top: 10px;
         }
         @media (max-width: 480px) {
             .bet-grid {
@@ -890,7 +785,6 @@
             color: var(--text-secondary);
             font-family: inherit;
             -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
         }
         .bet-btn:active {
             transform: scale(0.94);
@@ -901,10 +795,9 @@
             border-color: transparent;
             box-shadow: 0 4px 20px var(--warning-glow);
         }
-
         .bet-summary {
-            margin-top: 10px;
-            padding: 12px 14px;
+            margin-top: 12px;
+            padding: 12px 16px;
             background: var(--bg-glass);
             border-radius: var(--radius-sm);
             border: 1px solid var(--border);
@@ -932,7 +825,6 @@
         .bet-summary .stat .num.loss {
             color: var(--danger);
         }
-
         .bet-history-wrap {
             max-height: 140px;
             overflow-y: auto;
@@ -980,15 +872,13 @@
             font-weight: 700;
         }
 
-        /* ============================================================
-           Algorithm Compare
-           ============================================================ */
+        /* ===== 算法对比 ===== */
         .algo-panel {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
             backdrop-filter: blur(20px);
-            margin-bottom: 16px;
+            margin-bottom: 18px;
             box-shadow: var(--shadow-card);
             overflow: hidden;
             transition: var(--transition);
@@ -997,11 +887,10 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 18px;
+            padding: 16px 20px;
             cursor: pointer;
             transition: var(--transition);
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
         }
         .algo-toggle:active {
             background: var(--bg-glass);
@@ -1009,12 +898,12 @@
         .algo-toggle-left {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-size: 15px;
             font-weight: 700;
         }
         .algo-toggle-arrow {
-            font-size: 13px;
+            font-size: 14px;
             color: var(--text-muted);
             transition: transform 0.35s ease;
         }
@@ -1027,7 +916,7 @@
             transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
         }
         .algo-body.open {
-            max-height: 1000px;
+            max-height: 2000px;
             padding: 0 18px 18px;
         }
         .algo-grid {
@@ -1114,17 +1003,24 @@
             color: var(--warning);
             font-weight: 700;
         }
+        .algo-item .badge-new {
+            font-size: 8px;
+            background: var(--accent);
+            color: #fff;
+            padding: 1px 6px;
+            border-radius: 999px;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
 
-        /* ============================================================
-           Controls
-           ============================================================ */
+        /* ===== 控制栏 ===== */
         .controls {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
             backdrop-filter: blur(20px);
-            padding: 14px 16px;
-            margin-bottom: 16px;
+            padding: 16px 18px;
+            margin-bottom: 18px;
             box-shadow: var(--shadow-card);
             display: flex;
             flex-wrap: wrap;
@@ -1145,12 +1041,11 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
         .btn {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 8px 14px;
+            padding: 8px 16px;
             border-radius: var(--radius-sm);
             border: 1px solid var(--border);
             background: var(--bg-glass);
@@ -1162,7 +1057,6 @@
             font-family: inherit;
             backdrop-filter: blur(8px);
             touch-action: manipulation;
-            white-space: nowrap;
         }
         .btn:active {
             transform: scale(0.94);
@@ -1196,7 +1090,7 @@
 
         select {
             appearance: none;
-            padding: 8px 28px 8px 12px;
+            padding: 8px 32px 8px 14px;
             border-radius: var(--radius-sm);
             border: 1px solid var(--border);
             background: var(--bg-glass);
@@ -1207,8 +1101,7 @@
             font-family: inherit;
             transition: var(--transition);
             backdrop-filter: blur(8px);
-            min-width: 110px;
-            touch-action: manipulation;
+            min-width: 120px;
         }
         select:active {
             transform: scale(0.97);
@@ -1219,7 +1112,7 @@
         .select-wrap::after {
             content: '▾';
             position: absolute;
-            right: 10px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
             font-size: 10px;
@@ -1255,13 +1148,11 @@
             font-family: var(--font-mono);
         }
 
-        /* ============================================================
-           Monitor & Charts
-           ============================================================ */
+        /* ===== 监视器 ===== */
         .monitor-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 14px;
             margin-bottom: 12px;
         }
         @media (max-width: 500px) {
@@ -1270,7 +1161,7 @@
             }
         }
         .monitor-item {
-            padding: 14px 16px;
+            padding: 16px 18px;
             background: var(--bg-glass);
             border-radius: var(--radius-md);
             border: 1px solid var(--border);
@@ -1280,7 +1171,7 @@
             transform: scale(0.98);
         }
         .monitor-item .icon {
-            font-size: 22px;
+            font-size: 24px;
             margin-bottom: 2px;
             display: block;
         }
@@ -1292,7 +1183,7 @@
             font-weight: 600;
         }
         .monitor-item .value {
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 800;
             margin-top: 2px;
         }
@@ -1324,9 +1215,7 @@
             border-radius: var(--radius-sm);
         }
 
-        /* ============================================================
-           Missed Stats
-           ============================================================ */
+        /* ===== 遗漏统计 ===== */
         .missed-section {
             margin-top: 12px;
             overflow-x: auto;
@@ -1335,7 +1224,7 @@
         .missed-table {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 3px;
+            border-spacing: 4px;
             font-size: 12px;
             min-width: 560px;
         }
@@ -1363,15 +1252,15 @@
             transform: scale(1.06);
         }
         .missed-table .hot {
-            background: rgba(239, 68, 68, 0.15);
+            background: rgba(248, 113, 113, 0.15);
             color: var(--danger);
-            border-color: rgba(239, 68, 68, 0.25);
+            border-color: rgba(248, 113, 113, 0.25);
             box-shadow: 0 0 16px var(--danger-glow);
         }
         .missed-table .cold {
-            background: rgba(16, 185, 129, 0.15);
+            background: rgba(52, 211, 153, 0.15);
             color: var(--success);
-            border-color: rgba(16, 185, 129, 0.25);
+            border-color: rgba(52, 211, 153, 0.25);
             box-shadow: 0 0 16px var(--success-glow);
         }
         .missed-table .neutral {
@@ -1379,9 +1268,7 @@
             color: var(--text-secondary);
         }
 
-        /* ============================================================
-           History Table
-           ============================================================ */
+        /* ===== 历史表格 ===== */
         .history-wrap {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -1439,25 +1326,25 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 999px;
             font-size: 11px;
             font-weight: 700;
         }
         .badge-result.hit {
-            background: rgba(16, 185, 129, 0.12);
-            border: 1px solid rgba(16, 185, 129, 0.25);
+            background: rgba(52, 211, 153, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.25);
             color: var(--success);
         }
         .badge-result.miss {
-            background: rgba(239, 68, 68, 0.12);
-            border: 1px solid rgba(239, 68, 68, 0.25);
+            background: rgba(248, 113, 113, 0.12);
+            border: 1px solid rgba(248, 113, 113, 0.25);
             color: var(--danger);
         }
 
         .stats-footer {
             padding: 14px;
-            background: linear-gradient(135deg, var(--accent-weak), rgba(6, 182, 212, 0.04));
+            background: linear-gradient(135deg, var(--accent-weak), rgba(34, 211, 238, 0.04));
             border-radius: var(--radius-md);
             text-align: center;
             font-weight: 700;
@@ -1479,12 +1366,10 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* ============================================================
-           Toast
-           ============================================================ */
+        /* ===== Toast ===== */
         .toast-container {
             position: fixed;
-            top: 16px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
@@ -1498,7 +1383,7 @@
         .toast {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            padding: 12px 16px;
+            padding: 12px 18px;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-card);
             font-size: 14px;
@@ -1542,9 +1427,7 @@
             }
         }
 
-        /* ============================================================
-           Footer
-           ============================================================ */
+        /* ===== 通用 ===== */
         .footer {
             text-align: center;
             padding: 24px 16px 12px;
@@ -1555,10 +1438,6 @@
             border-top: 1px solid var(--border);
             margin-top: 16px;
         }
-
-        /* ============================================================
-           Scrollbar
-           ============================================================ */
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -1571,10 +1450,6 @@
             border-radius: 2px;
             border: 1px solid var(--border);
         }
-
-        /* ============================================================
-           Utilities
-           ============================================================ */
         .fade-in {
             animation: fadeUp 0.7s ease-out forwards;
             opacity: 0;
@@ -1622,10 +1497,6 @@
             font-weight: 700;
             color: var(--text-muted);
         }
-
-        /* ============================================================
-           新增统计表格样式
-           ============================================================ */
         .stats-table {
             width: 100%;
             border-collapse: collapse;
@@ -1651,26 +1522,47 @@
             font-weight: 700;
         }
 
-        /* ============================================================
-           双设备适配微调
-           ============================================================ */
+        .tg-main-btn {
+            display: none;
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--accent);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        .tg-main-btn:active {
+            transform: scale(0.96);
+        }
+        .in-telegram .tg-main-btn {
+            display: block;
+        }
+
+        /* ===== 响应式 ===== */
         @media (max-width: 640px) {
             .container {
                 padding: 10px 10px 70px;
             }
+            .navbar {
+                padding: 10px 14px;
+                flex-wrap: wrap;
+            }
             .navbar-title {
-                font-size: 15px;
+                font-size: 16px;
             }
             .navbar-sub {
                 font-size: 9px;
             }
             .navbar-icon {
-                width: 34px;
-                height: 34px;
-                font-size: 17px;
-            }
-            .hero-card {
-                padding: 16px 12px 16px;
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
             }
             .hero-ball {
                 width: 44px;
@@ -1684,13 +1576,10 @@
                 font-size: 16px;
             }
             .hero-numbers {
-                gap: 4px;
+                gap: 6px;
             }
-            .predict-card {
-                padding: 16px 12px 18px;
-            }
-            .predict-item {
-                padding: 12px 14px;
+            .card {
+                padding: 16px 14px;
             }
             .predict-item-value {
                 font-size: 20px;
@@ -1723,7 +1612,7 @@
             }
             .bet-summary {
                 font-size: 12px;
-                padding: 10px 10px;
+                padding: 10px;
             }
             .bet-summary .stat .num {
                 font-size: 14px;
@@ -1740,7 +1629,7 @@
                 padding: 6px 4px;
             }
             .algo-item {
-                padding: 10px 10px;
+                padding: 10px;
             }
             .algo-item-pred {
                 font-size: 10px;
@@ -1751,15 +1640,10 @@
             }
             select {
                 font-size: 12px;
-                padding: 6px 24px 6px 10px;
-                min-width: 90px;
+                padding: 6px 28px 6px 10px;
+                min-width: 100px;
             }
-            .theme-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 16px;
-            }
-            .music-btn {
+            .icon-btn {
                 width: 36px;
                 height: 36px;
                 font-size: 16px;
@@ -1779,6 +1663,9 @@
             }
             .music-vol-wrap input[type="range"] {
                 width: 40px;
+            }
+            .consensus-box .row {
+                font-size: 13px;
             }
         }
         @media (max-width: 380px) {
@@ -1804,9 +1691,6 @@
             }
         }
 
-        /* ============================================================
-           Telegram 特有样式
-           ============================================================ */
         .in-telegram .tg-only {
             display: flex !important;
         }
@@ -1816,28 +1700,6 @@
         .not-in-telegram .tg-only,
         .not-in-telegram .tg-only-inline {
             display: none !important;
-        }
-        .tg-main-btn {
-            display: none;
-            width: 100%;
-            padding: 14px;
-            margin-top: 12px;
-            border: none;
-            border-radius: var(--radius-md);
-            background: var(--accent);
-            color: #fff;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: inherit;
-            touch-action: manipulation;
-        }
-        .tg-main-btn:active {
-            transform: scale(0.96);
-        }
-        .in-telegram .tg-main-btn {
-            display: block;
         }
     </style>
 </head>
@@ -1866,17 +1728,15 @@
                     <span class="status-dot"></span>
                     <span>在线</span>
                 </div>
-                <!-- ===== 音乐按钮（嵌入） ===== -->
-                <button class="music-btn" id="music-toggle" onclick="app.toggleMusic()" title="背景音乐 (M)">
+                <button class="icon-btn" id="music-toggle" onclick="app.toggleMusic()" title="背景音乐 (M)">
                     <span id="music-icon">🎵</span>
                     <span class="badge-dot"></span>
-                    <!-- 悬停音量控制 -->
                     <span class="music-vol-wrap" id="music-vol-wrap">
                         <span class="vol-label">🔊</span>
                         <input type="range" id="music-volume" min="0" max="1" step="0.05" value="0.30" oninput="app.updateMusicVolume()" />
                     </span>
                 </button>
-                <button class="theme-btn" id="theme-toggle" onclick="app.toggleTheme()" title="切换主题 (T)">
+                <button class="icon-btn" id="theme-toggle" onclick="app.toggleTheme()" title="切换主题 (T)">
                     <span id="theme-icon">🌙</span>
                 </button>
                 <button class="tg-close-btn" id="tg-close-btn" onclick="app.closeTelegram()" title="关闭">
@@ -1886,15 +1746,15 @@
         </nav>
 
         <!-- ===== Telegram 环境标识 ===== -->
-        <div id="tg-env-badge" style="display:none;text-align:center;font-size:11px;color:var(--text-muted);margin:-8px 0 12px;padding:4px 12px;background:var(--accent-weak);border-radius:999px;border:1px solid var(--border);">
+        <div id="tg-env-badge" style="display:none;text-align:center;font-size:11px;color:var(--text-muted);margin:-8px 0 12px;padding:4px 14px;background:var(--accent-weak);border-radius:999px;border:1px solid var(--border);">
             📱 Telegram 小程序模式
         </div>
 
         <!-- ===== Hero: Latest Result ===== -->
-        <div class="hero-card fade-in delay-1" id="hero-card">
-            <div class="hero-top">
-                <span class="hero-period">📅 最新开奖 · 第 <strong id="cur-period">------</strong> 期</span>
-                <span class="hero-tag" id="cur-combo">--</span>
+        <div class="card fade-in delay-1" id="hero-card">
+            <div class="hero-meta">
+                <span>📅 最新开奖 · 第 <strong id="cur-period">------</strong> 期</span>
+                <span class="card-badge" id="cur-combo">--</span>
             </div>
             <div class="hero-numbers" id="latest-nums-container">
                 <div class="hero-ball" style="animation:none;opacity:0.3;">?</div>
@@ -1905,7 +1765,7 @@
                 <span class="hero-sep">=</span>
                 <span class="hero-eq" id="cur-sum">--</span>
             </div>
-            <div class="hero-time" id="cur-time">加载中...</div>
+            <div style="text-align:center;font-size:12px;color:var(--text-muted);" id="cur-time">加载中...</div>
 
             <!-- Countdown -->
             <div class="countdown-section" id="countdown-box">
@@ -1922,14 +1782,14 @@
         </div>
 
         <!-- ===== Prediction ===== -->
-        <div class="predict-card fade-in delay-2" id="ai">
-            <div class="predict-header">
-                <div class="predict-title">🎯 本期预测</div>
-                <span class="predict-algo-badge" id="algorithm-tag">天机策</span>
+        <div class="card fade-in delay-2" id="ai">
+            <div class="card-header">
+                <div class="card-title">🎯 本期预测</div>
+                <span class="card-badge" id="algorithm-tag">天机策</span>
             </div>
-            <div class="predict-meta">
-                <span class="meta-chip" id="ai-nextperiod">预测期数：------</span>
-                <span class="meta-chip ready" id="status-indicator">等待数据</span>
+            <div class="predict-meta" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                <span class="meta-chip" id="ai-nextperiod" style="padding:4px 14px;border-radius:999px;background:var(--bg-glass);border:1px solid var(--border);font-size:12px;color:var(--text-secondary);">预测期数：------</span>
+                <span class="meta-chip ready" id="status-indicator" style="padding:4px 14px;border-radius:999px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);color:var(--success);font-size:12px;">等待数据</span>
             </div>
 
             <div class="predict-grid">
@@ -1944,6 +1804,15 @@
                     <div class="predict-item-label">🚫 排除杀组</div>
                     <div class="predict-item-value" id="kill-group">--</div>
                     <div class="predict-item-sub">本期不会开出</div>
+                </div>
+            </div>
+
+            <!-- ===== 共识投票 (新增) ===== -->
+            <div class="consensus-box" id="consensus-box" style="display:none;">
+                <div class="label">🗳️ 算法共识（全算法投票）</div>
+                <div class="row" id="consensus-row">
+                    <span class="tag high">推荐：<span id="consensus-combo">--</span> <span class="vote" id="consensus-combo-vote"></span></span>
+                    <span class="tag kill">杀组：<span id="consensus-kill">--</span> <span class="vote" id="consensus-kill-vote"></span></span>
                 </div>
             </div>
 
@@ -1970,7 +1839,7 @@
                 <div style="margin-top:10px;">
                     <div class="flex-between">
                         <span style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">📋 投注记录</span>
-                        <button class="btn" style="padding:2px 10px;font-size:10px;" onclick="app.clearBetHistory()">清空</button>
+                        <button class="btn" style="padding:2px 12px;font-size:10px;" onclick="app.clearBetHistory()">清空</button>
                     </div>
                     <div class="bet-history-wrap" id="bet-history-wrap">
                         <table class="bet-history-table">
@@ -1990,7 +1859,6 @@
                 </div>
             </div>
 
-            <!-- Telegram 主按钮 -->
             <button class="tg-main-btn" id="tg-main-btn" onclick="app.tgMainAction()">
                 📤 分享预测
             </button>
@@ -1999,7 +1867,7 @@
         <!-- ===== Algorithm Compare ===== -->
         <div class="algo-panel fade-in delay-3" id="algo-panel">
             <div class="algo-toggle" id="algo-toggle" onclick="app.toggleAlgoCompare()">
-                <div class="algo-toggle-left">🔀 8算法同屏对比</div>
+                <div class="algo-toggle-left">🔀 算法同屏对比 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(含特色算法)</span></div>
                 <span class="algo-toggle-arrow">▼</span>
             </div>
             <div class="algo-body" id="algo-body">
@@ -2031,6 +1899,7 @@
                 <span class="controls-label">🧠 算法</span>
                 <div class="select-wrap">
                     <select id="algorithm-select" onchange="app.changeAlgorithm()">
+                        <!-- 基础算法 -->
                         <option value="shuying_v1">天机策</option>
                         <option value="shuying_v2">玄机策</option>
                         <option value="module1">逆形态</option>
@@ -2039,6 +1908,13 @@
                         <option value="module4">银河锚点</option>
                         <option value="module5">威震天机</option>
                         <option value="fusion_vote">五行之合</option>
+                        <!-- 特色算法 (来自机器人) -->
+                        <option value="jingpai">京派</option>
+                        <option value="fengpai">枫派</option>
+                        <option value="tongpai">通派</option>
+                        <option value="qisha">奇杀</option>
+                        <option value="yisha">异杀</option>
+                        <option value="shisha">势杀</option>
                     </select>
                 </div>
                 <button class="btn" onclick="app.exportCSV()">📥 导出</button>
@@ -2046,10 +1922,10 @@
         </div>
 
         <!-- ===== Monitor ===== -->
-        <div class="card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);backdrop-filter:blur(20px);padding:18px 18px;margin-bottom:16px;box-shadow:var(--shadow-card);">
-            <div style="font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-                <span>📊</span> 算法监视
-                <span style="font-size:11px;color:var(--text-muted);font-weight:500;">实时胜率</span>
+        <div class="card fade-in delay-5">
+            <div class="card-header">
+                <div class="card-title">📊 算法监视</div>
+                <span style="font-size:12px;color:var(--text-muted);">实时胜率</span>
             </div>
             <div class="monitor-grid">
                 <div class="monitor-item">
@@ -2089,7 +1965,7 @@
                 </div>
             </div>
 
-            <!-- ===== 新增：出现次数 & 按天查询 ===== -->
+            <!-- 附加统计 -->
             <div id="extra-stats" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
                 <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;">
                     <button class="btn" onclick="app.toggleFrequencyStats()">📊 出现次数</button>
@@ -2106,13 +1982,10 @@
         </div>
 
         <!-- ===== History ===== -->
-        <div class="card fade-in delay-5" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);backdrop-filter:blur(20px);padding:18px 18px;margin-bottom:16px;box-shadow:var(--shadow-card);">
-            <div class="flex-between" style="margin-bottom:10px;">
-                <div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;">
-                    <span>📜</span> 历史预测记录
-                    <span style="font-size:11px;color:var(--text-muted);font-weight:500;">最新50期</span>
-                </div>
-                <span class="predict-algo-badge" id="table-algorithm-tag" style="font-size:11px;">天机策</span>
+        <div class="card fade-in delay-5">
+            <div class="card-header">
+                <div class="card-title">📜 历史预测记录</div>
+                <span class="card-badge" id="table-algorithm-tag" style="font-size:11px;">天机策</span>
             </div>
             <div class="history-wrap">
                 <table class="history-table">
@@ -2143,22 +2016,22 @@
         </div>
     </div>
 
-    <!-- ===== Audio 元素（隐藏） ===== -->
-    <audio id="bg-music" src="https://assets.mixkit.co/music/preview/mixkit-soft-and-calm-background-music-726.mp3" loop preload="metadata"></audio>
+    <!-- ===== Audio 元素（多备选源） ===== -->
+    <audio id="bg-music" preload="metadata">
+        <source src="https://assets.mixkit.co/music/preview/mixkit-soft-and-calm-background-music-726.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_2c3b9d2c6d.mp3" type="audio/mpeg">
+    </audio>
 
     <!-- ============================================================
-    JAVASCRIPT — 完整应用逻辑 + Telegram Mini App 适配
+    JAVASCRIPT — 完整应用 + 共识投票 + 特色算法
     ============================================================ -->
     <script>
         /**
-         * ============================================================
-         *  清浔杀组预测 · 多源融合引擎 · Telegram Mini App 适配版
-         *  功能完整保留：8算法、语音、投注、遗漏、导出、双主题
-         *  新增：音乐开关 + 音量控制 (M键)
-         * ============================================================
+         * 清浔杀组预测 Pro · 整合 Telegram 机器人特色算法 + 共识投票
+         * 算法：天机策、玄机策、逆形态、趋势捕手、冷热探针、银河锚点、威震天机、五行之合
+         *      京派、枫派、通派、奇杀、异杀、势杀（共14种）
          */
-
-        // ==================== Telegram 环境检测 ====================
         const isTelegram = !!(window.Telegram && window.Telegram.WebApp);
         let tgInstance = null;
         if (isTelegram) {
@@ -2183,7 +2056,13 @@
                 module3: '冷热探针',
                 module4: '银河锚点',
                 module5: '威震天机',
-                fusion_vote: '五行之合'
+                fusion_vote: '五行之合',
+                jingpai: '京派',
+                fengpai: '枫派',
+                tongpai: '通派',
+                qisha: '奇杀',
+                yisha: '异杀',
+                shisha: '势杀'
             },
             COMBO_MAP: {
                 '小单': ['大单', '小双'],
@@ -2276,7 +2155,7 @@
             fmtNum(n) { return n.toString().padStart(2, '0'); },
 
             downloadCSV(filename, rows) {
-                const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+                const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
                 const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
@@ -2286,8 +2165,9 @@
             }
         };
 
-        // ==================== 算法引擎 ====================
+        // ==================== 算法引擎（整合机器人全部算法） ====================
         const Algorithms = {
+            // ----- 基础算法 -----
             module1(prevGroup) {
                 const map = { "大双": "小双", "小双": "大单", "大单": "小单", "小单": "大双" };
                 return map[prevGroup] || null;
@@ -2304,10 +2184,11 @@
             },
             module3(historyGroups) {
                 if (!historyGroups.length) return null;
-                const findMiss = (target) => {
+
+                function findMiss(target) {
                     const idx = historyGroups.findIndex(g => g === target);
                     return idx === -1 ? historyGroups.length : idx;
-                };
+                }
                 const daDanMiss = findMiss("大单");
                 const daShuangMiss = findMiss("大双");
                 const recent5 = historyGroups.slice(0, 5);
@@ -2378,6 +2259,77 @@
                 const kill = Utils.judgeSizeOdd(intPart);
                 return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill) };
             },
+
+            // ----- 特色算法（来自机器人） -----
+            jingpai(history) {
+                if (history.length < 3) return null;
+                const A = history[history.length - 3],
+                    B = history[history.length - 2],
+                    C = history[history.length - 1];
+                const tail = (x) => x % 10;
+                const first = (x) => parseInt(String(x)[0]) || 0;
+                const val1 = tail(A.sum + B.nums[1] + C.sum);
+                const val2 = first(A.nums[2] + B.nums[1] + A.nums[1] + C.sum);
+                const val3 = tail(A.nums[0] + B.nums[1] + A.sum);
+                const total = (val1 + val2 + val3) % 4;
+                return ["小单", "小双", "大单", "大双"][total];
+            },
+            fengpai(history) {
+                if (history.length < 3) return null;
+                const A = history[history.length - 3],
+                    B = history[history.length - 2];
+                const result = A.nums[1] + A.nums[2] + B.nums[0] + B.nums[2] - A.nums[0] - B.nums[1];
+                const idx = Math.abs(result) % 4;
+                return ["小单", "小双", "大单", "大双"][idx];
+            },
+            tongpai(history) {
+                if (history.length < 3) return null;
+                const A = history[history.length - 3],
+                    B = history[history.length - 2],
+                    C = history[history.length - 1];
+                const tail = (x) => x % 10;
+                const val1 = tail(A.nums[0] + A.nums[1] + A.sum);
+                const val2 = tail(B.nums[0] + B.nums[2] + C.nums[0]);
+                const val3 = tail(B.nums[1] + C.nums[1] + C.nums[2]);
+                const total = (val1 + val2 + val3) % 4;
+                return ["小单", "小双", "大单", "大双"][total];
+            },
+            qisha(history) {
+                if (history.length < 3) return null;
+                const A = history[history.length - 3],
+                    B = history[history.length - 2],
+                    C = history[history.length - 1];
+                const val = (A.nums[1] + B.nums[1] + C.sum) % 10;
+                return (val >= 5 ? "大" : "小") + (val % 2 ? "单" : "双");
+            },
+            yisha(history) {
+                if (history.length < 3) return null;
+                const A = history[history.length - 3],
+                    B = history[history.length - 2],
+                    C = history[history.length - 1];
+                const val = (A.sum % 10 + B.sum % 10 + C.sum % 10) % 10;
+                return (val >= 5 ? "大" : "小") + (val % 2 ? "单" : "双");
+            },
+            shisha(history) {
+                if (history.length < 40) return null;
+                const recent = history.slice(-20);
+                const prev = history.slice(-40, -20);
+                const ratios = (seq) => {
+                    if (!seq.length) return [0, 0];
+                    const big = seq.filter(p => p.sum >= 14).length;
+                    const odd = seq.filter(p => p.sum % 2).length;
+                    return [big / seq.length, odd / seq.length];
+                };
+                const [bigR, oddR] = ratios(recent);
+                const [bigP, oddP] = ratios(prev);
+                const predSize = bigR > bigP ? "大" : "小";
+                const predParity = oddR > oddP ? "单" : "双";
+                const pred = predSize + predParity;
+                const opposite = { "小单": "大双", "小双": "大单", "大单": "小双", "大双": "小单" };
+                return opposite[pred] || null;
+            },
+
+            // ----- 统一预测入口 -----
             predict(algName, history3, prevGroup, prevSum, currentNums, fullHistoryPrev, weights) {
                 let kill = null;
                 switch (algName) {
@@ -2403,11 +2355,68 @@
                     case 'fusion_vote':
                         kill = Algorithms.fusionVote(fullHistoryPrev, prevGroup, prevSum, currentNums, weights);
                         break;
+                    case 'jingpai':
+                        kill = Algorithms.jingpai(fullHistoryPrev);
+                        break;
+                    case 'fengpai':
+                        kill = Algorithms.fengpai(fullHistoryPrev);
+                        break;
+                    case 'tongpai':
+                        kill = Algorithms.tongpai(fullHistoryPrev);
+                        break;
+                    case 'qisha':
+                        kill = Algorithms.qisha(fullHistoryPrev);
+                        break;
+                    case 'yisha':
+                        kill = Algorithms.yisha(fullHistoryPrev);
+                        break;
+                    case 'shisha':
+                        kill = Algorithms.shisha(fullHistoryPrev);
+                        break;
                     default:
                         return Algorithms.shuyingV1(history3);
                 }
                 if (!kill) return { killGroup: '--', predictCombos: ['--', '--'] };
                 return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill) };
+            },
+
+            // ----- 共识投票（全算法） -----
+            getAllPredictions(history3, prevGroup, prevSum, currentNums, fullHistoryPrev) {
+                const algNames = Object.keys(CONFIG.ALGORITHM_NAMES);
+                const results = {};
+                for (const alg of algNames) {
+                    try {
+                        const pred = Algorithms.predict(alg, history3, prevGroup, prevSum, currentNums, fullHistoryPrev);
+                        results[alg] = pred;
+                    } catch (_) {
+                        results[alg] = { killGroup: '--', predictCombos: ['--', '--'] };
+                    }
+                }
+                return results;
+            },
+
+            getConsensus(allPreds) {
+                const comboVotes = [],
+                    killVotes = [];
+                for (const alg in allPreds) {
+                    const p = allPreds[alg];
+                    if (p.killGroup !== '--') {
+                        comboVotes.push(p.predictCombos[0]);
+                        comboVotes.push(p.predictCombos[1]);
+                        killVotes.push(p.killGroup);
+                    }
+                }
+                const comboCounter = {},
+                    killCounter = {};
+                for (const c of comboVotes) { comboCounter[c] = (comboCounter[c] || 0) + 1; }
+                for (const k of killVotes) { killCounter[k] = (killCounter[k] || 0) + 1; }
+                const sortedCombos = Object.entries(comboCounter).sort((a, b) => b[1] - a[1]);
+                const sortedKills = Object.entries(killCounter).sort((a, b) => b[1] - a[1]);
+                return {
+                    topCombos: sortedCombos.slice(0, 2),
+                    topKills: sortedKills.slice(0, 2),
+                    totalVotes: killVotes.length
+                };
             }
         };
 
@@ -2446,6 +2455,7 @@
                 const voice = this.getChineseVoice();
                 if (voice) utterance.voice = voice;
                 let resumeInterval;
+
                 const startResumeLoop = () => {
                     resumeInterval = setInterval(() => {
                         if (this.synth.paused || !this.synth.speaking) return;
@@ -2567,12 +2577,16 @@
                     autoAnnounceBtn: this.$('auto-announce-btn'),
                     autoAnnounceIcon: this.$('auto-announce-icon'),
                     autoAnnounceLabel: this.$('auto-announce-label'),
-                    // 音乐相关
                     musicToggle: this.$('music-toggle'),
                     musicIcon: this.$('music-icon'),
                     bgMusic: this.$('bg-music'),
                     musicVolume: this.$('music-volume'),
                     musicVolWrap: this.$('music-vol-wrap'),
+                    consensusBox: this.$('consensus-box'),
+                    consensusCombo: this.$('consensus-combo'),
+                    consensusComboVote: this.$('consensus-combo-vote'),
+                    consensusKill: this.$('consensus-kill'),
+                    consensusKillVote: this.$('consensus-kill-vote'),
                 };
 
                 this.apiData = [];
@@ -2599,14 +2613,20 @@
                 this.isSettling = false;
                 this.isTelegram = isTelegram;
                 this.autoAnnounce = false;
-                // 音乐状态
                 this.musicEnabled = false;
+                this.musicSourceIndex = 0;
+                this.musicSources = [
+                    'https://assets.mixkit.co/music/preview/mixkit-soft-and-calm-background-music-726.mp3',
+                    'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+                    'https://cdn.pixabay.com/download/audio/2022/05/27/audio_2c3b9d2c6d.mp3'
+                ];
 
                 this.voice = new VoiceEngine();
 
-                Object.keys(CONFIG.ALGORITHM_NAMES).forEach(k => {
+                // 初始化所有算法统计
+                for (const k of Object.keys(CONFIG.ALGORITHM_NAMES)) {
                     this.algorithmStats[k] = { total: 0, win: 0, currentConsecutive: 0, winRate: 0 };
-                });
+                }
 
                 this.initTelegram();
                 this.init();
@@ -2626,11 +2646,8 @@
                     tgInstance.MainButton.setText('📤 分享预测');
                     tgInstance.MainButton.onClick(() => this.tgMainAction());
                     tgInstance.MainButton.show();
-                    if (tgInstance.HapticFeedback) {
-                        this.tgHaptic = tgInstance.HapticFeedback;
-                    }
+                    if (tgInstance.HapticFeedback) { this.tgHaptic = tgInstance.HapticFeedback; }
                     tgInstance.ready();
-                    console.log('[清浔] Telegram Mini App 已初始化, 版本:', version);
                 } else {
                     document.body.classList.add('not-in-telegram');
                     document.body.classList.remove('in-telegram');
@@ -2642,24 +2659,24 @@
                 const theme = tgInstance.themeParams || {};
                 const root = document.documentElement;
                 const map = {
-                    '--tg-bg-color': theme.bg_color || '#0b0f1a',
-                    '--tg-text-color': theme.text_color || '#f1f5f9',
-                    '--tg-hint-color': theme.hint_color || '#94a3b8',
-                    '--tg-link-color': theme.link_color || '#7c3aed',
-                    '--tg-button-color': theme.button_color || '#7c3aed',
+                    '--tg-bg-color': theme.bg_color || '#0e0e18',
+                    '--tg-text-color': theme.text_color || '#f0f0ff',
+                    '--tg-hint-color': theme.hint_color || '#b0b0d0',
+                    '--tg-link-color': theme.link_color || '#8b5cf6',
+                    '--tg-button-color': theme.button_color || '#8b5cf6',
                     '--tg-button-text-color': theme.button_text_color || '#ffffff',
-                    '--tg-secondary-bg-color': theme.secondary_bg_color || '#111827',
-                    '--tg-header-bg-color': theme.header_bg_color || '#0b0f1a',
-                    '--tg-section-bg-color': theme.section_bg_color || 'rgba(17,24,39,0.75)',
-                    '--tg-section-header-text-color': theme.section_header_text_color || '#f1f5f9',
-                    '--tg-subtitle-text-color': theme.subtitle_text_color || '#94a3b8',
-                    '--tg-destructive-text-color': theme.destructive_text_color || '#ef4444',
+                    '--tg-secondary-bg-color': theme.secondary_bg_color || '#16162a',
+                    '--tg-header-bg-color': theme.header_bg_color || '#0e0e18',
+                    '--tg-section-bg-color': theme.section_bg_color || 'rgba(20,20,40,0.60)',
+                    '--tg-section-header-text-color': theme.section_header_text_color || '#f0f0ff',
+                    '--tg-subtitle-text-color': theme.subtitle_text_color || '#b0b0d0',
+                    '--tg-destructive-text-color': theme.destructive_text_color || '#f87171',
                 };
                 for (const [key, val] of Object.entries(map)) {
                     if (val) root.style.setProperty(key, val);
                 }
                 root.classList.add('tg-theme');
-                const isDark = theme.bg_color && theme.bg_color !== '#f1f5f9' &&
+                const isDark = theme.bg_color && theme.bg_color !== '#f0f0fa' &&
                     !theme.bg_color.startsWith('#f') && !theme.bg_color.startsWith('#e');
                 const currentTheme = document.documentElement.getAttribute('data-theme');
                 const newTheme = isDark ? 'dark' : 'light';
@@ -2670,12 +2687,9 @@
             }
 
             closeTelegram() {
-                if (this.isTelegram && tgInstance) {
-                    tgInstance.close();
-                } else {
-                    if (window.history.length > 1) window.history.back();
-                    else window.close();
-                }
+                if (this.isTelegram && tgInstance) tgInstance.close();
+                else { if (window.history.length > 1) window.history.back();
+                    else window.close(); }
             }
 
             tgMainAction() {
@@ -2716,7 +2730,7 @@
                 return (stats.win / stats.total * 100).toFixed(1);
             }
 
-            // ==================== 核心逻辑 ====================
+            // ==================== 初始化 ====================
             init() {
                 this.initTheme();
                 this.loadPreferences();
@@ -2724,7 +2738,6 @@
                 this.loadBetHistory();
                 this.loadCache();
                 this.bindKeyboard();
-                // 恢复音乐状态
                 this.restoreMusicState();
                 if (this.apiData.length > 0) this.render();
                 this.fetchData();
@@ -2732,9 +2745,7 @@
                 if (window.speechSynthesis) {
                     window.speechSynthesis.onvoiceschanged = () => { this.voice.getChineseVoice(); };
                 }
-                if (this.isTelegram && tgInstance) {
-                    tgInstance.ready();
-                }
+                if (this.isTelegram && tgInstance) tgInstance.ready();
             }
 
             initTheme() {
@@ -2790,7 +2801,7 @@
                 let lastError = null;
                 let successSource = '';
 
-                for (let url of CONFIG.API_URLS) {
+                for (const url of CONFIG.API_URLS) {
                     try {
                         const controller = new AbortController();
                         const timeoutId = setTimeout(() => controller.abort(), CONFIG.FETCH_TIMEOUT);
@@ -2916,7 +2927,6 @@
                 this.isSettling = false;
             }
 
-            // ==================== 下注 ====================
             placeBet(combo) {
                 if (!this.apiData.length) { this.showToast('请等待数据加载完成', 'warning'); return; }
                 if (this.virtualBalance < CONFIG.BET_AMOUNT) { this.showToast('资金不足！请重置', 'error'); return; }
@@ -2962,7 +2972,7 @@
                 const history = this.betHistory.slice(-20).reverse();
                 if (!history.length) {
                     tbody.innerHTML =
-                    '<tr><td colspan="4" style="color:var(--text-muted);padding:12px;">暂无投注记录</td></tr>';
+                        '<tr><td colspan="4" style="color:var(--text-muted);padding:12px;">暂无投注记录</td></tr>';
                     return;
                 }
                 history.forEach(h => {
@@ -3029,7 +3039,7 @@
                     return result;
                 };
 
-                Object.keys(CONFIG.ALGORITHM_NAMES).forEach(alg => {
+                for (const alg of Object.keys(CONFIG.ALGORITHM_NAMES)) {
                     let total = 0,
                         win = 0,
                         consecutive = 0;
@@ -3051,7 +3061,7 @@
                         currentConsecutive: consecutive,
                         winRate: total > 0 ? (win / total) * 100 : 0
                     };
-                });
+                }
             }
 
             updateMissedStats() {
@@ -3172,6 +3182,21 @@
                 this.dom.algorithmTag.textContent = name;
                 this.dom.tableAlgoTag.textContent = name;
 
+                // ----- 共识投票 -----
+                const allPreds = Algorithms.getAllPredictions(history3, prev.combo, prev.sum, current.nums, fullPrev);
+                const consensus = Algorithms.getConsensus(allPreds);
+                if (consensus.totalVotes > 0) {
+                    this.dom.consensusBox.style.display = 'block';
+                    const topCombo = consensus.topCombos[0];
+                    const topKill = consensus.topKills[0];
+                    this.dom.consensusCombo.textContent = topCombo ? topCombo[0] : '--';
+                    this.dom.consensusComboVote.textContent = topCombo ? `(${topCombo[1]}票)` : '';
+                    this.dom.consensusKill.textContent = topKill ? topKill[0] : '--';
+                    this.dom.consensusKillVote.textContent = topKill ? `(${topKill[1]}票)` : '';
+                } else {
+                    this.dom.consensusBox.style.display = 'none';
+                }
+
                 if (this.isTelegram && tgInstance) {
                     const winRate = this.getCurrentWinRate();
                     tgInstance.MainButton.setText(`📤 分享预测 (胜率${winRate}%)`);
@@ -3244,16 +3269,11 @@
                     `${CONFIG.ALGORITHM_NAMES[bestCon]} <span class="sub">连中${conStats.currentConsecutive}期</span>`;
 
                 const algNames = Object.keys(CONFIG.ALGORITHM_NAMES);
-                const shortNames = {
-                    shuying_v1: '天机',
-                    shuying_v2: '玄机',
-                    module1: '逆形',
-                    module2: '趋势',
-                    module3: '冷热',
-                    module4: '银河',
-                    module5: '威震',
-                    fusion_vote: '五行'
-                };
+                const shortNames = {};
+                for (const k of algNames) {
+                    const name = CONFIG.ALGORITHM_NAMES[k];
+                    shortNames[k] = name.length > 4 ? name.slice(0, 4) : name;
+                }
                 const winrates = algNames.map(a => this.algorithmStats[a].winRate);
                 const consecutives = algNames.map(a => this.algorithmStats[a].currentConsecutive);
                 const maxWR = Math.max(...winrates, 1);
@@ -3269,7 +3289,7 @@
                 const sums = recent.map(d => d.sum);
                 document.getElementById('trend-card').style.display = 'block';
                 const canvas = this.dom.trendCanvas;
-                const color = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#7c3aed';
+                const color = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#8b5cf6';
                 requestAnimationFrame(() => Utils.drawSparkline(canvas, sums, color));
             }
 
@@ -3281,21 +3301,26 @@
                 const fullPrev = this.apiData.slice(0, this.apiData.length - 1);
 
                 let html = '';
-                Object.keys(CONFIG.ALGORITHM_NAMES).forEach(alg => {
+                const allAlgs = Object.keys(CONFIG.ALGORITHM_NAMES);
+                const isFeatureAlg = (alg) => ['jingpai', 'fengpai', 'tongpai', 'qisha', 'yisha', 'shisha'].includes(alg);
+
+                for (const alg of allAlgs) {
                     const pred = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev,
                         this.fusionWeights);
                     const stats = this.algorithmStats[alg];
                     const isFusion = alg === 'fusion_vote';
+                    const isFeature = isFeatureAlg(alg);
                     const cls = isFusion ? 'algo-item fusion' : 'algo-item';
+                    const badge = isFeature ? '<span class="badge-new">特色</span>' : '';
                     html += `<div class="${cls}">
-                        <div class="algo-item-name">${CONFIG.ALGORITHM_NAMES[alg]}</div>
+                        <div class="algo-item-name">${CONFIG.ALGORITHM_NAMES[alg]} ${badge}</div>
                         <div class="algo-item-pred">推荐 <span class="p-red">${pred.predictCombos.join('+')}</span> · 杀 <span class="p-kill">${pred.killGroup}</span></div>
                         <div class="algo-item-stats">
                             <span>胜率 <span class="win">${stats.winRate.toFixed(1)}%</span></span>
                             <span>连中 <span class="con">${stats.currentConsecutive}</span></span>
                         </div>
                     </div>`;
-                });
+                }
                 this.dom.algoGrid.innerHTML = html;
             }
 
@@ -3451,21 +3476,6 @@
                 this.dom.notifyBtn.classList.toggle('active', this.notifyEnabled);
             }
 
-            sendNotification(title, body) {
-                if (!this.notifyEnabled || !('Notification' in window) || Notification.permission !== 'granted') return;
-                try {
-                    const n = new Notification(title, {
-                        body,
-                        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="80" font-size="80">🔮</text></svg>',
-                        tag: 'qingxun-prediction',
-                        renotify: true
-                    });
-                    n.onclick = () => { window.focus();
-                        n.close(); };
-                    setTimeout(() => n.close(), 5000);
-                } catch (_) {}
-            }
-
             // ==================== 导出 ====================
             exportCSV() {
                 if (!this.apiData.length) return;
@@ -3491,7 +3501,7 @@
                         hit ? '命中' : '未命中'
                     ]);
                 }
-                Utils.downloadCSV(`清浔历史_${new Date().toISOString().slice(0,10)}.csv`, rows);
+                Utils.downloadCSV(`清浔历史_${new Date().toISOString().slice(0, 10)}.csv`, rows);
                 this.showToast('CSV导出成功', 'success');
             }
 
@@ -3588,7 +3598,6 @@
                         document.documentElement.setAttribute('data-theme', prefs.theme);
                         this.updateThemeIcon(prefs.theme);
                     }
-                    // 音乐偏好
                     if (typeof prefs.musicEnabled === 'boolean') {
                         this.musicEnabled = prefs.musicEnabled;
                     }
@@ -3604,8 +3613,8 @@
                 if (!audio) return;
 
                 if (audio.paused) {
-                    // 尝试播放
-                    audio.volume = parseFloat(this.dom.musicVolume?.value || 0.30);
+                    const vol = parseFloat(this.dom.musicVolume?.value || 0.30);
+                    audio.volume = vol;
                     audio.play()
                         .then(() => {
                             this.musicEnabled = true;
@@ -3613,11 +3622,9 @@
                             this.savePreferences();
                             this.showToast('🎵 背景音乐已开启', 'success');
                         })
-                        .catch(e => {
-                            console.warn('音乐播放失败:', e);
-                            this.musicEnabled = false;
-                            this.updateMusicUI();
-                            this.showToast('音乐加载失败，请检查网络', 'warning');
+                        .catch((e) => {
+                            console.warn('音乐播放失败，尝试切换源:', e);
+                            this.tryNextMusicSource();
                         });
                 } else {
                     audio.pause();
@@ -3626,6 +3633,31 @@
                     this.savePreferences();
                     this.showToast('🔇 背景音乐已暂停', 'info');
                 }
+            }
+
+            tryNextMusicSource() {
+                const audio = this.dom.bgMusic;
+                const currentSrc = audio.currentSrc || audio.src;
+                let currentIndex = this.musicSources.indexOf(currentSrc);
+                if (currentIndex === -1) currentIndex = 0;
+                const nextIndex = (currentIndex + 1) % this.musicSources.length;
+                this.musicSourceIndex = nextIndex;
+                const newSrc = this.musicSources[nextIndex];
+                audio.src = newSrc;
+                audio.load();
+                audio.play()
+                    .then(() => {
+                        this.musicEnabled = true;
+                        this.updateMusicUI();
+                        this.savePreferences();
+                        this.showToast('🎵 已切换到备选音乐源', 'success');
+                    })
+                    .catch((e2) => {
+                        console.error('所有音乐源均失败:', e2);
+                        this.musicEnabled = false;
+                        this.updateMusicUI();
+                        this.showToast('音乐加载失败，请检查网络或手动重试', 'error');
+                    });
             }
 
             updateMusicUI() {
@@ -3645,22 +3677,17 @@
             updateMusicVolume() {
                 const audio = this.dom.bgMusic;
                 const vol = parseFloat(this.dom.musicVolume?.value || 0.30);
-                if (audio) {
-                    audio.volume = vol;
-                }
-                // 保存偏好（防抖）
+                if (audio) audio.volume = vol;
                 clearTimeout(this._volSaveTimer);
                 this._volSaveTimer = setTimeout(() => this.savePreferences(), 300);
             }
 
             restoreMusicState() {
-                // 从偏好中恢复音乐状态
                 try {
                     const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.PREFS);
                     if (raw) {
                         const prefs = JSON.parse(raw);
                         if (prefs.musicEnabled) {
-                            // 延迟一点再尝试播放，确保页面加载完成
                             setTimeout(() => {
                                 const audio = this.dom.bgMusic;
                                 if (audio) {
@@ -3671,11 +3698,10 @@
                                             this.updateMusicUI();
                                         })
                                         .catch(() => {
-                                            this.musicEnabled = false;
-                                            this.updateMusicUI();
+                                            this.tryNextMusicSource();
                                         });
                                 }
-                            }, 800);
+                            }, 1000);
                         } else {
                             this.musicEnabled = false;
                             this.updateMusicUI();
@@ -3690,7 +3716,7 @@
                 }
             }
 
-            // ==================== 新增：自动播报开关 ====================
+            // ==================== 自动播报 ====================
             toggleAutoAnnounce() {
                 this.autoAnnounce = !this.autoAnnounce;
                 this.updateAutoAnnounceUI();
@@ -3706,7 +3732,7 @@
                 }
             }
 
-            // ==================== 新增：出现次数统计 ====================
+            // ==================== 统计功能 ====================
             toggleFrequencyStats() {
                 const display = this.dom.frequencyStatsDisplay;
                 if (display.style.display === 'block') {
@@ -3757,7 +3783,6 @@
                 display.style.display = 'block';
             }
 
-            // ==================== 新增：按天查询统计 ====================
             queryDaysStats() {
                 const input = this.dom.daysInput;
                 let days = parseInt(input.value, 10);
@@ -3855,7 +3880,7 @@
         const app = new QingxunApp();
         window.app = app;
 
-        // ==================== 注册 Service Worker (PWA) ====================
+        // ==================== Service Worker ====================
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('data:text/javascript,' + encodeURIComponent(`
                 self.addEventListener('install', e => { e.waitUntil(self.skipWaiting()); });
