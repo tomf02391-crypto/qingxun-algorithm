@@ -13,7 +13,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <!-- ===== Telegram Web App SDK ===== -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js">
+    </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
 
@@ -330,6 +331,107 @@
         .theme-btn:hover {
             border-color: var(--accent);
             box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        /* ===== 音乐按钮专用 ===== */
+        .music-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+            flex-shrink: 0;
+            position: relative;
+        }
+        .music-btn:active {
+            transform: scale(0.90);
+        }
+        .music-btn:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        /* 播放中脉冲动画 */
+        .music-btn.playing {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+            animation: music-pulse 2s ease-in-out infinite;
+        }
+        @keyframes music-pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 10px var(--accent-glow);
+            }
+            50% {
+                box-shadow: 0 0 28px var(--accent-glow), 0 0 40px rgba(124, 58, 237, 0.15);
+            }
+        }
+        .music-btn .badge-dot {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success-glow);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .music-btn.playing .badge-dot {
+            opacity: 1;
+            animation: dot-blink 1.5s ease-in-out infinite;
+        }
+        /* 音量微调 */
+        .music-vol-wrap {
+            display: none;
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 4px 8px;
+            backdrop-filter: blur(12px);
+            white-space: nowrap;
+            z-index: 20;
+        }
+        .music-btn:hover .music-vol-wrap,
+        .music-btn:focus .music-vol-wrap {
+            display: flex;
+        }
+        .music-vol-wrap input[type="range"] {
+            width: 56px;
+            height: 3px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--bg-secondary);
+            border-radius: 2px;
+            outline: none;
+            border: 1px solid var(--border);
+        }
+        .music-vol-wrap input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            cursor: pointer;
+            box-shadow: 0 2px 10px var(--accent-glow);
+            border: 2px solid var(--bg-primary);
+        }
+        .music-vol-wrap .vol-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-right: 4px;
         }
 
         /* Telegram 关闭按钮 */
@@ -1657,6 +1759,11 @@
                 height: 36px;
                 font-size: 16px;
             }
+            .music-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
             .status-badge {
                 font-size: 10px;
                 padding: 4px 10px;
@@ -1665,6 +1772,13 @@
                 width: 36px;
                 height: 36px;
                 font-size: 16px;
+            }
+            .music-vol-wrap {
+                bottom: -28px;
+                padding: 2px 6px;
+            }
+            .music-vol-wrap input[type="range"] {
+                width: 40px;
             }
         }
         @media (max-width: 380px) {
@@ -1752,6 +1866,16 @@
                     <span class="status-dot"></span>
                     <span>在线</span>
                 </div>
+                <!-- ===== 音乐按钮（嵌入） ===== -->
+                <button class="music-btn" id="music-toggle" onclick="app.toggleMusic()" title="背景音乐 (M)">
+                    <span id="music-icon">🎵</span>
+                    <span class="badge-dot"></span>
+                    <!-- 悬停音量控制 -->
+                    <span class="music-vol-wrap" id="music-vol-wrap">
+                        <span class="vol-label">🔊</span>
+                        <input type="range" id="music-volume" min="0" max="1" step="0.05" value="0.30" oninput="app.updateMusicVolume()" />
+                    </span>
+                </button>
                 <button class="theme-btn" id="theme-toggle" onclick="app.toggleTheme()" title="切换主题 (T)">
                     <span id="theme-icon">🌙</span>
                 </button>
@@ -1862,7 +1986,7 @@
                 <div style="font-size:10px;font-weight:700;color:var(--accent-light);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px;">📌 杀组规则</div>
                 <div style="font-size:13px;color:var(--text-secondary);line-height:2;">
                     <span>杀组 = 本期绝对不会开出的形态 · 双组推荐 = 高概率组合</span><br>
-                    <span style="font-size:12px;color:var(--text-muted);">快捷键: <span class="kbd">R</span> 刷新 <span class="kbd">T</span> 主题 <span class="kbd">V</span> 语音 <span class="kbd">Space</span> 播报</span>
+                    <span style="font-size:12px;color:var(--text-muted);">快捷键: <span class="kbd">R</span> 刷新 <span class="kbd">T</span> 主题 <span class="kbd">V</span> 语音 <span class="kbd">M</span> 音乐 <span class="kbd">Space</span> 播报</span>
                 </div>
             </div>
 
@@ -1898,7 +2022,6 @@
                 <button class="btn" onclick="app.speakText('语音播报测试，功能正常')">🧪 测试</button>
                 <button class="btn btn-primary" onclick="app.manualAnnounce()">📢 播报</button>
                 <button class="btn" id="notify-btn" onclick="app.toggleNotification()">🔔 推送</button>
-                <!-- ===== 新增自动播报开关 ===== -->
                 <button class="btn" id="auto-announce-btn" onclick="app.toggleAutoAnnounce()">
                     <span id="auto-announce-icon">🔕</span>
                     <span id="auto-announce-label">自动播报关</span>
@@ -2020,6 +2143,9 @@
         </div>
     </div>
 
+    <!-- ===== Audio 元素（隐藏） ===== -->
+    <audio id="bg-music" src="https://assets.mixkit.co/music/preview/mixkit-soft-and-calm-background-music-726.mp3" loop preload="metadata"></audio>
+
     <!-- ============================================================
     JAVASCRIPT — 完整应用逻辑 + Telegram Mini App 适配
     ============================================================ -->
@@ -2028,7 +2154,7 @@
          * ============================================================
          *  清浔杀组预测 · 多源融合引擎 · Telegram Mini App 适配版
          *  功能完整保留：8算法、语音、投注、遗漏、导出、双主题
-         *  新增：出现次数统计、按天查询统计、自动播报开关
+         *  新增：音乐开关 + 音量控制 (M键)
          * ============================================================
          */
 
@@ -2037,9 +2163,7 @@
         let tgInstance = null;
         if (isTelegram) {
             tgInstance = window.Telegram.WebApp;
-            // 告知 Telegram 应用已准备就绪
             tgInstance.ready();
-            // 展开以全屏显示
             tgInstance.expand();
         }
 
@@ -2437,13 +2561,18 @@
                     tgMainBtn: this.$('tg-main-btn'),
                     tgCloseBtn: this.$('tg-close-btn'),
                     appContainer: this.$('app-container'),
-                    // 新增DOM引用
                     frequencyStatsDisplay: this.$('frequency-stats-display'),
                     daysStatsDisplay: this.$('days-stats-display'),
                     daysInput: this.$('days-input'),
                     autoAnnounceBtn: this.$('auto-announce-btn'),
                     autoAnnounceIcon: this.$('auto-announce-icon'),
                     autoAnnounceLabel: this.$('auto-announce-label'),
+                    // 音乐相关
+                    musicToggle: this.$('music-toggle'),
+                    musicIcon: this.$('music-icon'),
+                    bgMusic: this.$('bg-music'),
+                    musicVolume: this.$('music-volume'),
+                    musicVolWrap: this.$('music-vol-wrap'),
                 };
 
                 this.apiData = [];
@@ -2469,8 +2598,9 @@
                 this.currentSource = '';
                 this.isSettling = false;
                 this.isTelegram = isTelegram;
-                // 新增：自动播报开关状态
                 this.autoAnnounce = false;
+                // 音乐状态
+                this.musicEnabled = false;
 
                 this.voice = new VoiceEngine();
 
@@ -2478,51 +2608,28 @@
                     this.algorithmStats[k] = { total: 0, win: 0, currentConsecutive: 0, winRate: 0 };
                 });
 
-                // Telegram 初始化
                 this.initTelegram();
-
                 this.init();
             }
 
             // ==================== Telegram 初始化 ====================
             initTelegram() {
                 if (this.isTelegram && tgInstance) {
-                    // 添加 Telegram 类标记
                     document.body.classList.add('in-telegram');
                     document.body.classList.remove('not-in-telegram');
                     this.dom.tgEnvBadge.style.display = 'block';
-
-                    // 显示版本信息
                     const version = tgInstance.version || 'unknown';
                     this.dom.tgVersionInfo.textContent = `Telegram Mini App v${version}`;
-
-                    // 适配 Telegram 主题
                     this.applyTelegramTheme();
-
-                    // 监听主题变化
-                    tgInstance.onEvent('themeChanged', () => {
-                        this.applyTelegramTheme();
-                    });
-
-                    // 监听关闭事件
-                    tgInstance.onEvent('close', () => {
-                        this.closeTelegram();
-                    });
-
-                    // 设置主按钮
+                    tgInstance.onEvent('themeChanged', () => { this.applyTelegramTheme(); });
+                    tgInstance.onEvent('close', () => { this.closeTelegram(); });
                     tgInstance.MainButton.setText('📤 分享预测');
                     tgInstance.MainButton.onClick(() => this.tgMainAction());
                     tgInstance.MainButton.show();
-
-                    // 震动反馈（移动端）
                     if (tgInstance.HapticFeedback) {
-                        // 保存震动方法供后续使用
                         this.tgHaptic = tgInstance.HapticFeedback;
                     }
-
-                    // 通知 Telegram 准备就绪
                     tgInstance.ready();
-
                     console.log('[清浔] Telegram Mini App 已初始化, 版本:', version);
                 } else {
                     document.body.classList.add('not-in-telegram');
@@ -2534,8 +2641,6 @@
                 if (!this.isTelegram || !tgInstance) return;
                 const theme = tgInstance.themeParams || {};
                 const root = document.documentElement;
-
-                // 映射 Telegram 主题变量到 CSS
                 const map = {
                     '--tg-bg-color': theme.bg_color || '#0b0f1a',
                     '--tg-text-color': theme.text_color || '#f1f5f9',
@@ -2550,15 +2655,10 @@
                     '--tg-subtitle-text-color': theme.subtitle_text_color || '#94a3b8',
                     '--tg-destructive-text-color': theme.destructive_text_color || '#ef4444',
                 };
-
                 for (const [key, val] of Object.entries(map)) {
                     if (val) root.style.setProperty(key, val);
                 }
-
-                // 添加 tg-theme 类以应用主题变量
                 root.classList.add('tg-theme');
-
-                // 同步暗色/亮色模式
                 const isDark = theme.bg_color && theme.bg_color !== '#f1f5f9' &&
                     !theme.bg_color.startsWith('#f') && !theme.bg_color.startsWith('#e');
                 const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -2567,32 +2667,20 @@
                     document.documentElement.setAttribute('data-theme', newTheme);
                     this.updateThemeIcon(newTheme);
                 }
-                console.log('[清浔] Telegram 主题已应用:', isDark ? '暗色' : '亮色');
             }
 
-            // ==================== 关闭 Telegram ====================
             closeTelegram() {
                 if (this.isTelegram && tgInstance) {
                     tgInstance.close();
                 } else {
-                    // 浏览器环境：尝试关闭窗口或返回
-                    if (window.history.length > 1) {
-                        window.history.back();
-                    } else {
-                        window.close();
-                    }
+                    if (window.history.length > 1) window.history.back();
+                    else window.close();
                 }
             }
 
-            // ==================== Telegram 主按钮动作 ====================
             tgMainAction() {
                 if (!this.isTelegram || !tgInstance) return;
-                // 震动反馈
-                if (this.tgHaptic) {
-                    try { this.tgHaptic.impactOccurred('medium'); } catch (_) {}
-                }
-
-                // 获取当前预测数据
+                if (this.tgHaptic) { try { this.tgHaptic.impactOccurred('medium'); } catch (_) {} }
                 if (!this.apiData || this.apiData.length < 4) {
                     this.showToast('数据未就绪，请稍候', 'warning');
                     return;
@@ -2606,27 +2694,14 @@
                     fullPrev, this.fusionWeights);
                 const nextPeriod = Number(latest.period) + 1;
                 const algName = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
-
                 const shareText =
-                    `🔮 清浔杀组预测 Pro\n` +
-                    `📅 第${nextPeriod}期预测 (${algName})\n` +
-                    `🎯 推荐: ${pred.predictCombos[0]} + ${pred.predictCombos[1]}\n` +
-                    `🚫 排除: ${pred.killGroup}\n` +
-                    `📊 历史胜率: ${this.getCurrentWinRate()}%\n` +
-                    `---\n` +
-                    `🔗 清浔杀组 · 智能预测`;
-
-                // 尝试分享
+                    `🔮 清浔杀组预测 Pro\n📅 第${nextPeriod}期预测 (${algName})\n🎯 推荐: ${pred.predictCombos[0]} + ${pred.predictCombos[1]}\n🚫 排除: ${pred.killGroup}\n📊 历史胜率: ${this.getCurrentWinRate()}%\n---\n🔗 清浔杀组 · 智能预测`;
                 if (tgInstance.shareToStory) {
                     tgInstance.shareToStory(shareText);
                     this.showToast('已打开分享', 'success');
                 } else if (navigator.share) {
-                    navigator.share({
-                        title: '清浔杀组预测',
-                        text: shareText,
-                    }).catch(() => {});
+                    navigator.share({ title: '清浔杀组预测', text: shareText }).catch(() => {});
                 } else {
-                    // 复制到剪贴板
                     navigator.clipboard.writeText(shareText).then(() => {
                         this.showToast('已复制预测结果', 'success');
                     }).catch(() => {
@@ -2649,17 +2724,14 @@
                 this.loadBetHistory();
                 this.loadCache();
                 this.bindKeyboard();
-
+                // 恢复音乐状态
+                this.restoreMusicState();
                 if (this.apiData.length > 0) this.render();
-
                 this.fetchData();
                 this.fetchTimer = setInterval(() => this.fetchData(), CONFIG.FETCH_INTERVAL);
-
                 if (window.speechSynthesis) {
                     window.speechSynthesis.onvoiceschanged = () => { this.voice.getChineseVoice(); };
                 }
-
-                // 如果是 Telegram 环境，发送就绪事件
                 if (this.isTelegram && tgInstance) {
                     tgInstance.ready();
                 }
@@ -2771,17 +2843,15 @@
                     this.render();
                     this.setupCountdown();
                     this.saveCache();
-                    // 自动播报：仅当开关开启且语音启用时播报
                     if (this.autoAnnounce && this.voice.enabled) {
                         this.voice.announceOpenResult(this.apiData);
-                        this.voice.announcePrediction(this.apiData, this.currentAlgorithm, CONFIG.ALGORITHM_NAMES[this.currentAlgorithm]);
+                        this.voice.announcePrediction(this.apiData, this.currentAlgorithm, CONFIG.ALGORITHM_NAMES[this
+                            .currentAlgorithm]);
                     }
                     this.setStatus('ready', this.currentSource);
                     this.lastDataHash = newHash;
                     this.retryCount = 0;
                     this.showToast(`数据已更新（来源：${this.currentSource}）`, 'success');
-
-                    // Telegram 通知
                     if (this.isTelegram && tgInstance) {
                         try { tgInstance.HapticFeedback?.impactOccurred('light'); } catch (_) {}
                     }
@@ -2832,11 +2902,8 @@
                         `第${latest.period}期 ${this.currentBet} → ${latest.combo} 未命中 -${CONFIG.BET_AMOUNT}筹码`;
                     this.showToast(`${icon} ${msg}`, won ? 'success' : 'error');
 
-                    // Telegram 震动反馈
                     if (this.isTelegram && tgInstance && this.tgHaptic) {
-                        try {
-                            this.tgHaptic.impactOccurred(won ? 'heavy' : 'light');
-                        } catch (_) {}
+                        try { this.tgHaptic.impactOccurred(won ? 'heavy' : 'light'); } catch (_) {}
                     }
 
                     this.saveBetHistory();
@@ -2867,23 +2934,19 @@
                 this.showToast(`已下注 ${combo}，等待第${latest.period}期开奖`, 'success');
                 this.dom.betStatusMsg.textContent = '⏳ 等待开奖...';
 
-                // Telegram 震动反馈
                 if (this.isTelegram && tgInstance && this.tgHaptic) {
                     try { this.tgHaptic.impactOccurred('light'); } catch (_) {}
                 }
             }
 
-            // ==================== 更新投注摘要 ====================
             updateBetSummary() {
                 this.dom.virtualBalance.textContent = this.virtualBalance;
                 const profit = this.virtualBalance - CONFIG.VIRTUAL_BALANCE;
                 const el = this.dom.totalProfit;
                 el.textContent = profit >= 0 ? `+${profit}` : profit;
                 el.className = `num ${profit >= 0 ? 'profit' : 'loss'}`;
-
                 const rate = this.totalBetCount > 0 ? ((this.totalWinCount / this.totalBetCount) * 100).toFixed(1) : '--';
                 this.dom.betHitRate.textContent = this.totalBetCount > 0 ? `${rate}%` : '--%';
-
                 if (this.currentBet && this.currentBetPeriod) {
                     this.dom.currentBet.textContent = `${this.currentBet} (第${this.currentBetPeriod}期)`;
                     this.dom.betStatusMsg.textContent = '⏳ 等待开奖...';
@@ -2893,21 +2956,21 @@
                 }
             }
 
-            // ==================== 投注历史 ====================
             renderBetHistory() {
                 const tbody = this.dom.betHistoryBody;
                 tbody.innerHTML = '';
                 const history = this.betHistory.slice(-20).reverse();
                 if (!history.length) {
                     tbody.innerHTML =
-                        '<tr><td colspan="4" style="color:var(--text-muted);padding:12px;">暂无投注记录</td></tr>';
+                    '<tr><td colspan="4" style="color:var(--text-muted);padding:12px;">暂无投注记录</td></tr>';
                     return;
                 }
                 history.forEach(h => {
                     const tr = document.createElement('tr');
                     const cls = h.won ? 'win' : 'lose';
                     const txt = h.won ? `+${h.profit}` : `${h.profit}`;
-                    tr.innerHTML = `<td>${h.period}</td><td>${h.bet}</td><td>${h.actual}</td><td class="${cls}">${txt}</td>`;
+                    tr.innerHTML =
+                        `<td>${h.period}</td><td>${h.bet}</td><td>${h.actual}</td><td class="${cls}">${txt}</td>`;
                     tbody.appendChild(tr);
                 });
             }
@@ -3109,7 +3172,6 @@
                 this.dom.algorithmTag.textContent = name;
                 this.dom.tableAlgoTag.textContent = name;
 
-                // Telegram 主按钮更新
                 if (this.isTelegram && tgInstance) {
                     const winRate = this.getCurrentWinRate();
                     tgInstance.MainButton.setText(`📤 分享预测 (胜率${winRate}%)`);
@@ -3357,7 +3419,6 @@
                     `当前最新开奖第${latest.period}期，${numsStr}等于${latest.sum}，形态${latest.combo}。下一期第${nextPeriod}期预测，${CONFIG.ALGORITHM_NAMES[this.currentAlgorithm]}算法，推荐${pred.predictCombos[0]}加${pred.predictCombos[1]}，排除${pred.killGroup}`;
                 this.voice.speak(text);
 
-                // Telegram 震动反馈
                 if (this.isTelegram && tgInstance && this.tgHaptic) {
                     try { this.tgHaptic.impactOccurred('light'); } catch (_) {}
                 }
@@ -3481,7 +3542,9 @@
                         voiceRate: this.voice.rate,
                         notifyEnabled: this.notifyEnabled,
                         theme: document.documentElement.getAttribute('data-theme'),
-                        autoAnnounce: this.autoAnnounce
+                        autoAnnounce: this.autoAnnounce,
+                        musicEnabled: this.musicEnabled,
+                        musicVolume: parseFloat(this.dom.musicVolume?.value || 0.30)
                     };
                     localStorage.setItem(CONFIG.STORAGE_KEYS.PREFS, JSON.stringify(prefs));
                 } catch (_) {}
@@ -3525,7 +3588,106 @@
                         document.documentElement.setAttribute('data-theme', prefs.theme);
                         this.updateThemeIcon(prefs.theme);
                     }
+                    // 音乐偏好
+                    if (typeof prefs.musicEnabled === 'boolean') {
+                        this.musicEnabled = prefs.musicEnabled;
+                    }
+                    if (typeof prefs.musicVolume === 'number' && this.dom.musicVolume) {
+                        this.dom.musicVolume.value = Math.min(1, Math.max(0, prefs.musicVolume));
+                    }
                 } catch (_) {}
+            }
+
+            // ==================== 音乐控制 ====================
+            toggleMusic() {
+                const audio = this.dom.bgMusic;
+                if (!audio) return;
+
+                if (audio.paused) {
+                    // 尝试播放
+                    audio.volume = parseFloat(this.dom.musicVolume?.value || 0.30);
+                    audio.play()
+                        .then(() => {
+                            this.musicEnabled = true;
+                            this.updateMusicUI();
+                            this.savePreferences();
+                            this.showToast('🎵 背景音乐已开启', 'success');
+                        })
+                        .catch(e => {
+                            console.warn('音乐播放失败:', e);
+                            this.musicEnabled = false;
+                            this.updateMusicUI();
+                            this.showToast('音乐加载失败，请检查网络', 'warning');
+                        });
+                } else {
+                    audio.pause();
+                    this.musicEnabled = false;
+                    this.updateMusicUI();
+                    this.savePreferences();
+                    this.showToast('🔇 背景音乐已暂停', 'info');
+                }
+            }
+
+            updateMusicUI() {
+                const btn = this.dom.musicToggle;
+                const icon = this.dom.musicIcon;
+                if (this.musicEnabled && !this.dom.bgMusic?.paused) {
+                    icon.textContent = '🔊';
+                    btn.classList.add('playing');
+                    btn.title = '暂停背景音乐 (M)';
+                } else {
+                    icon.textContent = '🎵';
+                    btn.classList.remove('playing');
+                    btn.title = '播放背景音乐 (M)';
+                }
+            }
+
+            updateMusicVolume() {
+                const audio = this.dom.bgMusic;
+                const vol = parseFloat(this.dom.musicVolume?.value || 0.30);
+                if (audio) {
+                    audio.volume = vol;
+                }
+                // 保存偏好（防抖）
+                clearTimeout(this._volSaveTimer);
+                this._volSaveTimer = setTimeout(() => this.savePreferences(), 300);
+            }
+
+            restoreMusicState() {
+                // 从偏好中恢复音乐状态
+                try {
+                    const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.PREFS);
+                    if (raw) {
+                        const prefs = JSON.parse(raw);
+                        if (prefs.musicEnabled) {
+                            // 延迟一点再尝试播放，确保页面加载完成
+                            setTimeout(() => {
+                                const audio = this.dom.bgMusic;
+                                if (audio) {
+                                    audio.volume = parseFloat(prefs.musicVolume || 0.30);
+                                    audio.play()
+                                        .then(() => {
+                                            this.musicEnabled = true;
+                                            this.updateMusicUI();
+                                        })
+                                        .catch(() => {
+                                            this.musicEnabled = false;
+                                            this.updateMusicUI();
+                                        });
+                                }
+                            }, 800);
+                        } else {
+                            this.musicEnabled = false;
+                            this.updateMusicUI();
+                        }
+                        if (prefs.musicVolume && this.dom.musicVolume) {
+                            this.dom.musicVolume.value = Math.min(1, Math.max(0, prefs.musicVolume));
+                        }
+                    }
+                } catch (_) {
+                    this.musicEnabled = false;
+                    this.updateMusicUI();
+                }
             }
 
             // ==================== 新增：自动播报开关 ====================
@@ -3555,7 +3717,6 @@
                     this.showToast('暂无数据', 'warning');
                     return;
                 }
-                // 统计和值出现次数
                 const sumCounts = new Array(28).fill(0);
                 const comboCounts = {
                     '大': 0, '小': 0, '单': 0, '双': 0,
@@ -3569,7 +3730,6 @@
                     if (item.combo.endsWith('单')) comboCounts['单']++;
                     else comboCounts['双']++;
                 });
-                // 构建和值表格
                 let html = `<div style="font-weight:700;margin-bottom:6px;">📈 和值出现次数</div>
                             <table class="stats-table"><tr>`;
                 for (let i = 0; i <= 27; i++) {
@@ -3582,7 +3742,6 @@
                 }
                 html += `</tr></table>`;
 
-                // 构建形态表格
                 html += `<div style="font-weight:700;margin:12px 0 6px;">🎲 形态出现次数</div>
                          <table class="stats-table"><tr>`;
                 const comboKeys = ['大', '小', '单', '双', '大单', '大双', '小单', '小双'];
@@ -3610,9 +3769,7 @@
                     this.showToast('暂无数据', 'warning');
                     return;
                 }
-                // 按期数倒序取最近 N 期（每天约480期，但用期数差估算：3分钟一期，每天480期，但用户可调整）
                 const total = this.apiData.length;
-                // 粗略估算：假设每天480期（3分钟一期），但实际数据可能不连续，我们取最近 days*480 期，但不超过总期数
                 const count = Math.min(days * 480, total);
                 const recent = this.apiData.slice(-count);
                 if (!recent.length) {
@@ -3621,7 +3778,7 @@
                 }
                 const sums = recent.map(d => d.sum);
                 const combos = recent.map(d => d.combo);
-                const avg = (sums.reduce((a,b) => a+b, 0) / sums.length).toFixed(1);
+                const avg = (sums.reduce((a, b) => a + b, 0) / sums.length).toFixed(1);
                 const maxSum = Math.max(...sums);
                 const minSum = Math.min(...sums);
                 const comboFreq = {};
@@ -3635,7 +3792,7 @@
                             </table>
                             <div style="font-weight:700;margin:10px 0 6px;">形态分布</div>
                             <table class="stats-table"><tr>`;
-                const keys = ['大单','大双','小单','小双'];
+                const keys = ['大单', '大双', '小单', '小双'];
                 keys.forEach(k => { html += `<th>${k}</th>`; });
                 html += `</tr><tr>`;
                 keys.forEach(k => {
@@ -3680,6 +3837,10 @@
                         case 'v':
                             e.preventDefault();
                             this.toggleVoice();
+                            break;
+                        case 'm':
+                            e.preventDefault();
+                            this.toggleMusic();
                             break;
                         case ' ':
                             e.preventDefault();
