@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>清浔 · 杀组预测 Pro</title>
 
-    <!-- ===== PWA 支持 ===== -->
+    <!-- PWA 支持 -->
     <link rel="manifest" href="data:application/json,{%22name%22:%22清浔杀组预测%22,%22short_name%22:%22清浔%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230b0f1a%22,%22theme_color%22:%22%237c3aed%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%237c3aed'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-size='280' font-family='sans-serif' fill='white'%3E🔮%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22}]}" />
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%237c3aed'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-size='280' font-family='sans-serif' fill='white'%3E🔮%3C/text%3E%3C/svg%3E" />
     <meta name="theme-color" content="#7c3aed" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-    <!-- ===== Telegram Web App SDK ===== -->
+    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js">
     </script>
 
@@ -20,25 +20,1999 @@
 
     <style>
         /* ============================================================
-           完整样式（与您原文件一致，此处仅作示意，实际请复制原样式）
+           完整样式（全部保留，无改动）
            ============================================================ */
-        /* ... 此处省略全部 CSS，请直接使用您原文件中的样式，完全不变 ... */
-        /* 为节省篇幅，未完整粘贴，但最终输出时请保留全部样式 */
+        :root {
+            --bg-primary: #0e0e18;
+            --bg-secondary: #16162a;
+            --bg-card: rgba(20, 20, 40, 0.60);
+            --bg-card-hover: rgba(30, 30, 60, 0.75);
+            --bg-glass: rgba(255, 255, 255, 0.04);
+            --bg-overlay: rgba(0, 0, 0, 0.25);
+            --text-primary: #f0f0ff;
+            --text-secondary: #b0b0d0;
+            --text-muted: #6a6a8a;
+            --accent: #8b5cf6;
+            --accent-light: #a78bfa;
+            --accent-glow: rgba(139, 92, 246, 0.35);
+            --accent-weak: rgba(139, 92, 246, 0.08);
+            --cyan: #22d3ee;
+            --cyan-glow: rgba(34, 211, 238, 0.25);
+            --success: #34d399;
+            --success-glow: rgba(52, 211, 153, 0.20);
+            --danger: #f87171;
+            --danger-glow: rgba(248, 113, 113, 0.20);
+            --warning: #fbbf24;
+            --warning-glow: rgba(251, 191, 36, 0.20);
+            --border: rgba(255, 255, 255, 0.06);
+            --border-strong: rgba(255, 255, 255, 0.10);
+            --shadow-card: 0 12px 48px rgba(0, 0, 0, 0.50);
+            --shadow-glow: 0 8px 40px rgba(139, 92, 246, 0.25);
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --font: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'SF Mono', 'Fira Code', 'Inter', monospace;
+            --transition: all 0.30s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f0f0fa;
+            --bg-secondary: #e4e4f0;
+            --bg-card: rgba(255, 255, 255, 0.70);
+            --bg-card-hover: rgba(255, 255, 255, 0.85);
+            --bg-glass: rgba(255, 255, 255, 0.50);
+            --bg-overlay: rgba(0, 0, 0, 0.03);
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a6a;
+            --text-muted: #8a8aaa;
+            --accent: #7c3aed;
+            --accent-light: #8b5cf6;
+            --accent-glow: rgba(124, 58, 237, 0.15);
+            --accent-weak: rgba(124, 58, 237, 0.05);
+            --border: rgba(0, 0, 0, 0.06);
+            --border-strong: rgba(0, 0, 0, 0.10);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.05);
+            --shadow-glow: 0 8px 40px rgba(124, 58, 237, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html {
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .bg-glow::before,
+        .bg-glow::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.20;
+            animation: glow-float 40s ease-in-out infinite alternate;
+        }
+        .bg-glow::before {
+            width: 700px;
+            height: 700px;
+            background: var(--accent);
+            top: -250px;
+            right: -250px;
+        }
+        .bg-glow::after {
+            width: 600px;
+            height: 600px;
+            background: var(--cyan);
+            bottom: -200px;
+            left: -200px;
+            animation-delay: -15s;
+            animation-duration: 45s;
+        }
+        [data-theme="light"] .bg-glow::before,
+        [data-theme="light"] .bg-glow::after {
+            opacity: 0.08;
+        }
+        @keyframes glow-float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            50% {
+                transform: translate(60px, -80px) scale(1.15);
+            }
+            100% {
+                transform: translate(-40px, 60px) scale(0.85);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 16px 16px 80px;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+        .navbar-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 24px var(--accent-glow);
+            flex-shrink: 0;
+        }
+        .navbar-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff, var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        [data-theme="light"] .navbar-title {
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .navbar-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: block;
+            margin-top: -2px;
+        }
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+        }
+        .status-badge:active {
+            transform: scale(0.94);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 12px var(--success-glow);
+            animation: dot-blink 2s ease-in-out infinite;
+        }
+        .status-badge.error .status-dot {
+            background: var(--danger);
+            box-shadow: 0 0 12px var(--danger-glow);
+            animation: none;
+        }
+        @keyframes dot-blink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+            flex-shrink: 0;
+            position: relative;
+        }
+        .icon-btn:active {
+            transform: scale(0.90);
+        }
+        .icon-btn:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 24px var(--accent-glow);
+        }
+        .icon-btn.playing {
+            border-color: var(--accent);
+            box-shadow: 0 0 24px var(--accent-glow);
+            animation: music-pulse 2s ease-in-out infinite;
+        }
+        @keyframes music-pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 10px var(--accent-glow);
+            }
+            50% {
+                box-shadow: 0 0 30px var(--accent-glow), 0 0 50px rgba(139, 92, 246, 0.15);
+            }
+        }
+        .icon-btn .badge-dot {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success-glow);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .icon-btn.playing .badge-dot {
+            opacity: 1;
+            animation: dot-blink 1.5s ease-in-out infinite;
+        }
+        .music-vol-wrap {
+            display: none;
+            position: absolute;
+            bottom: -34px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 4px 10px;
+            backdrop-filter: blur(12px);
+            white-space: nowrap;
+            z-index: 20;
+        }
+        .icon-btn:hover .music-vol-wrap,
+        .icon-btn:focus .music-vol-wrap {
+            display: flex;
+        }
+        .music-vol-wrap input[type="range"] {
+            width: 56px;
+            height: 3px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--bg-secondary);
+            border-radius: 2px;
+            outline: none;
+            border: 1px solid var(--border);
+        }
+        .music-vol-wrap input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            cursor: pointer;
+            box-shadow: 0 2px 10px var(--accent-glow);
+            border: 2px solid var(--bg-primary);
+        }
+        .music-vol-wrap .vol-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-right: 4px;
+        }
+        .music-panel {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 10px 12px;
+            backdrop-filter: blur(20px);
+            z-index: 30;
+            min-width: 200px;
+            box-shadow: var(--shadow-card);
+        }
+        .music-panel.show { display: block; animation: fadeSlideUp 0.25s ease; }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .music-panel-title {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .music-style-list { display: flex; flex-direction: column; gap: 4px; }
+        .music-style-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+        .music-style-item:hover { background: var(--bg-glass); color: var(--text-primary); }
+        .music-style-item.active {
+            background: var(--accent-weak);
+            color: var(--accent-light);
+            border-color: var(--accent);
+        }
+        .music-style-item .ms-icon { font-size: 16px; width: 22px; text-align: center; }
+        .music-style-item .ms-name { flex: 1; }
+        .music-style-item .ms-check { font-size: 11px; opacity: 0; transition: var(--transition); }
+        .music-style-item.active .ms-check { opacity: 1; }
+        .music-panel-vol {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .music-panel-vol input[type="range"] {
+            flex: 1; height: 3px;
+            -webkit-appearance: none; appearance: none;
+            background: var(--bg-secondary); border-radius: 2px; outline: none;
+            border: 1px solid var(--border);
+        }
+        .music-panel-vol input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            cursor: pointer; box-shadow: 0 2px 10px var(--accent-glow);
+            border: 2px solid var(--bg-primary);
+        }
+        .music-panel-vol span { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+        .music-mode-tabs {
+            display: flex; gap: 4px; margin-bottom: 10px;
+            background: var(--bg-glass); border-radius: var(--radius-sm); padding: 3px;
+            border: 1px solid var(--border);
+        }
+        .music-mode-tab {
+            flex: 1; text-align: center; padding: 5px 6px; font-size: 12px;
+            border-radius: 8px; cursor: pointer; color: var(--text-muted);
+            transition: var(--transition); font-weight: 600; user-select: none;
+        }
+        .music-mode-tab.active {
+            background: var(--accent); color: #fff;
+            box-shadow: 0 2px 8px var(--accent-glow);
+        }
+        .music-mode-tab:hover:not(.active) { color: var(--text-primary); background: var(--bg-glass); }
+        .song-upload-row {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+        }
+        .song-upload-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 5px 10px; border-radius: var(--radius-sm);
+            background: var(--accent-weak); border: 1px solid var(--border);
+            color: var(--accent-light); font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: var(--transition); white-space: nowrap;
+        }
+        .song-upload-btn:hover { background: var(--accent-glow); border-color: var(--accent); }
+        .song-upload-btn input[type="file"] { display: none; }
+        .song-file-name {
+            font-size: 11px; color: var(--text-muted);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+        }
+        .song-lyrics-paste textarea {
+            width: 100%; height: 60px; resize: none;
+            background: var(--bg-glass); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 6px 8px;
+            color: var(--text-secondary); font-size: 11px; font-family: var(--font);
+            outline: none; transition: var(--transition);
+        }
+        .song-lyrics-paste textarea:focus { border-color: var(--accent); }
+        .song-lyrics-paste textarea::placeholder { color: var(--text-muted); font-size: 10px; }
+
+        .lyrics-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            z-index: 50; background: rgba(14,14,24,0.92);
+            backdrop-filter: blur(20px); border-top: 1px solid var(--border);
+            padding: 10px 16px; display: flex; align-items: center; gap: 10px;
+            transition: transform 0.3s ease;
+        }
+        [data-theme="light"] .lyrics-bar { background: rgba(240,240,250,0.92); }
+        .lyrics-bar-inner { flex: 1; text-align: center; }
+        .lyrics-line {
+            font-size: 13px; color: var(--text-muted); line-height: 1.6;
+            transition: all 0.3s ease; min-height: 20px;
+        }
+        .lyrics-line.prev { font-size: 11px; opacity: 0.5; }
+        .lyrics-line.current {
+            font-size: 15px; color: var(--accent-light); font-weight: 700;
+            text-shadow: 0 0 12px var(--accent-glow);
+        }
+        .lyrics-line.next { font-size: 11px; opacity: 0.4; }
+        .lyrics-close {
+            width: 28px; height: 28px; border-radius: 50%;
+            border: 1px solid var(--border); background: var(--bg-glass);
+            color: var(--text-muted); font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; transition: var(--transition);
+        }
+        .lyrics-close:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+        .tg-close-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+        }
+        .tg-close-btn:active {
+            transform: scale(0.90);
+        }
+        .tg-close-btn:hover {
+            border-color: var(--danger);
+            box-shadow: 0 0 20px var(--danger-glow);
+        }
+        .in-telegram .tg-close-btn {
+            display: flex;
+        }
+
+        /* 卡片 */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            padding: 20px 20px 22px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--cyan), var(--accent));
+            background-size: 200% 100%;
+            animation: shimmer 6s linear infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .card:hover {
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-badge {
+            padding: 4px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            color: #fff;
+            box-shadow: 0 4px 16px var(--accent-glow);
+            white-space: nowrap;
+        }
+
+        .hero-numbers {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 8px 0 6px;
+        }
+        .hero-ball {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            box-shadow: 0 8px 32px var(--accent-glow);
+            animation: ball-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: scale(0);
+        }
+        @keyframes ball-pop {
+            0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .hero-ball:nth-child(2) { animation-delay: 0.08s; }
+        .hero-ball:nth-child(3) { animation-delay: 0.16s; }
+        .hero-sep {
+            font-size: 22px;
+            color: var(--text-muted);
+            opacity: 0.3;
+            font-weight: 300;
+        }
+        .hero-eq {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--warning);
+            text-shadow: 0 0 30px var(--warning-glow);
+            font-family: var(--font-mono);
+        }
+        .hero-meta {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 4px 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 6px 0 2px;
+        }
+        .hero-meta strong {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .countdown-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 14px;
+            padding: 12px 16px;
+            background: var(--bg-glass);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .countdown-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .countdown-text {
+            font-family: var(--font-mono);
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .countdown-text.urgent {
+            color: var(--danger);
+            text-shadow: 0 0 20px var(--danger-glow);
+            animation: urgent-pulse 1s ease-in-out infinite;
+        }
+        @keyframes urgent-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .ring-wrap {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            flex-shrink: 0;
+        }
+        .ring-svg {
+            transform: rotate(-90deg);
+            width: 72px;
+            height: 72px;
+        }
+        .ring-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 4;
+        }
+        .ring-progress {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
+        }
+        .ring-progress.urgent {
+            stroke: var(--danger);
+            animation: ring-flash 1s ease-in-out infinite;
+        }
+        @keyframes ring-flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            line-height: 1.1;
+        }
+        .ring-text.urgent {
+            color: var(--danger);
+        }
+
+        .predict-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 4px;
+        }
+        @media (max-width: 480px) {
+            .predict-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .predict-item {
+            padding: 18px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .predict-item:active {
+            transform: scale(0.98);
+        }
+        .predict-item.recommend {
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.04), rgba(52, 211, 153, 0.01));
+            border-color: rgba(52, 211, 153, 0.15);
+        }
+        .predict-item.recommend::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--success);
+            border-radius: 2px 0 0 2px;
+        }
+        .predict-item.kill {
+            background: linear-gradient(135deg, rgba(248, 113, 113, 0.04), rgba(248, 113, 113, 0.01));
+            border-color: rgba(248, 113, 113, 0.15);
+        }
+        .predict-item.kill::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--danger);
+            border-radius: 2px 0 0 2px;
+        }
+        .predict-item-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .predict-item-value {
+            font-size: 24px;
+            font-weight: 800;
+            font-family: var(--font-mono);
+        }
+        .predict-item.recommend .predict-item-value {
+            color: var(--success);
+            text-shadow: 0 0 20px var(--success-glow);
+        }
+        .predict-item.kill .predict-item-value {
+            color: var(--danger);
+            text-shadow: 0 0 20px var(--danger-glow);
+        }
+        .predict-item-sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .consensus-box {
+            margin-top: 14px;
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--accent-weak), rgba(34, 211, 238, 0.04));
+            border: 1px solid var(--accent-glow);
+            transition: var(--transition);
+        }
+        .consensus-box .label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-light);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .consensus-box .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .consensus-box .row .tag {
+            background: var(--bg-glass);
+            padding: 2px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .consensus-box .row .tag.high {
+            border-color: var(--success);
+            color: var(--success);
+        }
+        .consensus-box .row .tag.kill {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        .consensus-box .row .tag .vote {
+            font-weight: 400;
+            opacity: 0.6;
+            font-size: 11px;
+        }
+
+        .bet-section {
+            margin-top: 16px;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+        .bet-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .bet-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        @media (max-width: 480px) {
+            .bet-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .bet-btn {
+            padding: 12px 8px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .bet-btn:active {
+            transform: scale(0.94);
+        }
+        .bet-btn.active-bet {
+            background: linear-gradient(135deg, var(--warning), #f97316);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 20px var(--warning-glow);
+        }
+        .bet-summary {
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: var(--bg-glass);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+        }
+        .bet-summary .stat {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .bet-summary .stat strong {
+            color: var(--text-primary);
+            font-weight: 800;
+        }
+        .bet-summary .stat .num {
+            font-family: var(--font-mono);
+            font-size: 16px;
+        }
+        .bet-summary .stat .num.profit {
+            color: var(--success);
+        }
+        .bet-summary .stat .num.loss {
+            color: var(--danger);
+        }
+        .bet-history-wrap {
+            max-height: 140px;
+            overflow-y: auto;
+            margin-top: 8px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-overlay);
+        }
+        .bet-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .bet-history-table th {
+            padding: 6px 6px;
+            text-align: center;
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+        }
+        .bet-history-table td {
+            padding: 6px 6px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .bet-history-table .win {
+            color: var(--success);
+            font-weight: 700;
+        }
+        .bet-history-table .lose {
+            color: var(--danger);
+            font-weight: 700;
+        }
+        .bet-history-table .pending {
+            color: var(--warning);
+            font-weight: 700;
+        }
+
+        .algo-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            margin-bottom: 18px;
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .algo-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
+        }
+        .algo-toggle:active {
+            background: var(--bg-glass);
+        }
+        .algo-toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .algo-toggle-arrow {
+            font-size: 14px;
+            color: var(--text-muted);
+            transition: transform 0.35s ease;
+        }
+        .algo-toggle.open .algo-toggle-arrow {
+            transform: rotate(180deg);
+        }
+        .algo-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+        }
+        .algo-body.open {
+            max-height: 2000px;
+            padding: 0 18px 18px;
+        }
+        .algo-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        @media (max-width: 640px) {
+            .algo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 400px) {
+            .algo-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .algo-item {
+            padding: 12px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            transition: var(--transition);
+        }
+        .algo-item:active {
+            transform: scale(0.97);
+        }
+        .algo-item.fusion {
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+        }
+        .algo-item.fusion::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: calc(var(--radius-sm) + 2px);
+            background: linear-gradient(135deg, var(--accent), var(--cyan), var(--warning), var(--accent));
+            background-size: 300% 300%;
+            animation: border-flow 4s linear infinite;
+            z-index: -1;
+        }
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .algo-item-name {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 2px;
+            color: var(--text-primary);
+        }
+        .algo-item-pred {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .algo-item-pred .p-red {
+            color: var(--success);
+            font-weight: 700;
+        }
+        .algo-item-pred .p-kill {
+            color: var(--danger);
+            font-weight: 700;
+        }
+        .algo-item-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .algo-item-stats .win {
+            color: var(--accent-light);
+            font-weight: 700;
+        }
+        .algo-item-stats .con {
+            color: var(--warning);
+            font-weight: 700;
+        }
+        .algo-item .badge-new {
+            font-size: 8px;
+            background: var(--accent);
+            color: #fff;
+            padding: 1px 6px;
+            border-radius: 999px;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .controls {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            padding: 16px 18px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex: 1 1 auto;
+        }
+        .controls-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            backdrop-filter: blur(8px);
+            touch-action: manipulation;
+        }
+        .btn:active {
+            transform: scale(0.94);
+        }
+        .btn.active {
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+        .btn.speaking {
+            animation: voice-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes voice-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 var(--warning-glow); }
+            50% { box-shadow: 0 0 0 10px transparent; }
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            border-color: transparent;
+            color: #fff;
+        }
+        .btn-primary:active {
+            transform: scale(0.94);
+        }
+
+        select {
+            appearance: none;
+            padding: 8px 32px 8px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+            min-width: 120px;
+        }
+        select:active {
+            transform: scale(0.97);
+        }
+        .select-wrap {
+            position: relative;
+        }
+        .select-wrap::after {
+            content: '▾';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 70px;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--bg-secondary);
+            outline: none;
+            border: 1px solid var(--border);
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            cursor: pointer;
+            box-shadow: 0 2px 12px var(--accent-glow);
+            transition: var(--transition);
+            border: 2px solid var(--bg-primary);
+        }
+        .speed-val {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            min-width: 32px;
+            font-family: var(--font-mono);
+        }
+
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+        @media (max-width: 500px) {
+            .monitor-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .monitor-item {
+            padding: 16px 18px;
+            background: var(--bg-glass);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        .monitor-item:active {
+            transform: scale(0.98);
+        }
+        .monitor-item .icon {
+            font-size: 24px;
+            margin-bottom: 2px;
+            display: block;
+        }
+        .monitor-item .label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        .monitor-item .value {
+            font-size: 18px;
+            font-weight: 800;
+            margin-top: 2px;
+        }
+        .monitor-item .value .sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .spark-wrap {
+            height: 40px;
+            margin-top: 6px;
+        }
+        .spark-wrap svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .trend-wrap {
+            height: 100px;
+            margin-top: 10px;
+            position: relative;
+        }
+        .trend-wrap canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: var(--radius-sm);
+        }
+
+        .missed-section {
+            margin-top: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .missed-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 4px;
+            font-size: 12px;
+            min-width: 560px;
+        }
+        .missed-table th {
+            padding: 6px 4px;
+            text-align: center;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: var(--bg-glass);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            font-size: 10px;
+        }
+        .missed-table td {
+            padding: 6px 4px;
+            text-align: center;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            font-weight: 700;
+            transition: var(--transition);
+            font-family: var(--font-mono);
+            font-size: 13px;
+        }
+        .missed-table td:active {
+            transform: scale(1.06);
+        }
+        .missed-table .hot {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--danger);
+            border-color: rgba(248, 113, 113, 0.25);
+            box-shadow: 0 0 16px var(--danger-glow);
+        }
+        .missed-table .cold {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--success);
+            border-color: rgba(52, 211, 153, 0.25);
+            box-shadow: 0 0 16px var(--success-glow);
+        }
+        .missed-table .neutral {
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+        }
+
+        .history-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            max-height: 420px;
+            overflow-y: auto;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 480px;
+        }
+        .history-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .history-table th {
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            color: #fff;
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            white-space: nowrap;
+        }
+        .history-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .history-table tbody tr:active {
+            background: var(--accent-weak);
+        }
+        .history-table tbody tr:nth-child(even) {
+            background: var(--bg-overlay);
+        }
+        .history-table .hit {
+            color: var(--success);
+            font-weight: 700;
+        }
+        .history-table .miss {
+            color: var(--danger);
+            font-weight: 700;
+        }
+        .badge-result {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .badge-result.hit {
+            background: rgba(52, 211, 153, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            color: var(--success);
+        }
+        .badge-result.miss {
+            background: rgba(248, 113, 113, 0.12);
+            border: 1px solid rgba(248, 113, 113, 0.25);
+            color: var(--danger);
+        }
+
+        .stats-footer {
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent-weak), rgba(34, 211, 238, 0.04));
+            border-radius: var(--radius-md);
+            text-align: center;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid var(--accent-glow);
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            transition: var(--transition);
+        }
+        .stats-footer .rate {
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-light), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+            width: 92%;
+            max-width: 440px;
+        }
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 12px 18px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: toast-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            pointer-events: auto;
+            backdrop-filter: blur(20px);
+            justify-content: space-between;
+        }
+        .toast.out {
+            animation: toast-out 0.3s ease forwards;
+        }
+        .toast .close {
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.4;
+            padding: 0 4px;
+            transition: var(--transition);
+        }
+        .toast .close:active {
+            opacity: 0.8;
+        }
+        @keyframes toast-in {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes toast-out {
+            to { opacity: 0; transform: translateY(-10px) scale(0.95); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px 16px 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            border-top: 1px solid var(--border);
+            margin-top: 16px;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-secondary);
+            border-radius: 2px;
+            border: 1px solid var(--border);
+        }
+        .fade-in {
+            animation: fadeUp 0.7s ease-out forwards;
+            opacity: 0;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .delay-1 { animation-delay: 0.05s; }
+        .delay-2 { animation-delay: 0.12s; }
+        .delay-3 { animation-delay: 0.20s; }
+        .delay-4 { animation-delay: 0.30s; }
+        .delay-5 { animation-delay: 0.40s; }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .kbd {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+        .stats-table th {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 6px 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .stats-table td {
+            padding: 4px 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .stats-table .highlight {
+            background: var(--accent-weak);
+            color: var(--accent-light);
+            font-weight: 700;
+        }
+
+        .tg-main-btn {
+            display: none;
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--accent);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        .tg-main-btn:active {
+            transform: scale(0.96);
+        }
+        .in-telegram .tg-main-btn {
+            display: block;
+        }
+
+        @media (max-width: 640px) {
+            .container { padding: 10px 10px 70px; }
+            .navbar { padding: 10px 14px; flex-wrap: wrap; }
+            .navbar-title { font-size: 16px; }
+            .navbar-sub { font-size: 9px; }
+            .navbar-icon { width: 36px; height: 36px; font-size: 18px; }
+            .hero-ball { width: 44px; height: 44px; font-size: 18px; }
+            .hero-eq { font-size: 22px; }
+            .hero-sep { font-size: 16px; }
+            .hero-numbers { gap: 6px; }
+            .card { padding: 16px 14px; }
+            .predict-item-value { font-size: 20px; }
+            .controls { padding: 12px 12px; flex-direction: column; align-items: stretch; }
+            .controls-group { justify-content: space-between; }
+            .countdown-text { font-size: 16px; }
+            .ring-wrap { width: 56px; height: 56px; }
+            .ring-svg { width: 56px; height: 56px; }
+            .ring-text { font-size: 11px; }
+            .bet-btn { font-size: 14px; padding: 10px 6px; }
+            .bet-summary { font-size: 12px; padding: 10px; }
+            .bet-summary .stat .num { font-size: 14px; }
+            .monitor-item .value { font-size: 15px; }
+            .history-table { min-width: 380px; font-size: 11px; }
+            .history-table th, .history-table td { padding: 6px 4px; }
+            .algo-item { padding: 10px; }
+            .algo-item-pred { font-size: 10px; }
+            .btn { font-size: 12px; padding: 6px 10px; }
+            select { font-size: 12px; padding: 6px 28px 6px 10px; min-width: 100px; }
+            .icon-btn { width: 36px; height: 36px; font-size: 16px; }
+            .status-badge { font-size: 10px; padding: 4px 10px; }
+            .tg-close-btn { width: 36px; height: 36px; font-size: 16px; }
+            .music-vol-wrap { bottom: -28px; padding: 2px 6px; }
+            .music-vol-wrap input[type="range"] { width: 40px; }
+            .consensus-box .row { font-size: 13px; }
+        }
+        @media (max-width: 380px) {
+            .hero-ball { width: 36px; height: 36px; font-size: 15px; }
+            .hero-eq { font-size: 18px; }
+            .predict-item-value { font-size: 17px; }
+            .navbar-title { font-size: 13px; }
+            .bet-grid { grid-template-columns: 1fr 1fr; }
+            .algo-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .in-telegram .tg-only { display: flex !important; }
+        .in-telegram .tg-only-inline { display: inline-flex !important; }
+        .not-in-telegram .tg-only,
+        .not-in-telegram .tg-only-inline { display: none !important; }
     </style>
 </head>
 <body>
 
-    <!-- ===== 完整 HTML 结构（与原文件完全相同） ===== -->
-    <!-- 此处省略，请保持原样 -->
+    <!-- ===== Background ===== -->
+    <div class="bg-glow"></div>
+
+    <!-- ===== Toast Container ===== -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ===== Main ===== -->
+    <div class="container" id="app-container">
+
+        <!-- ===== Navbar ===== -->
+        <nav class="navbar fade-in">
+            <div class="navbar-brand">
+                <div class="navbar-icon">🔮</div>
+                <div>
+                    <div class="navbar-title">清浔 · 杀组</div>
+                    <span class="navbar-sub">多源融合 · 实时预测</span>
+                </div>
+            </div>
+            <div class="navbar-actions">
+                <div class="status-badge" id="api-status" onclick="app.fetchData()" title="点击刷新">
+                    <span class="status-dot"></span>
+                    <span>在线</span>
+                </div>
+                <button class="icon-btn" id="music-toggle" onclick="app.onMusicClick(event)" title="背景音乐 (M)">
+                    <span id="music-icon">🎵</span>
+                    <span class="badge-dot"></span>
+                    <span class="music-vol-wrap" id="music-vol-wrap">
+                        <span class="vol-label">🔊</span>
+                        <input type="range" id="music-volume" min="0" max="1" step="0.05" value="0.30" oninput="app.updateMusicVolume()" />
+                    </span>
+                    <div class="music-panel" id="music-panel">
+                        <div class="music-mode-tabs" id="music-mode-tabs">
+                            <div class="music-mode-tab active" data-mode="melody" onclick="app.switchMusicMode('melody')">🎹 纯旋律</div>
+                            <div class="music-mode-tab" data-mode="song" onclick="app.switchMusicMode('song')">🎤 本地歌曲</div>
+                        </div>
+                        <div class="music-mode-content" id="music-mode-melody">
+                            <div class="music-panel-title">音乐风格</div>
+                            <div class="music-style-list" id="music-style-list"></div>
+                        </div>
+                        <div class="music-mode-content" id="music-mode-song" style="display:none;">
+                            <div class="music-panel-title">本地歌曲（需自行提供音频）</div>
+                            <div class="song-upload-row">
+                                <label class="song-upload-btn">
+                                    <input type="file" id="song-audio-input" accept="audio/*" onchange="app.onSongAudioUpload(this)" />
+                                    📁 选择音频
+                                </label>
+                                <span class="song-file-name" id="song-audio-name">未选择文件</span>
+                            </div>
+                            <div class="song-upload-row">
+                                <label class="song-upload-btn">
+                                    <input type="file" id="song-lrc-input" accept=".lrc,.txt" onchange="app.onSongLrcUpload(this)" />
+                                    📄 选择歌词
+                                </label>
+                                <span class="song-file-name" id="song-lrc-name">未选择文件</span>
+                            </div>
+                            <div class="song-lyrics-paste">
+                                <textarea id="song-lyrics-text" placeholder="或直接粘贴LRC歌词...
+[00:00.00]歌词第一行
+[00:05.20]歌词第二行
+..." oninput="app.onLyricsPaste(this.value)"></textarea>
+                            </div>
+                        </div>
+                        <div class="music-panel-vol">
+                            <span>🔊</span>
+                            <input type="range" id="music-panel-vol" min="0" max="1" step="0.05" value="0.30" oninput="app.updateMusicVolume(this.value)" />
+                        </div>
+                    </div>
+                </button>
+                <button class="icon-btn" id="theme-toggle" onclick="app.toggleTheme()" title="切换主题 (T)">
+                    <span id="theme-icon">🌙</span>
+                </button>
+                <button class="tg-close-btn" id="tg-close-btn" onclick="app.closeTelegram()" title="关闭">
+                    ✕
+                </button>
+            </div>
+        </nav>
+
+        <div id="tg-env-badge" style="display:none;text-align:center;font-size:11px;color:var(--text-muted);margin:-8px 0 12px;padding:4px 14px;background:var(--accent-weak);border-radius:999px;border:1px solid var(--border);">
+            📱 Telegram 小程序模式
+        </div>
+
+        <!-- ===== Hero: Latest Result ===== -->
+        <div class="card fade-in delay-1" id="hero-card">
+            <div class="hero-meta">
+                <span>📅 最新开奖 · 第 <strong id="cur-period">------</strong> 期</span>
+                <span class="card-badge" id="cur-combo">--</span>
+            </div>
+            <div class="hero-numbers" id="latest-nums-container">
+                <div class="hero-ball" style="animation:none;opacity:0.3;">?</div>
+                <span class="hero-sep">+</span>
+                <div class="hero-ball" style="animation:none;opacity:0.3;">?</div>
+                <span class="hero-sep">+</span>
+                <div class="hero-ball" style="animation:none;opacity:0.3;">?</div>
+                <span class="hero-sep">=</span>
+                <span class="hero-eq" id="cur-sum">--</span>
+            </div>
+            <div style="text-align:center;font-size:12px;color:var(--text-muted);" id="cur-time">加载中...</div>
+
+            <div class="countdown-section" id="countdown-box">
+                <span class="countdown-label">⏱ 下一期开奖</span>
+                <span class="countdown-text" id="cd-text">--:--</span>
+                <div class="ring-wrap" id="ring-wrap">
+                    <svg class="ring-svg" viewBox="0 0 68 68">
+                        <circle class="ring-bg" cx="34" cy="34" r="30"></circle>
+                        <circle class="ring-progress" id="ring-progress" cx="34" cy="34" r="30" stroke-dasharray="188.496" stroke-dashoffset="0"></circle>
+                    </svg>
+                    <div class="ring-text" id="ring-text">--:--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Prediction ===== -->
+        <div class="card fade-in delay-2" id="ai">
+            <div class="card-header">
+                <div class="card-title">🎯 本期预测</div>
+                <span class="card-badge" id="algorithm-tag">天机策</span>
+            </div>
+            <div class="predict-meta" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                <span class="meta-chip" id="ai-nextperiod" style="padding:4px 14px;border-radius:999px;background:var(--bg-glass);border:1px solid var(--border);font-size:12px;color:var(--text-secondary);">预测期数：------</span>
+                <span class="meta-chip ready" id="status-indicator" style="padding:4px 14px;border-radius:999px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);color:var(--success);font-size:12px;">等待数据</span>
+            </div>
+
+            <div class="predict-grid">
+                <div class="predict-item recommend">
+                    <div class="predict-item-label">🎯 双组推荐</div>
+                    <div class="predict-item-value" id="predict-combos">
+                        <span id="predict-combo1">--</span> + <span id="predict-combo2">--</span>
+                    </div>
+                    <div class="predict-item-sub">高概率组合</div>
+                </div>
+                <div class="predict-item kill">
+                    <div class="predict-item-label">🚫 排除杀组</div>
+                    <div class="predict-item-value" id="kill-group">--</div>
+                    <div class="predict-item-sub">本期不会开出</div>
+                </div>
+            </div>
+
+            <div class="consensus-box" id="consensus-box" style="display:none;">
+                <div class="label">🗳️ 算法共识（全算法投票）</div>
+                <div class="row" id="consensus-row">
+                    <span class="tag high">推荐：<span id="consensus-combo">--</span> <span class="vote" id="consensus-combo-vote"></span></span>
+                    <span class="tag kill">杀组：<span id="consensus-kill">--</span> <span class="vote" id="consensus-kill-vote"></span></span>
+                </div>
+            </div>
+
+            <div class="bet-section">
+                <div class="flex-between">
+                    <span class="bet-label">💰 模拟投注 · 每注100筹码 · 命中得190</span>
+                    <span style="font-size:11px;color:var(--text-muted);">当前: <span id="current-bet" style="font-weight:700;color:var(--warning);">无</span></span>
+                </div>
+                <div class="bet-grid" id="bet-panel">
+                    <button class="bet-btn" data-bet="大单" onclick="app.placeBet('大单')">大单</button>
+                    <button class="bet-btn" data-bet="大双" onclick="app.placeBet('大双')">大双</button>
+                    <button class="bet-btn" data-bet="小单" onclick="app.placeBet('小单')">小单</button>
+                    <button class="bet-btn" data-bet="小双" onclick="app.placeBet('小双')">小双</button>
+                </div>
+
+                <div class="bet-summary">
+                    <span class="stat">💎 资金: <strong class="num" id="virtual-balance">10000</strong></span>
+                    <span class="stat">📊 盈亏: <strong class="num" id="total-profit">0</strong></span>
+                    <span class="stat">🎯 命中率: <strong id="bet-hit-rate">--%</strong></span>
+                    <span class="stat" id="bet-status-msg" style="font-size:12px;color:var(--text-muted);"></span>
+                </div>
+
+                <div style="margin-top:10px;">
+                    <div class="flex-between">
+                        <span style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">📋 投注记录</span>
+                        <button class="btn" style="padding:2px 12px;font-size:10px;" onclick="app.clearBetHistory()">清空</button>
+                    </div>
+                    <div class="bet-history-wrap" id="bet-history-wrap">
+                        <table class="bet-history-table">
+                            <thead><tr><th>期数</th><th>投注</th><th>开奖</th><th>盈亏</th></tr></thead>
+                            <tbody id="bet-history-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:14px;padding:12px 16px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                <div style="font-size:10px;font-weight:700;color:var(--accent-light);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px;">📌 杀组规则</div>
+                <div style="font-size:13px;color:var(--text-secondary);line-height:2;">
+                    <span>杀组 = 本期绝对不会开出的形态 · 双组推荐 = 高概率组合</span><br>
+                    <span style="font-size:12px;color:var(--text-muted);">快捷键: <span class="kbd">R</span> 刷新 <span class="kbd">T</span> 主题 <span class="kbd">V</span> 语音 <span class="kbd">M</span> 音乐 <span class="kbd">Space</span> 播报</span>
+                </div>
+            </div>
+
+            <button class="tg-main-btn" id="tg-main-btn" onclick="app.tgMainAction()">
+                📤 分享预测
+            </button>
+        </div>
+
+        <!-- ===== Algorithm Compare ===== -->
+        <div class="algo-panel fade-in delay-3" id="algo-panel">
+            <div class="algo-toggle" id="algo-toggle" onclick="app.toggleAlgoCompare()">
+                <div class="algo-toggle-left">🔀 算法同屏对比 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(含特色算法)</span></div>
+                <span class="algo-toggle-arrow">▼</span>
+            </div>
+            <div class="algo-body" id="algo-body">
+                <div class="algo-grid" id="algo-grid"></div>
+            </div>
+        </div>
+
+        <!-- ===== Controls ===== -->
+        <div class="controls fade-in delay-4">
+            <div class="controls-group">
+                <span class="controls-label">🔊 语音</span>
+                <button class="btn" id="voice-toggle" onclick="app.toggleVoice()">
+                    <span id="voice-icon">🔇</span>
+                    <span id="voice-label">关闭</span>
+                </button>
+                <div style="display:flex;align-items:center;gap:4px;">
+                    <input type="range" id="voice-speed" min="0.5" max="2" step="0.1" value="1" oninput="app.updateSpeed()" />
+                    <span class="speed-val" id="speed-val">1.0x</span>
+                </div>
+                <button class="btn" onclick="app.speakText('语音播报测试，功能正常')">🧪 测试</button>
+                <button class="btn btn-primary" onclick="app.manualAnnounce()">📢 播报</button>
+                <button class="btn" id="notify-btn" onclick="app.toggleNotification()">🔔 推送</button>
+                <button class="btn" id="auto-announce-btn" onclick="app.toggleAutoAnnounce()">
+                    <span id="auto-announce-icon">🔕</span>
+                    <span id="auto-announce-label">自动播报关</span>
+                </button>
+            </div>
+            <div class="controls-group">
+                <span class="controls-label">🧠 算法</span>
+                <div class="select-wrap">
+                    <select id="algorithm-select" onchange="app.changeAlgorithm()">
+                        <option value="shuying_v1">天机策</option>
+                        <option value="shuying_v2">玄机策</option>
+                        <option value="module1">逆形态</option>
+                        <option value="module2">趋势捕手</option>
+                        <option value="module3">冷热探针</option>
+                        <option value="module4">银河锚点</option>
+                        <option value="module5">威震天机</option>
+                        <option value="fusion_vote">五行之合</option>
+                        <option value="jingpai">京派</option>
+                        <option value="fengpai">枫派</option>
+                        <option value="tongpai">通派</option>
+                        <option value="qisha">奇杀</option>
+                        <option value="yisha">异杀</option>
+                        <option value="shisha">势杀</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="app.exportCSV()">📥 导出</button>
+            </div>
+        </div>
+
+        <!-- ===== Monitor ===== -->
+        <div class="card fade-in delay-5">
+            <div class="card-header">
+                <div class="card-title">📊 算法监视</div>
+                <span style="font-size:12px;color:var(--text-muted);">实时胜率</span>
+            </div>
+            <div class="monitor-grid">
+                <div class="monitor-item">
+                    <span class="icon">🏆</span>
+                    <div class="label">最高胜率</div>
+                    <div class="value" id="highest-winrate">-- <span class="sub">--%</span></div>
+                    <div class="spark-wrap" id="winrate-spark"></div>
+                </div>
+                <div class="monitor-item">
+                    <span class="icon">🔥</span>
+                    <div class="label">最长连中</div>
+                    <div class="value" id="most-consecutive">-- <span class="sub">--期</span></div>
+                    <div class="spark-wrap" id="consecutive-spark"></div>
+                </div>
+            </div>
+
+            <div id="trend-card" style="display:none;margin-top:4px;">
+                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">📈 和值走势 (近30期)</div>
+                <div class="trend-wrap"><canvas id="trend-canvas"></canvas></div>
+            </div>
+
+            <div id="missed-stats" style="display:none;margin-top:12px;">
+                <div id="missed-summary" style="margin-bottom:10px;"></div>
+                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+                    🔢 号码遗漏 <span style="font-size:11px;font-weight:400;color:var(--text-muted);">红=热号(长期未出) 绿=冷号(刚出)</span>
+                </div>
+                <div class="missed-section">
+                    <table class="missed-table">
+                        <thead><tr><th>位次</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr></thead>
+                        <tbody id="num-missed-body"></tbody>
+                    </table>
+                </div>
+                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin:10px 0 4px;">
+                    📊 和值遗漏 <span style="font-size:11px;font-weight:400;color:var(--text-muted);">红=热号 绿=冷号</span>
+                </div>
+                <div class="missed-section">
+                    <table class="missed-table">
+                        <thead><tr><th colspan="28">和值遗漏 (0-27)</th></tr></thead>
+                        <tbody id="sum-missed-body"></tbody>
+                    </table>
+                </div>
+                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin:10px 0 4px;">
+                    🎲 形态遗漏
+                </div>
+                <div class="missed-section">
+                    <table class="missed-table">
+                        <thead><tr><th colspan="8">形态组合遗漏</th></tr></thead>
+                        <tbody id="combo-missed-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="extra-stats" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
+                <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;">
+                    <button class="btn" onclick="app.toggleMissedPanel()">🧊 遗漏查询</button>
+                    <button class="btn" onclick="app.toggleFrequencyStats()">📊 出现次数</button>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span style="font-size:12px;color:var(--text-muted);">前</span>
+                        <input type="number" id="days-input" value="1" min="1" max="30" style="width:50px;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;">
+                        <span style="font-size:12px;color:var(--text-muted);">天</span>
+                        <button class="btn" onclick="app.queryDaysStats()">📅 查询</button>
+                    </div>
+                </div>
+                <div id="frequency-stats-display" style="display:none;overflow-x:auto;margin-bottom:10px;"></div>
+                <div id="days-stats-display" style="display:none;overflow-x:auto;"></div>
+            </div>
+        </div>
+
+        <!-- ===== History ===== -->
+        <div class="card fade-in delay-5">
+            <div class="card-header">
+                <div class="card-title">📜 历史预测记录</div>
+                <span class="card-badge" id="table-algorithm-tag" style="font-size:11px;">天机策</span>
+            </div>
+            <div class="history-wrap">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>期数</th>
+                            <th>开奖结果</th>
+                            <th>双组推荐</th>
+                            <th>排除杀组</th>
+                            <th>预测结果</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prediction-tbody"></tbody>
+                </table>
+            </div>
+            <div class="stats-footer" id="stats">
+                <span>基础胜率</span>
+                <span class="rate">--%</span>
+                <span>-- / --</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            清浔杀组预测 Pro · 数据仅供参考 · 仅供学习娱乐<br>
+            <span style="font-size:11px;opacity:0.6;">随机事件无记忆性，理性看待预测结果</span>
+            <br><span style="font-size:10px;opacity:0.4;" id="tg-version-info"></span>
+        </div>
+    </div>
+
+    <!-- ===== 歌词浮动显示条 ===== -->
+    <div class="lyrics-bar" id="lyrics-bar" style="display:none;">
+        <div class="lyrics-bar-inner" id="lyrics-bar-inner">
+            <div class="lyrics-line prev" id="lyrics-line-prev"></div>
+            <div class="lyrics-line current" id="lyrics-line-current">准备播放...</div>
+            <div class="lyrics-line next" id="lyrics-line-next"></div>
+        </div>
+        <button class="lyrics-close" onclick="app.hideLyricsBar()" title="隐藏歌词">✕</button>
+    </div>
 
     <script>
         /**
-         * 清浔杀组预测 Pro · 修正历史预测缓存
-         * 改动点：
-         *   1. renderHistory 使用当前算法 (this.currentAlgorithm) 计算并缓存结果
-         *   2. 缓存 key = `${period}_${algo}`，不同算法独立缓存
-         *   3. 切换算法后，历史表格会加载该算法的缓存（若存在），否则重新计算
-         *   4. 同一算法下，历史预测固定不变（不会因开奖后重新计算而变化）
+         * 清浔杀组预测 Pro - 完整优化版
+         * 核心特性：
+         *   1. 历史预测与当前算法联动，不同算法独立缓存。
+         *   2. 缓存持久化存储（localStorage），同算法下历史固定。
+         *   3. 切换算法后历史表格自动刷新，显示该算法对应的缓存或实时计算结果。
+         *   4. 所有功能完整保留（音乐、语音、投注、共识、遗漏统计等）。
          */
         const isTelegram = !!(window.Telegram && window.Telegram.WebApp);
         let tgInstance = null;
@@ -84,7 +2058,7 @@
                 BETS: 'qingxun-bets-v2',
                 CACHE: 'qingxun-cache-v2',
                 BET_HISTORY: 'qingxun-bet-history-v2',
-                HISTORY_PREDS: 'qingxun-history-preds-v2'   // 历史预测缓存
+                HISTORY_PREDS: 'qingxun-history-preds-v3'   // 历史预测缓存（v3版本，独立key）
             },
             FETCH_INTERVAL: 3 * 60 * 1000,
             FETCH_TIMEOUT: 10000,
@@ -174,15 +2148,533 @@
             }
         };
 
-        // ==================== 程序化背景音乐（Web Audio API，离线可用） ====================
-        // ... 与您原文件完全相同，此处省略（实际使用时请复制完整代码） ...
+        // ==================== 程序化背景音乐（Web Audio API） ====================
+        const MUSIC_STYLES = [
+            { id: 'chill', name: '静谧和弦', icon: '🎹' },
+            { id: 'lofi', name: 'Lo-Fi 氛围', icon: '🎧' },
+            { id: 'electric', name: '电子律动', icon: '⚡' },
+            { id: 'zen', name: '禅意空灵', icon: '🪷' },
+            { id: 'retro', name: '复古脉冲', icon: '📼' },
+            { id: 'night', name: '深夜低语', icon: '🌙' },
+        ];
 
-        // ==================== 本地歌曲播放器 ====================
-        // ... 与您原文件完全相同，此处省略 ...
+        class AmbientMusic {
+            constructor() {
+                this.ctx = null;
+                this.masterGain = null;
+                this.isPlaying = false;
+                this.currentStyle = 'chill';
+                this.nodes = [];
+                this.timers = [];
+            }
+            _ensureCtx() {
+                if (this.ctx && this.ctx.state !== 'closed') return true;
+                try {
+                    const AC = window.AudioContext || window.webkitAudioContext;
+                    if (!AC) return false;
+                    this.ctx = new AC();
+                    this.masterGain = this.ctx.createGain();
+                    this.masterGain.gain.value = 0.30;
+                    this.masterGain.connect(this.ctx.destination);
+                    return true;
+                } catch (_) { return false; }
+            }
+            _stopNodes() {
+                this.nodes.forEach(n => { try { n.stop(); } catch (_) {} });
+                this.nodes = [];
+                this.timers.forEach(t => clearInterval(t));
+                this.timers = [];
+            }
+            _playChill(now) {
+                const chords = [
+                    [220, 261.63, 329.63],
+                    [174.61, 220, 261.63],
+                    [261.63, 329.63, 392],
+                    [196, 246.94, 293.66]
+                ];
+                const chord = chords[this._ci % chords.length];
+                chord.forEach((f, i) => {
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = f;
+                    g.gain.setValueAtTime(0, now + i * 0.15);
+                    g.gain.linearRampToValueAtTime(0.06, now + i * 0.15 + 0.4);
+                    g.gain.linearRampToValueAtTime(0.02, now + 3.2);
+                    g.gain.linearRampToValueAtTime(0, now + 4.0);
+                    o.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(now + i * 0.15);
+                    o.stop(now + 4.0);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                });
+                if (this._ci % 2 === 0) {
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = chord[2] * 2;
+                    g.gain.setValueAtTime(0, now + 1.5);
+                    g.gain.linearRampToValueAtTime(0.025, now + 1.8);
+                    g.gain.linearRampToValueAtTime(0, now + 2.8);
+                    o.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(now + 1.5);
+                    o.stop(now + 2.8);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                }
+            }
+            _playLofi(now) {
+                const bass = [110, 87.31, 130.81, 98];
+                const mel = [
+                    [329.63, 392, 440, 392],
+                    [261.63, 329.63, 392, 329.63],
+                    [349.23, 440, 523.25, 440],
+                    [293.66, 349.23, 392, 349.23]
+                ];
+                const b = bass[this._ci % bass.length];
+                const m = mel[this._ci % mel.length];
+                const bo = this.ctx.createOscillator(),
+                    bg = this.ctx.createGain();
+                bo.type = 'triangle';
+                bo.frequency.value = b;
+                bg.gain.setValueAtTime(0, now);
+                bg.gain.linearRampToValueAtTime(0.08, now + 0.3);
+                bg.gain.setValueAtTime(0.08, now + 3.5);
+                bg.gain.linearRampToValueAtTime(0, now + 4.0);
+                bo.connect(bg);
+                bg.connect(this.masterGain);
+                bo.start(now);
+                bo.stop(now + 4.0);
+                this.nodes.push(bo);
+                bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
+                m.forEach((f, i) => {
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = f;
+                    const t = now + i * 0.9;
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.04, t + 0.08);
+                    g.gain.setValueAtTime(0.04, t + 0.6);
+                    g.gain.linearRampToValueAtTime(0, t + 0.85);
+                    o.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(t);
+                    o.stop(t + 0.9);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                });
+                this._noiseBurst(now, 0.012, 3800);
+            }
+            _playElectric(now) {
+                const bassNotes = [55, 55, 65.41, 73.42];
+                const arp = [
+                    [329.63, 392, 523.25, 659.25, 523.25, 392],
+                    [293.66, 349.23, 440, 587.33, 440, 349.23],
+                    [349.23, 440, 523.25, 698.46, 523.25, 440],
+                    [261.63, 329.63, 392, 523.25, 392, 329.63]
+                ];
+                const bn = bassNotes[this._ci % bassNotes.length];
+                const ar = arp[this._ci % arp.length];
+                const ko = this.ctx.createOscillator(),
+                    kg = this.ctx.createGain();
+                ko.type = 'sine';
+                ko.frequency.setValueAtTime(150, now);
+                ko.frequency.linearRampToValueAtTime(40, now + 0.12);
+                kg.gain.setValueAtTime(0.18, now);
+                kg.gain.linearRampToValueAtTime(0, now + 0.2);
+                ko.connect(kg);
+                kg.connect(this.masterGain);
+                ko.start(now);
+                ko.stop(now + 0.25);
+                this.nodes.push(ko);
+                ko.onended = () => { this.nodes = this.nodes.filter(n => n !== ko); };
+                const bo = this.ctx.createOscillator(),
+                    bg = this.ctx.createGain();
+                bo.type = 'sawtooth';
+                bo.frequency.value = bn;
+                const bq = this.ctx.createBiquadFilter();
+                bq.type = 'lowpass';
+                bq.frequency.value = 200;
+                bg.gain.setValueAtTime(0, now + 0.15);
+                bg.gain.linearRampToValueAtTime(0.05, now + 0.25);
+                bg.gain.linearRampToValueAtTime(0, now + 1.5);
+                bo.connect(bq);
+                bq.connect(bg);
+                bg.connect(this.masterGain);
+                bo.start(now + 0.15);
+                bo.stop(now + 1.5);
+                this.nodes.push(bo);
+                bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
+                ar.forEach((f, i) => {
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'square';
+                    o.frequency.value = f;
+                    const t = now + 0.4 + i * 0.15;
+                    const fl = this.ctx.createBiquadFilter();
+                    fl.type = 'lowpass';
+                    fl.frequency.value = 1200;
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.03, t + 0.02);
+                    g.gain.linearRampToValueAtTime(0, t + 0.13);
+                    o.connect(fl);
+                    fl.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(t);
+                    o.stop(t + 0.15);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                });
+                this._noiseBurst(now + 0.5, 0.02, 8000);
+                this._noiseBurst(now + 1.0, 0.015, 9000);
+            }
+            _playZen(now) {
+                const pentatonic = [261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25];
+                const count = 3 + (this._ci % 2);
+                const used = new Set();
+                for (let i = 0; i < count; i++) {
+                    let idx;
+                    do { idx = Math.floor(Math.random() * pentatonic.length); } while (used.has(idx));
+                    used.add(idx);
+                    const f = pentatonic[idx];
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = f;
+                    const t = now + i * (1.2 + Math.random() * 0.8);
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.05, t + 0.3);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 3.5);
+                    o.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(t);
+                    o.stop(t + 3.6);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                }
+                if (this._ci % 3 === 0) {
+                    const d = this.ctx.createOscillator(),
+                        dg = this.ctx.createGain();
+                    d.type = 'sine';
+                    d.frequency.value = 130.81;
+                    dg.gain.setValueAtTime(0, now);
+                    dg.gain.linearRampToValueAtTime(0.025, now + 1);
+                    dg.gain.setValueAtTime(0.025, now + 3);
+                    dg.gain.linearRampToValueAtTime(0, now + 4.5);
+                    d.connect(dg);
+                    dg.connect(this.masterGain);
+                    d.start(now);
+                    d.stop(now + 4.5);
+                    this.nodes.push(d);
+                    d.onended = () => { this.nodes = this.nodes.filter(n => n !== d); };
+                }
+            }
+            _playRetro(now) {
+                const chords = [
+                    [220, 277.18, 329.63],
+                    [196, 246.94, 329.63],
+                    [261.63, 329.63, 392],
+                    [233.08, 293.66, 349.23]
+                ];
+                const chord = chords[this._ci % chords.length];
+                chord.forEach((f, i) => {
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    const fl = this.ctx.createBiquadFilter();
+                    fl.type = 'lowpass';
+                    fl.frequency.value = 600;
+                    o.type = 'square';
+                    o.frequency.value = f;
+                    g.gain.setValueAtTime(0, now);
+                    g.gain.linearRampToValueAtTime(0.03, now + 0.2);
+                    g.gain.setValueAtTime(0.03, now + 3.5);
+                    g.gain.linearRampToValueAtTime(0, now + 4.0);
+                    o.connect(fl);
+                    fl.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(now);
+                    o.stop(now + 4.0);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                });
+                const melNotes = [chord[0] * 2, chord[1] * 2, chord[2] * 2, chord[1] * 2];
+                melNotes.forEach((f, i) => {
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'square';
+                    o.frequency.value = f;
+                    const t = now + i * 0.5;
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.035, t + 0.03);
+                    g.gain.setValueAtTime(0.035, t + 0.35);
+                    g.gain.linearRampToValueAtTime(0, t + 0.48);
+                    o.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(t);
+                    o.stop(t + 0.5);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                });
+            }
+            _playNight(now) {
+                const bassNotes = [82.41, 73.42, 65.41, 61.74];
+                const mel = [
+                    [246.94, 293.66, 329.63, 293.66, 246.94],
+                    [220, 261.63, 293.66, 261.63, 220],
+                    [196, 233.08, 261.63, 233.08, 196],
+                    [174.61, 220, 246.94, 220, 174.61]
+                ];
+                const bn = bassNotes[this._ci % bassNotes.length];
+                const m = mel[this._ci % mel.length];
+                const bo = this.ctx.createOscillator(),
+                    bg = this.ctx.createGain();
+                bo.type = 'sine';
+                bo.frequency.value = bn;
+                bg.gain.setValueAtTime(0, now);
+                bg.gain.linearRampToValueAtTime(0.06, now + 0.8);
+                bg.gain.setValueAtTime(0.06, now + 3.5);
+                bg.gain.linearRampToValueAtTime(0, now + 4.5);
+                bo.connect(bg);
+                bg.connect(this.masterGain);
+                bo.start(now);
+                bo.stop(now + 4.5);
+                this.nodes.push(bo);
+                bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
+                m.forEach((f, i) => {
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = f;
+                    const t = now + 0.5 + i * 0.7;
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.035, t + 0.2);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 0.65);
+                    o.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(t);
+                    o.stop(t + 0.7);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                });
+                this._noiseBurst(now, 0.008, 2500);
+            }
+            _noiseBurst(startTime, vol, filterFreq) {
+                const len = 0.08;
+                const bufSize = this.ctx.sampleRate * len;
+                const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+                const data = buf.getChannelData(0);
+                for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
+                const src = this.ctx.createBufferSource();
+                src.buffer = buf;
+                const g = this.ctx.createGain();
+                const fl = this.ctx.createBiquadFilter();
+                fl.type = 'highpass';
+                fl.frequency.value = filterFreq * 0.3;
+                g.gain.setValueAtTime(vol, startTime);
+                g.gain.linearRampToValueAtTime(0, startTime + len);
+                src.connect(fl);
+                fl.connect(g);
+                g.connect(this.masterGain);
+                src.start(startTime);
+                src.stop(startTime + len);
+                this.nodes.push(src);
+                src.onended = () => { this.nodes = this.nodes.filter(n => n !== src); };
+            }
+            _getStyleDuration() {
+                const d = { chill: 4000, lofi: 4000, electric: 2000, zen: 5000, retro: 4000, night: 4500 };
+                return d[this.currentStyle] || 4000;
+            }
+            _playStyleOnce() {
+                if (!this.isPlaying || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                switch (this.currentStyle) {
+                    case 'chill':
+                        this._playChill(now);
+                        break;
+                    case 'lofi':
+                        this._playLofi(now);
+                        break;
+                    case 'electric':
+                        this._playElectric(now);
+                        break;
+                    case 'zen':
+                        this._playZen(now);
+                        break;
+                    case 'retro':
+                        this._playRetro(now);
+                        break;
+                    case 'night':
+                        this._playNight(now);
+                        break;
+                }
+                this._ci++;
+            }
+            play(volume = 0.30) {
+                if (this.isPlaying) return;
+                if (!this._ensureCtx()) return false;
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                this.masterGain.gain.setValueAtTime(volume, this.ctx.currentTime);
+                this.isPlaying = true;
+                this._ci = 0;
+                this._playStyleOnce();
+                const dur = this._getStyleDuration();
+                const loop = setInterval(() => { if (this.isPlaying) this._playStyleOnce(); else clearInterval(loop); },
+                dur);
+                this.timers.push(loop);
+                return true;
+            }
+            switchStyle(styleId, volume = 0.30) {
+                const wasPlaying = this.isPlaying;
+                this.pause();
+                this.currentStyle = styleId;
+                if (wasPlaying) {
+                    setTimeout(() => this.play(volume), 100);
+                }
+            }
+            pause() {
+                this.isPlaying = false;
+                this.timers.forEach(t => clearInterval(t));
+                this.timers = [];
+                if (this.masterGain && this.ctx) {
+                    const now = this.ctx.currentTime;
+                    this.masterGain.gain.linearRampToValueAtTime(0, now + 0.5);
+                    const stopAll = setTimeout(() => { this._stopNodes(); }, 600);
+                    this.timers.push(stopAll);
+                }
+            }
+            setVolume(v) {
+                if (this.masterGain && this.isPlaying) {
+                    this.masterGain.gain.linearRampToValueAtTime(v, this.ctx.currentTime + 0.1);
+                }
+            }
+            get paused() { return !this.isPlaying; }
+            destroy() {
+                this.pause();
+                setTimeout(() => { try { this.ctx?.close(); } catch (_) {} }, 700);
+            }
+        }
 
-        // ==================== 算法引擎（完整，与您原文件一致） ====================
+        // ==================== 本地歌曲播放器（HTML5 Audio + LRC歌词同步） ====================
+        class SongPlayer {
+            constructor() {
+                this.audio = new Audio();
+                this.audio.preload = 'metadata';
+                this.audio.loop = true;
+                this.lyrics = [];
+                this.isPlaying = false;
+                this._raf = null;
+                this._onLyricsUpdate = null;
+                this._onEnded = null;
+                this._setupEvents();
+            }
+            _setupEvents() {
+                this.audio.addEventListener('play', () => { this.isPlaying = true;
+                    this._startSync(); });
+                this.audio.addEventListener('pause', () => { this.isPlaying = false;
+                    this._stopSync(); });
+                this.audio.addEventListener('ended', () => {
+                    this.isPlaying = false;
+                    this._stopSync();
+                    if (this._onEnded) this._onEnded();
+                });
+                this.audio.addEventListener('error', (e) => {
+                    console.warn('音频加载失败:', e);
+                    this.isPlaying = false;
+                    this._stopSync();
+                });
+            }
+            loadAudio(fileOrUrl) {
+                if (this.audio.src) URL.revokeObjectURL(this.audio.src);
+                if (fileOrUrl instanceof File) {
+                    this.audio.src = URL.createObjectURL(fileOrUrl);
+                } else if (typeof fileOrUrl === 'string') {
+                    this.audio.src = fileOrUrl;
+                }
+                this.audio.load();
+            }
+            parseLrc(text) {
+                this.lyrics = [];
+                if (!text) return;
+                const lines = text.split(/\r?\n/);
+                const timeRegex = /\[(\d{1,2}):(\d{2})\.(\d{2,3})\](.*)/;
+                for (const line of lines) {
+                    const m = line.trim().match(timeRegex);
+                    if (m) {
+                        const min = parseInt(m[1], 10);
+                        const sec = parseInt(m[2], 10);
+                        const ms = parseInt(m[3].padEnd(3, '0'), 10);
+                        const time = min * 60 + sec + ms / 1000;
+                        const text = m[4].trim();
+                        if (text) this.lyrics.push({ time, text });
+                    }
+                }
+                this.lyrics.sort((a, b) => a.time - b.time);
+            }
+            parsePlain(text) {
+                this.lyrics = [];
+                if (!text) return;
+                const lines = text.split(/\r?\n/).filter(l => l.trim());
+                lines.forEach((line, i) => {
+                    this.lyrics.push({ time: i * 5, text: line.trim() });
+                });
+            }
+            play() {
+                if (!this.audio.src) return false;
+                this.audio.play().catch(e => {
+                    console.warn('播放失败:', e);
+                    this.isPlaying = false;
+                });
+                return true;
+            }
+            pause() {
+                this.audio.pause();
+                this.isPlaying = false;
+            }
+            setVolume(v) {
+                this.audio.volume = Math.max(0, Math.min(1, v));
+            }
+            set onLyricsUpdate(fn) { this._onLyricsUpdate = fn; }
+            set onEnded(fn) { this._onEnded = fn; }
+            _startSync() {
+                this._stopSync();
+                const tick = () => {
+                    if (!this.isPlaying) return;
+                    this._updateLyrics();
+                    this._raf = requestAnimationFrame(tick);
+                };
+                tick();
+            }
+            _stopSync() {
+                if (this._raf) { cancelAnimationFrame(this._raf);
+                    this._raf = null; }
+            }
+            _updateLyrics() {
+                if (!this.lyrics.length || !this._onLyricsUpdate) return;
+                const currentTime = this.audio.currentTime;
+                let idx = 0;
+                for (let i = 0; i < this.lyrics.length; i++) {
+                    if (this.lyrics[i].time <= currentTime) idx = i;
+                    else break;
+                }
+                const prev = idx > 0 ? this.lyrics[idx - 1].text : '';
+                const curr = this.lyrics[idx]?.text || '';
+                const next = idx < this.lyrics.length - 1 ? this.lyrics[idx + 1].text : '';
+                this._onLyricsUpdate({ prev, current: curr, next, index: idx, total: this.lyrics.length });
+            }
+            get paused() { return this.audio.paused; }
+            destroy() {
+                this.pause();
+                this._stopSync();
+                if (this.audio.src) URL.revokeObjectURL(this.audio.src);
+                this.audio.src = '';
+            }
+        }
+
+        // ==================== 算法引擎 ====================
         const Algorithms = {
-            // ----- 基础算法 -----
             module1(prevGroup) {
                 const map = { "大双": "小双", "小双": "大单", "大单": "小单", "小单": "大双" };
                 return map[prevGroup] || null;
@@ -199,6 +2691,7 @@
             },
             module3(historyGroups) {
                 if (!historyGroups.length) return null;
+
                 function findMiss(target) {
                     const idx = historyGroups.findIndex(g => g === target);
                     return idx === -1 ? historyGroups.length : idx;
@@ -273,7 +2766,6 @@
                 const kill = Utils.judgeSizeOdd(intPart);
                 return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill) };
             },
-            // ----- 特色算法 -----
             jingpai(history) {
                 if (history.length < 3) return null;
                 const A = history[history.length - 3],
@@ -342,7 +2834,6 @@
                 return opposite[pred] || null;
             },
 
-            // ----- 统一预测入口 -----
             predict(algName, history3, prevGroup, prevSum, currentNums, fullHistoryPrev, weights) {
                 let kill = null;
                 switch (algName) {
@@ -393,7 +2884,6 @@
                 return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill) };
             },
 
-            // ----- 共识投票 -----
             getAllPredictions(history3, prevGroup, prevSum, currentNums, fullHistoryPrev) {
                 const algNames = Object.keys(CONFIG.ALGORITHM_NAMES);
                 const results = {};
@@ -434,21 +2924,233 @@
         };
 
         // ==================== 语音引擎 ====================
-        // ... 与您原文件完全相同，此处省略 ...
+        class VoiceEngine {
+            constructor() {
+                this.synth = window.speechSynthesis || null;
+                this.enabled = false;
+                this.rate = 1.0;
+                this.speaking = false;
+                this.lastAnnouncedPeriod = '';
+                this.lastPredictionPeriod = null;
+                this.voiceCache = null;
+            }
+            getChineseVoice() {
+                if (!this.synth) return null;
+                if (this.voiceCache) return this.voiceCache;
+                const voices = this.synth.getVoices();
+                const priorities = ['zh-CN', 'zh_TW', 'zh_HK', 'cmn-Hans-CN'];
+                for (const lang of priorities) {
+                    const v = voices.find(v => v.lang === lang && !v.localService) || voices.find(v => v.lang === lang);
+                    if (v) { this.voiceCache = v; return v; }
+                }
+                const fallback = voices.find(v => v.lang.startsWith('zh'));
+                if (fallback) { this.voiceCache = fallback; return fallback; }
+                return null;
+            }
+            speak(text) {
+                if (!this.synth || !text) return;
+                this.stop();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = this.rate;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+                const voice = this.getChineseVoice();
+                if (voice) utterance.voice = voice;
+                let resumeInterval;
+                const startResumeLoop = () => {
+                    resumeInterval = setInterval(() => {
+                        if (this.synth.paused || !this.synth.speaking) return;
+                        try { this.synth.resume(); } catch (_) {}
+                    }, 5000);
+                };
+                utterance.onstart = () => { this.speaking = true;
+                    this.updateUI();
+                    startResumeLoop(); };
+                utterance.onend = () => { clearInterval(resumeInterval);
+                    this.speaking = false;
+                    this.updateUI(); };
+                utterance.onerror = (e) => {
+                    clearInterval(resumeInterval);
+                    this.speaking = false;
+                    this.updateUI();
+                    if (e.error !== 'interrupted' && e.error !== 'canceled') {
+                        setTimeout(() => this.speak(text), 500);
+                    }
+                };
+                this.synth.speak(utterance);
+            }
+            stop() {
+                if (this.synth) { this.synth.cancel();
+                    this.speaking = false;
+                    this.updateUI(); }
+            }
+            updateUI() {
+                const btn = document.getElementById('voice-toggle');
+                btn?.classList.toggle('speaking', this.speaking);
+            }
+            announceOpenResult(data) {
+                if (!this.enabled || !data.length) return;
+                const latest = data[data.length - 1];
+                if (latest.period === this.lastAnnouncedPeriod) return;
+                this.lastAnnouncedPeriod = latest.period;
+                const numsStr = latest.nums.join(' 加 ');
+                this.speak(`最新开奖，第${latest.period}期，开奖号码${numsStr}，等于${latest.sum}，形态${latest.combo}`);
+            }
+            announcePrediction(data, algName, algDisplay) {
+                if (!this.enabled || data.length < 4) return;
+                const history3 = data.slice(data.length - 3);
+                const prev = data[data.length - 2];
+                const current = data[data.length - 1];
+                const fullPrev = data.slice(0, data.length - 1);
+                const pred = Algorithms.predict(algName, history3, prev.combo, prev.sum, current.nums, fullPrev);
+                if (pred.killGroup === '--') return;
+                const nextPeriod = Number(data[data.length - 1].period) + 1;
+                if (this.lastPredictionPeriod === nextPeriod) return;
+                this.lastPredictionPeriod = nextPeriod;
+                const text =
+                    `下一期预测，第${nextPeriod}期，使用${algDisplay}算法，推荐${pred.predictCombos[0]}加${pred.predictCombos[1]}，排除杀组${pred.killGroup}`;
+                setTimeout(() => this.speak(text), 3000);
+            }
+            announceBetResult(period, bet, actual, won, amount) {
+                if (!this.enabled) return;
+                const result = won ? '命中！恭喜！' : '未命中，再接再厉';
+                const profit = won ? `+${amount}` : `-${CONFIG.BET_AMOUNT}`;
+                this.speak(`第${period}期，投注${bet}，开奖${actual}，${result}，盈亏${profit}筹码`);
+            }
+        }
 
         // ==================== 主应用 ====================
         class QingxunApp {
             constructor() {
-                // ... 所有 DOM 引用及其他属性（与原文件相同） ...
-                // 新增缓存对象
+                this.$ = (id) => document.getElementById(id);
+                this.dom = {
+                    curPeriod: this.$('cur-period'),
+                    curTime: this.$('cur-time'),
+                    curCombo: this.$('cur-combo'),
+                    curSum: this.$('cur-sum'),
+                    latestNums: this.$('latest-nums-container'),
+                    cdText: this.$('cd-text'),
+                    ringWrap: this.$('ring-wrap'),
+                    ringProgress: this.$('ring-progress'),
+                    ringText: this.$('ring-text'),
+                    statusIndicator: this.$('status-indicator'),
+                    apiStatus: this.$('api-status'),
+                    highestWinrate: this.$('highest-winrate'),
+                    mostConsecutive: this.$('most-consecutive'),
+                    winrateSpark: this.$('winrate-spark'),
+                    consecSpark: this.$('consecutive-spark'),
+                    sumMissedBody: this.$('sum-missed-body'),
+                    comboMissedBody: this.$('combo-missed-body'),
+                    numMissedBody: this.$('num-missed-body'),
+                    missedSummary: this.$('missed-summary'),
+                    predictCombo1: this.$('predict-combo1'),
+                    predictCombo2: this.$('predict-combo2'),
+                    killGroup: this.$('kill-group'),
+                    algorithmTag: this.$('algorithm-tag'),
+                    tableAlgoTag: this.$('table-algorithm-tag'),
+                    aiNextPeriod: this.$('ai-nextperiod'),
+                    predictionTbody: this.$('prediction-tbody'),
+                    stats: this.$('stats'),
+                    virtualBalance: this.$('virtual-balance'),
+                    totalProfit: this.$('total-profit'),
+                    currentBet: this.$('current-bet'),
+                    betHitRate: this.$('bet-hit-rate'),
+                    betStatusMsg: this.$('bet-status-msg'),
+                    betHistoryBody: this.$('bet-history-body'),
+                    trendCanvas: this.$('trend-canvas'),
+                    algoGrid: this.$('algo-grid'),
+                    algoBody: this.$('algo-body'),
+                    algoToggle: this.$('algo-toggle'),
+                    algorithmSelect: this.$('algorithm-select'),
+                    voiceToggle: this.$('voice-toggle'),
+                    voiceIcon: this.$('voice-icon'),
+                    voiceLabel: this.$('voice-label'),
+                    voiceSpeed: this.$('voice-speed'),
+                    speedVal: this.$('speed-val'),
+                    notifyBtn: this.$('notify-btn'),
+                    themeIcon: this.$('theme-icon'),
+                    tgEnvBadge: this.$('tg-env-badge'),
+                    tgVersionInfo: this.$('tg-version-info'),
+                    tgMainBtn: this.$('tg-main-btn'),
+                    tgCloseBtn: this.$('tg-close-btn'),
+                    appContainer: this.$('app-container'),
+                    frequencyStatsDisplay: this.$('frequency-stats-display'),
+                    daysStatsDisplay: this.$('days-stats-display'),
+                    daysInput: this.$('days-input'),
+                    autoAnnounceBtn: this.$('auto-announce-btn'),
+                    autoAnnounceIcon: this.$('auto-announce-icon'),
+                    autoAnnounceLabel: this.$('auto-announce-label'),
+                    musicToggle: this.$('music-toggle'),
+                    musicIcon: this.$('music-icon'),
+                    musicVolume: this.$('music-volume'),
+                    musicVolWrap: this.$('music-vol-wrap'),
+                    musicPanel: this.$('music-panel'),
+                    musicModeMelody: this.$('music-mode-melody'),
+                    musicModeSong: this.$('music-mode-song'),
+                    musicStyleList: this.$('music-style-list'),
+                    musicPanelVol: this.$('music-panel-vol'),
+                    songAudioName: this.$('song-audio-name'),
+                    songLrcName: this.$('song-lrc-name'),
+                    songLyricsText: this.$('song-lyrics-text'),
+                    lyricsBar: this.$('lyrics-bar'),
+                    lyricsLinePrev: this.$('lyrics-line-prev'),
+                    lyricsLineCurrent: this.$('lyrics-line-current'),
+                    lyricsLineNext: this.$('lyrics-line-next'),
+                    consensusBox: this.$('consensus-box'),
+                    consensusCombo: this.$('consensus-combo'),
+                    consensusComboVote: this.$('consensus-combo-vote'),
+                    consensusKill: this.$('consensus-kill'),
+                    consensusKillVote: this.$('consensus-kill-vote'),
+                };
+
+                this.apiData = [];
+                this.currentAlgorithm = 'shuying_v1';
+                this.algorithmStats = {};
+                this.missedStats = { sums: new Array(28).fill(0), combos: {}, nums: { pos0: new Array(10).fill(0),
+                        pos1: new Array(10).fill(0), pos2: new Array(10).fill(0) } };
+                this.fetchTimer = null;
+                this.countdownRAF = null;
+                this.isFetching = false;
+                this.lastDataHash = '';
+                this.notifyEnabled = false;
+                this.virtualBalance = CONFIG.VIRTUAL_BALANCE;
+                this.currentBet = null;
+                this.currentBetPeriod = null;
+                this.betHistory = [];
+                this.totalWinCount = 0;
+                this.totalBetCount = 0;
+                this.algoCompareOpen = false;
+                this.fusionWeights = [1, 1, 1, 1, 1];
+                this.cacheTimestamp = 0;
+                this.retryCount = 0;
+                this.renderPending = false;
+                this.currentSource = '';
+                this.isSettling = false;
+                this.isTelegram = isTelegram;
+                this.autoAnnounce = false;
+                this.musicEnabled = false;
+                this.musicStyle = 'chill';
+                this.musicMode = 'melody';
+                this.ambientMusic = new AmbientMusic();
+                this.songPlayer = new SongPlayer();
+                this._songAudioFile = null;
+                this._songLrcText = '';
+                // 历史预测缓存（内存镜像 + 持久化）
                 this.historyPredsCache = this.loadHistoryPredsCache();
 
-                // ... 其余初始化代码 ...
+                this.voice = new VoiceEngine();
+                this.songPlayer.onLyricsUpdate = (data) => this.updateLyricsDisplay(data);
+
+                for (const k of Object.keys(CONFIG.ALGORITHM_NAMES)) {
+                    this.algorithmStats[k] = { total: 0, win: 0, currentConsecutive: 0, winRate: 0 };
+                }
+
                 this.initTelegram();
                 this.init();
             }
 
-            // ===== 新增：加载历史预测缓存 =====
+            // ========== 历史预测缓存 ==========
             loadHistoryPredsCache() {
                 try {
                     const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.HISTORY_PREDS);
@@ -456,15 +3158,652 @@
                 } catch (_) {}
                 return {};
             }
-
-            // ===== 新增：保存历史预测缓存 =====
             saveHistoryPredsCache() {
                 try {
                     localStorage.setItem(CONFIG.STORAGE_KEYS.HISTORY_PREDS, JSON.stringify(this.historyPredsCache));
                 } catch (_) {}
             }
 
-            // ===== 修改：renderHistory 使用当前算法并缓存 =====
+            // ========== Telegram ==========
+            initTelegram() {
+                if (this.isTelegram && tgInstance) {
+                    document.body.classList.add('in-telegram');
+                    document.body.classList.remove('not-in-telegram');
+                    this.dom.tgEnvBadge.style.display = 'block';
+                    const version = tgInstance.version || 'unknown';
+                    this.dom.tgVersionInfo.textContent = `Telegram Mini App v${version}`;
+                    this.applyTelegramTheme();
+                    tgInstance.onEvent('themeChanged', () => { this.applyTelegramTheme(); });
+                    tgInstance.onEvent('close', () => { this.closeTelegram(); });
+                    tgInstance.MainButton.setText('📤 分享预测');
+                    tgInstance.MainButton.onClick(() => this.tgMainAction());
+                    tgInstance.MainButton.show();
+                    if (tgInstance.HapticFeedback) { this.tgHaptic = tgInstance.HapticFeedback; }
+                    tgInstance.ready();
+                } else {
+                    document.body.classList.add('not-in-telegram');
+                    document.body.classList.remove('in-telegram');
+                }
+            }
+
+            applyTelegramTheme() {
+                if (!this.isTelegram || !tgInstance) return;
+                const theme = tgInstance.themeParams || {};
+                const root = document.documentElement;
+                const map = {
+                    '--tg-bg-color': theme.bg_color || '#0e0e18',
+                    '--tg-text-color': theme.text_color || '#f0f0ff',
+                    '--tg-hint-color': theme.hint_color || '#b0b0d0',
+                    '--tg-link-color': theme.link_color || '#8b5cf6',
+                    '--tg-button-color': theme.button_color || '#8b5cf6',
+                    '--tg-button-text-color': theme.button_text_color || '#ffffff',
+                    '--tg-secondary-bg-color': theme.secondary_bg_color || '#16162a',
+                    '--tg-header-bg-color': theme.header_bg_color || '#0e0e18',
+                    '--tg-section-bg-color': theme.section_bg_color || 'rgba(20,20,40,0.60)',
+                    '--tg-section-header-text-color': theme.section_header_text_color || '#f0f0ff',
+                    '--tg-subtitle-text-color': theme.subtitle_text_color || '#b0b0d0',
+                    '--tg-destructive-text-color': theme.destructive_text_color || '#f87171',
+                };
+                for (const [key, val] of Object.entries(map)) {
+                    if (val) root.style.setProperty(key, val);
+                }
+                root.classList.add('tg-theme');
+                const isDark = theme.bg_color && theme.bg_color !== '#f0f0fa' &&
+                    !theme.bg_color.startsWith('#f') && !theme.bg_color.startsWith('#e');
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = isDark ? 'dark' : 'light';
+                if (currentTheme !== newTheme) {
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    this.updateThemeIcon(newTheme);
+                }
+            }
+
+            closeTelegram() {
+                if (this.isTelegram && tgInstance) tgInstance.close();
+                else { if (window.history.length > 1) window.history.back();
+                    else window.close(); }
+            }
+
+            tgMainAction() {
+                if (!this.isTelegram || !tgInstance) return;
+                if (this.tgHaptic) { try { this.tgHaptic.impactOccurred('medium'); } catch (_) {} }
+                if (!this.apiData || this.apiData.length < 4) {
+                    this.showToast('数据未就绪，请稍候', 'warning');
+                    return;
+                }
+                const latest = this.apiData[this.apiData.length - 1];
+                const history3 = this.apiData.slice(this.apiData.length - 3);
+                const prev = this.apiData[this.apiData.length - 2];
+                const current = this.apiData[this.apiData.length - 1];
+                const fullPrev = this.apiData.slice(0, this.apiData.length - 1);
+                const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
+                    fullPrev, this.fusionWeights);
+                const nextPeriod = Number(latest.period) + 1;
+                const algName = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
+                const shareText =
+                    `🔮 清浔杀组预测 Pro\n📅 第${nextPeriod}期预测 (${algName})\n🎯 推荐: ${pred.predictCombos[0]} + ${pred.predictCombos[1]}\n🚫 排除: ${pred.killGroup}\n📊 历史胜率: ${this.getCurrentWinRate()}%\n---\n🔗 清浔杀组 · 智能预测`;
+                if (tgInstance.shareToStory) {
+                    tgInstance.shareToStory(shareText);
+                    this.showToast('已打开分享', 'success');
+                } else if (navigator.share) {
+                    navigator.share({ title: '清浔杀组预测', text: shareText }).catch(() => {});
+                } else {
+                    navigator.clipboard.writeText(shareText).then(() => {
+                        this.showToast('已复制预测结果', 'success');
+                    }).catch(() => {
+                        this.showToast('请手动复制: ' + shareText, 'info');
+                    });
+                }
+            }
+
+            getCurrentWinRate() {
+                const stats = this.algorithmStats[this.currentAlgorithm];
+                if (!stats || stats.total === 0) return '0.0';
+                return (stats.win / stats.total * 100).toFixed(1);
+            }
+
+            // ========== 初始化 ==========
+            init() {
+                this.initTheme();
+                this.loadPreferences();
+                this.loadBets();
+                this.loadBetHistory();
+                this.loadCache();
+                this.bindKeyboard();
+                this.restoreMusicState();
+                if (this.apiData.length > 0) this.render();
+                this.fetchData();
+                this.fetchTimer = setInterval(() => this.fetchData(), CONFIG.FETCH_INTERVAL);
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.onvoiceschanged = () => { this.voice.getChineseVoice(); };
+                }
+                if (this.isTelegram && tgInstance) tgInstance.ready();
+            }
+
+            initTheme() {
+                const saved = localStorage.getItem(CONFIG.STORAGE_KEYS.THEME);
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const theme = saved || (prefersDark ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+                this.updateThemeIcon(theme);
+            }
+
+            toggleTheme() {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                const newTheme = isDark ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, newTheme);
+                this.updateThemeIcon(newTheme);
+                this.renderMonitor();
+                this.renderTrendChart();
+            }
+
+            updateThemeIcon(theme) {
+                this.dom.themeIcon.textContent = theme === 'dark' ? '🌙' : '☀️';
+            }
+
+            loadCache() {
+                try {
+                    const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.CACHE);
+                    if (!raw) return;
+                    const cache = JSON.parse(raw);
+                    if (Date.now() - cache.timestamp < CONFIG.CACHE_TTL) {
+                        this.apiData = cache.data || [];
+                        this.cacheTimestamp = cache.timestamp;
+                        this.currentSource = '缓存';
+                    }
+                } catch (_) {}
+            }
+
+            saveCache() {
+                try {
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.CACHE, JSON.stringify({
+                        data: this.apiData,
+                        timestamp: Date.now()
+                    }));
+                } catch (_) {}
+            }
+
+            // ========== 数据获取 ==========
+            async fetchData() {
+                if (this.isFetching) return;
+                this.isFetching = true;
+                this.setStatus('loading');
+
+                let lastError = null;
+                let successSource = '';
+
+                for (const url of CONFIG.API_URLS) {
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), CONFIG.FETCH_TIMEOUT);
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            mode: 'cors',
+                            cache: 'no-cache',
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        const res = await response.json();
+                        if (res.code !== 1 || !Array.isArray(res.data) || !res.data.length) {
+                            throw new Error('数据格式异常');
+                        }
+
+                        const formatted = res.data
+                            .filter(item => item[CONFIG.FIELD_MAP.period] && item[CONFIG.FIELD_MAP.opencode])
+                            .map(item => {
+                                const nums = item[CONFIG.FIELD_MAP.opencode].split(',')
+                                    .map(n => parseInt(n.trim(), 10)).filter(n => !isNaN(n));
+                                const sum = nums.reduce((a, b) => a + b, 0);
+                                return {
+                                    period: String(item[CONFIG.FIELD_MAP.period]),
+                                    nums,
+                                    sum,
+                                    combo: Utils.judgeSizeOdd(sum),
+                                    opentime: item[CONFIG.FIELD_MAP.opentime],
+                                    opentimeStamp: item[CONFIG.FIELD_MAP.opentimeStamp]
+                                };
+                            });
+
+                        this.apiData = formatted.reverse();
+                        if (this.apiData.length < 4) throw new Error('有效数据不足4期');
+                        successSource = url;
+                        break;
+                    } catch (e) {
+                        lastError = e;
+                        console.warn(`数据源 ${url} 失败：`, e.message);
+                    }
+                }
+
+                if (this.apiData.length >= 4) {
+                    this.currentSource = successSource || '未知源';
+                    this.settleBet();
+                    const newHash = this.apiData.map(d => d.period).join(',');
+                    this.calculateAllStats();
+                    this.updateMissedStats();
+                    this.render();
+                    this.setupCountdown();
+                    this.saveCache();
+                    if (this.autoAnnounce && this.voice.enabled) {
+                        this.voice.announceOpenResult(this.apiData);
+                        this.voice.announcePrediction(this.apiData, this.currentAlgorithm, CONFIG.ALGORITHM_NAMES[this
+                            .currentAlgorithm]);
+                    }
+                    this.setStatus('ready', this.currentSource);
+                    this.lastDataHash = newHash;
+                    this.retryCount = 0;
+                    this.showToast(`数据已更新（来源：${this.currentSource}）`, 'success');
+                    if (this.isTelegram && tgInstance) {
+                        try { tgInstance.HapticFeedback?.impactOccurred('light'); } catch (_) {}
+                    }
+                } else {
+                    this.setStatus('error', lastError?.message || '所有数据源不可用');
+                    this.showToast(`数据加载失败: ${lastError?.message}`, 'error');
+                    if (this.apiData.length > 0) {
+                        this.showToast('使用本地缓存（可能已过期）', 'warning');
+                        this.currentSource = '缓存（过期）';
+                        this.render();
+                        this.setupCountdown();
+                    } else if (this.retryCount < CONFIG.MAX_RETRIES) {
+                        this.retryCount++;
+                        setTimeout(() => this.fetchData(), CONFIG.RETRY_DELAY * this.retryCount);
+                    }
+                }
+                this.isFetching = false;
+            }
+
+            // ========== 投注 ==========
+            settleBet() {
+                if (this.isSettling) return;
+                this.isSettling = true;
+                const latest = this.apiData[this.apiData.length - 1];
+                if (!latest) { this.isSettling = false; return; }
+
+                if (this.currentBet && this.currentBetPeriod && this.currentBetPeriod !== latest.period) {
+                    const won = this.currentBet === latest.combo;
+                    const profit = won ? CONFIG.BET_WIN : -CONFIG.BET_AMOUNT;
+                    this.virtualBalance += profit;
+                    this.totalBetCount++;
+                    if (won) this.totalWinCount++;
+
+                    this.betHistory.push({
+                        period: latest.period,
+                        bet: this.currentBet,
+                        actual: latest.combo,
+                        won: won,
+                        profit: profit,
+                        balance: this.virtualBalance
+                    });
+
+                    this.voice.announceBetResult(latest.period, this.currentBet, latest.combo, won, profit);
+
+                    const icon = won ? '🎉' : '😅';
+                    const msg = won ?
+                        `第${latest.period}期 ${this.currentBet} → ${latest.combo} 命中！+${CONFIG.BET_WIN}筹码` :
+                        `第${latest.period}期 ${this.currentBet} → ${latest.combo} 未命中 -${CONFIG.BET_AMOUNT}筹码`;
+                    this.showToast(`${icon} ${msg}`, won ? 'success' : 'error');
+
+                    if (this.isTelegram && tgInstance && this.tgHaptic) {
+                        try { this.tgHaptic.impactOccurred(won ? 'heavy' : 'light'); } catch (_) {}
+                    }
+
+                    this.saveBetHistory();
+                    this.currentBet = null;
+                    this.currentBetPeriod = null;
+                    this.saveBets();
+                    this.updateBetSummary();
+                    this.renderBetHistory();
+                }
+                this.isSettling = false;
+            }
+
+            placeBet(combo) {
+                if (!this.apiData.length) { this.showToast('请等待数据加载完成', 'warning'); return; }
+                if (this.virtualBalance < CONFIG.BET_AMOUNT) { this.showToast('资金不足！请重置', 'error'); return; }
+
+                const latest = this.apiData[this.apiData.length - 1];
+                this.currentBet = combo;
+                this.currentBetPeriod = latest.period;
+
+                document.querySelectorAll('.bet-btn').forEach(btn => {
+                    btn.classList.toggle('active-bet', btn.dataset.bet === combo);
+                });
+
+                this.saveBets();
+                this.updateBetSummary();
+                this.showToast(`已下注 ${combo}，等待第${latest.period}期开奖`, 'success');
+                this.dom.betStatusMsg.textContent = '⏳ 等待开奖...';
+
+                if (this.isTelegram && tgInstance && this.tgHaptic) {
+                    try { this.tgHaptic.impactOccurred('light'); } catch (_) {}
+                }
+            }
+
+            updateBetSummary() {
+                this.dom.virtualBalance.textContent = this.virtualBalance;
+                const profit = this.virtualBalance - CONFIG.VIRTUAL_BALANCE;
+                const el = this.dom.totalProfit;
+                el.textContent = profit >= 0 ? `+${profit}` : profit;
+                el.className = `num ${profit >= 0 ? 'profit' : 'loss'}`;
+                const rate = this.totalBetCount > 0 ? ((this.totalWinCount / this.totalBetCount) * 100).toFixed(1) : '--';
+                this.dom.betHitRate.textContent = this.totalBetCount > 0 ? `${rate}%` : '--%';
+                if (this.currentBet && this.currentBetPeriod) {
+                    this.dom.currentBet.textContent = `${this.currentBet} (第${this.currentBetPeriod}期)`;
+                    this.dom.betStatusMsg.textContent = '⏳ 等待开奖...';
+                } else {
+                    this.dom.currentBet.textContent = '无';
+                    this.dom.betStatusMsg.textContent = '';
+                }
+            }
+
+            renderBetHistory() {
+                const tbody = this.dom.betHistoryBody;
+                tbody.innerHTML = '';
+                const history = this.betHistory.slice(-20).reverse();
+                if (!history.length) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="4" style="color:var(--text-muted);padding:12px;">暂无投注记录</td></tr>';
+                    return;
+                }
+                history.forEach(h => {
+                    const tr = document.createElement('tr');
+                    const cls = h.won ? 'win' : 'lose';
+                    const txt = h.won ? `+${h.profit}` : `${h.profit}`;
+                    tr.innerHTML =
+                        `<td>${h.period}</td><td>${h.bet}</td><td>${h.actual}</td><td class="${cls}">${txt}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            loadBetHistory() {
+                try {
+                    const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.BET_HISTORY);
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        this.betHistory = data.history || [];
+                        this.totalWinCount = data.totalWinCount || 0;
+                        this.totalBetCount = data.totalBetCount || 0;
+                    }
+                } catch (_) {}
+            }
+
+            saveBetHistory() {
+                try {
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.BET_HISTORY, JSON.stringify({
+                        history: this.betHistory,
+                        totalWinCount: this.totalWinCount,
+                        totalBetCount: this.totalBetCount
+                    }));
+                } catch (_) {}
+            }
+
+            clearBetHistory() {
+                if (this.betHistory.length === 0) return;
+                if (!confirm('确定要清空所有投注历史吗？')) return;
+                this.betHistory = [];
+                this.totalWinCount = 0;
+                this.totalBetCount = 0;
+                this.saveBetHistory();
+                this.renderBetHistory();
+                this.updateBetSummary();
+                this.showToast('投注历史已清空', 'info');
+            }
+
+            // ========== 统计 ==========
+            calculateAllStats() {
+                if (this.apiData.length < 4) return;
+                const testPeriods = Math.min(this.apiData.length - 3, CONFIG.MAX_HISTORY);
+                const startI = Math.max(0, this.apiData.length - 3 - testPeriods);
+
+                const cache = {};
+                const getPred = (alg, idx) => {
+                    const key = `${alg}|${idx}`;
+                    if (cache[key]) return cache[key];
+                    const history3 = this.apiData.slice(idx, idx + 3);
+                    const prev = this.apiData[idx + 2];
+                    const current = this.apiData[idx + 3];
+                    const fullPrev = this.apiData.slice(0, idx + 3);
+                    const result = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev,
+                        this.fusionWeights);
+                    cache[key] = result;
+                    return result;
+                };
+
+                for (const alg of Object.keys(CONFIG.ALGORITHM_NAMES)) {
+                    let total = 0,
+                        win = 0,
+                        consecutive = 0;
+                    for (let i = startI; i < this.apiData.length - 3; i++) {
+                        const pred = getPred(alg, i);
+                        if (pred.killGroup === '--') continue;
+                        total++;
+                        if (Utils.isKillHit(pred.killGroup, this.apiData[i + 3].combo)) win++;
+                    }
+                    for (let i = this.apiData.length - 4; i >= 0; i--) {
+                        const pred = getPred(alg, i);
+                        if (pred.killGroup === '--') break;
+                        if (Utils.isKillHit(pred.killGroup, this.apiData[i + 3].combo)) consecutive++;
+                        else break;
+                    }
+                    this.algorithmStats[alg] = {
+                        total,
+                        win,
+                        currentConsecutive: consecutive,
+                        winRate: total > 0 ? (win / total) * 100 : 0
+                    };
+                }
+            }
+
+            updateMissedStats() {
+                if (!this.apiData.length) return;
+                const len = this.apiData.length;
+                this.missedStats.sums = new Array(28).fill(len);
+                const combos = ['大', '小', '单', '双', '大单', '大双', '小单', '小双'];
+                combos.forEach(c => this.missedStats.combos[c] = len);
+                const posKeys = ['pos0', 'pos1', 'pos2'];
+                posKeys.forEach(k => { this.missedStats.nums[k] = new Array(10).fill(len); });
+
+                for (let i = 0; i < len; i++) {
+                    const item = this.apiData[i];
+                    if (this.missedStats.sums[item.sum] === len)
+                        this.missedStats.sums[item.sum] = i;
+                    const digits = item.nums ? item.nums : [0, 0, 0];
+                    [0, 1, 2].forEach(pos => {
+                        const d = digits[pos];
+                        if (d >= 0 && d <= 9 && this.missedStats.nums['pos' + pos][d] === len) {
+                            this.missedStats.nums['pos' + pos][d] = i;
+                        }
+                    });
+                    for (const key of combos) {
+                        let match = false;
+                        if (key === '大' && item.combo.startsWith('大')) match = true;
+                        else if (key === '小' && item.combo.startsWith('小')) match = true;
+                        else if (key === '单' && item.combo.endsWith('单')) match = true;
+                        else if (key === '双' && item.combo.endsWith('双')) match = true;
+                        else if (key === item.combo) match = true;
+                        if (match && this.missedStats.combos[key] === len)
+                            this.missedStats.combos[key] = i;
+                    }
+                }
+            }
+
+            // ========== 渲染 ==========
+            render() {
+                if (this.renderPending) return;
+                this.renderPending = true;
+                requestAnimationFrame(() => {
+                    this.renderPending = false;
+                    this._doRender();
+                });
+            }
+
+            _doRender() {
+                this.renderLatest();
+                this.updateMissedStats();
+                const missedPanel = document.getElementById('missed-stats');
+                if (missedPanel && missedPanel.style.display === 'block') {
+                    this.renderMissed();
+                }
+                this.renderPrediction();
+                this.renderHistory(); // 使用当前算法并缓存
+                this.renderMonitor();
+                this.renderAlgoCompare();
+                this.renderTrendChart();
+                this.updateBetSummary();
+                this.renderBetHistory();
+            }
+
+            renderLatest() {
+                const latest = this.apiData[this.apiData.length - 1];
+                if (!latest) return;
+                this.dom.curPeriod.textContent = latest.period;
+                this.dom.curTime.textContent = latest.opentime;
+                this.dom.curCombo.textContent = latest.combo;
+                this.dom.curSum.textContent = latest.sum;
+
+                const container = this.dom.latestNums;
+                container.innerHTML = '';
+                latest.nums.forEach((num, idx) => {
+                    const ball = document.createElement('div');
+                    ball.className = 'hero-ball';
+                    ball.textContent = num;
+                    ball.style.animationDelay = `${idx * 0.1}s`;
+                    container.appendChild(ball);
+                    if (idx < latest.nums.length - 1) {
+                        const sep = document.createElement('span');
+                        sep.className = 'hero-sep';
+                        sep.textContent = '+';
+                        container.appendChild(sep);
+                    }
+                });
+                const sep = document.createElement('span');
+                sep.className = 'hero-sep';
+                sep.textContent = '=';
+                container.appendChild(sep);
+                const sumEl = document.createElement('span');
+                sumEl.className = 'hero-eq';
+                sumEl.textContent = latest.sum;
+                container.appendChild(sumEl);
+            }
+
+            toggleMissedPanel() {
+                const panel = document.getElementById('missed-stats');
+                if (!panel) return;
+                if (panel.style.display === 'none' || !panel.style.display) {
+                    if (!this.apiData.length) { this.showToast('暂无数据，请先刷新', 'warning'); return; }
+                    this.updateMissedStats();
+                    this.renderMissed();
+                    panel.style.display = 'block';
+                } else {
+                    panel.style.display = 'none';
+                }
+            }
+
+            renderMissed() {
+                if (!this.apiData.length) return;
+                const sumHot = this.missedStats.sums.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v).slice(0, 3);
+                const comboArr = Object.entries(this.missedStats.combos).sort((a, b) => b[1] - a[1]).slice(0, 3);
+                const allNums = [];
+                ['pos0', 'pos1', 'pos2'].forEach(k => {
+                    this.missedStats.nums[k].forEach((v, i) => allNums.push({ v, i, pos: k }));
+                });
+                const numHot = allNums.sort((a, b) => b.v - a.v).slice(0, 3);
+
+                if (this.dom.missedSummary) {
+                    const posName = { pos0: '第1位', pos1: '第2位', pos2: '第3位' };
+                    this.dom.missedSummary.innerHTML = `
+                        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                            <div style="flex:1;min-width:140px;padding:8px 10px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                                <div style="font-size:11px;color:var(--text-muted);font-weight:600;">🔥 和值热号TOP3</div>
+                                <div style="font-size:14px;font-weight:700;color:var(--danger);margin-top:2px;">${sumHot.map(s => '和值'+s.i+':'+s.v+'期').join(' | ')}</div>
+                            </div>
+                            <div style="flex:1;min-width:140px;padding:8px 10px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                                <div style="font-size:11px;color:var(--text-muted);font-weight:600;">🔥 号码热号TOP3</div>
+                                <div style="font-size:14px;font-weight:700;color:var(--danger);margin-top:2px;">${numHot.map(n => posName[n.pos]+n.i+':'+n.v+'期').join(' | ')}</div>
+                            </div>
+                            <div style="flex:1;min-width:140px;padding:8px 10px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                                <div style="font-size:11px;color:var(--text-muted);font-weight:600;">🔥 形态热号TOP3</div>
+                                <div style="font-size:14px;font-weight:700;color:var(--danger);margin-top:2px;">${comboArr.map(c => c[0]+':'+c[1]+'期').join(' | ')}</div>
+                            </div>
+                        </div>`;
+                }
+
+                const posLabels = ['第1位', '第2位', '第3位'];
+                const posKeys = ['pos0', 'pos1', 'pos2'];
+                let numHTML = '';
+                posKeys.forEach((k, pi) => {
+                    numHTML +=
+                        `<tr><td style="font-weight:700;color:var(--text-secondary);font-size:11px;">${posLabels[pi]}</td>`;
+                    for (let d = 0; d <= 9; d++) {
+                        const v = this.missedStats.nums[k][d];
+                        const cls = v >= 20 ? 'hot' : (v <= 2 ? 'cold' : 'neutral');
+                        numHTML += `<td class="${cls}">${v}</td>`;
+                    }
+                    numHTML += '</tr>';
+                });
+                if (this.dom.numMissedBody) this.dom.numMissedBody.innerHTML = numHTML;
+
+                let sumHTML = '<tr>' + Array.from({ length: 28 }, (_, i) =>
+                    `<td style="font-weight:700;color:var(--text-secondary);font-size:11px;">${i}</td>`).join('') + '</tr>';
+                sumHTML += '<tr>' + this.missedStats.sums.map((v) => {
+                    const cls = v >= 15 ? 'hot' : (v <= 2 ? 'cold' : 'neutral');
+                    return `<td class="${cls}">${v}</td>`;
+                }).join('') + '</tr>';
+                this.dom.sumMissedBody.innerHTML = sumHTML;
+
+                const combos = ['大', '小', '单', '双', '大单', '大双', '小单', '小双'];
+                let comboHTML = '<tr>' + combos.map(c =>
+                    `<td style="font-weight:700;color:var(--text-secondary);">${c}</td>`).join('') + '</tr>';
+                comboHTML += '<tr>' + combos.map(c => {
+                    const v = this.missedStats.combos[c] || 0;
+                    const cls = v >= 8 ? 'hot' : (v <= 2 ? 'cold' : 'neutral');
+                    return `<td class="${cls}">${v}</td>`;
+                }).join('') + '</tr>';
+                this.dom.comboMissedBody.innerHTML = comboHTML;
+
+                document.getElementById('missed-stats').style.display = 'block';
+            }
+
+            renderPrediction() {
+                if (!this.apiData || this.apiData.length < 4) return;
+                const history3 = this.apiData.slice(this.apiData.length - 3);
+                const prev = this.apiData[this.apiData.length - 2];
+                const current = this.apiData[this.apiData.length - 1];
+                const fullPrev = this.apiData.slice(0, this.apiData.length - 1);
+                const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
+                    fullPrev, this.fusionWeights);
+                const nextPeriod = Number(this.apiData[this.apiData.length - 1].period) + 1;
+
+                this.dom.aiNextPeriod.textContent = `预测期数：${nextPeriod}`;
+                this.dom.predictCombo1.textContent = pred.predictCombos[0];
+                this.dom.predictCombo2.textContent = pred.predictCombos[1];
+                this.dom.killGroup.textContent = pred.killGroup;
+                const name = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
+                this.dom.algorithmTag.textContent = name;
+                this.dom.tableAlgoTag.textContent = name;
+
+                const allPreds = Algorithms.getAllPredictions(history3, prev.combo, prev.sum, current.nums, fullPrev);
+                const consensus = Algorithms.getConsensus(allPreds);
+                if (consensus.totalVotes > 0) {
+                    this.dom.consensusBox.style.display = 'block';
+                    const topCombo = consensus.topCombos[0];
+                    const topKill = consensus.topKills[0];
+                    this.dom.consensusCombo.textContent = topCombo ? topCombo[0] : '--';
+                    this.dom.consensusComboVote.textContent = topCombo ? `(${topCombo[1]}票)` : '';
+                    this.dom.consensusKill.textContent = topKill ? topKill[0] : '--';
+                    this.dom.consensusKillVote.textContent = topKill ? `(${topKill[1]}票)` : '';
+                } else {
+                    this.dom.consensusBox.style.display = 'none';
+                }
+
+                if (this.isTelegram && tgInstance) {
+                    const winRate = this.getCurrentWinRate();
+                    tgInstance.MainButton.setText(`📤 分享预测 (胜率${winRate}%)`);
+                }
+            }
+
             renderHistory() {
                 const tbody = this.dom.predictionTbody;
                 tbody.innerHTML = '';
@@ -473,7 +3812,7 @@
                     return;
                 }
 
-                const algo = this.currentAlgorithm; // 使用当前算法
+                const algo = this.currentAlgorithm;
                 let winCount = 0,
                     totalCount = 0;
                 const maxShow = Math.min(CONFIG.MAX_HISTORY, this.apiData.length - 3);
@@ -520,48 +3859,780 @@
                     <span class="rate">${winRate}%</span>
                     <span>${winCount} / ${totalCount}</span>
                 `;
-                // 更新表格上方的算法标签
                 this.dom.tableAlgoTag.textContent = CONFIG.ALGORITHM_NAMES[algo] || algo;
             }
 
-            // ===== 其他所有函数（与原文件完全相同） =====
-            // 注意：changeAlgorithm 中需调用 this.renderHistory() 以更新标签及可能的新算法缓存
-            changeAlgorithm() {
-                this.currentAlgorithm = this.dom.algorithmSelect.value;
-                this.render(); // render 中会调用 renderHistory，自动处理缓存
+            renderMonitor() {
+                let bestWin = 'shuying_v1',
+                    bestCon = 'shuying_v1';
+                for (const alg of Object.keys(this.algorithmStats)) {
+                    if (this.algorithmStats[alg].winRate > this.algorithmStats[bestWin].winRate) bestWin = alg;
+                    if (this.algorithmStats[alg].currentConsecutive > this.algorithmStats[bestCon].currentConsecutive)
+                        bestCon = alg;
+                }
+                const winStats = this.algorithmStats[bestWin];
+                const conStats = this.algorithmStats[bestCon];
+
+                this.dom.highestWinrate.innerHTML =
+                    `${CONFIG.ALGORITHM_NAMES[bestWin]} <span class="sub">${winStats.winRate.toFixed(1)}%</span>`;
+                this.dom.mostConsecutive.innerHTML =
+                    `${CONFIG.ALGORITHM_NAMES[bestCon]} <span class="sub">连中${conStats.currentConsecutive}期</span>`;
+
+                const algNames = Object.keys(CONFIG.ALGORITHM_NAMES);
+                const shortNames = {};
+                for (const k of algNames) {
+                    const name = CONFIG.ALGORITHM_NAMES[k];
+                    shortNames[k] = name.length > 4 ? name.slice(0, 4) : name;
+                }
+                const winrates = algNames.map(a => this.algorithmStats[a].winRate);
+                const consecutives = algNames.map(a => this.algorithmStats[a].currentConsecutive);
+                const maxWR = Math.max(...winrates, 1);
+                const maxCon = Math.max(...consecutives, 1);
+
+                this.dom.winrateSpark.innerHTML = Utils.barChart(Object.values(shortNames), winrates, maxWR);
+                this.dom.consecSpark.innerHTML = Utils.barChart(Object.values(shortNames), consecutives, maxCon);
+            }
+
+            renderTrendChart() {
+                if (this.apiData.length < 2) return;
+                const recent = this.apiData.slice(-30);
+                const sums = recent.map(d => d.sum);
+                document.getElementById('trend-card').style.display = 'block';
+                const canvas = this.dom.trendCanvas;
+                const color = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#8b5cf6';
+                requestAnimationFrame(() => Utils.drawSparkline(canvas, sums, color));
+            }
+
+            renderAlgoCompare() {
+                if (!this.algoCompareOpen || this.apiData.length < 4) return;
+                const history3 = this.apiData.slice(this.apiData.length - 3);
+                const prev = this.apiData[this.apiData.length - 2];
+                const current = this.apiData[this.apiData.length - 1];
+                const fullPrev = this.apiData.slice(0, this.apiData.length - 1);
+
+                let html = '';
+                const allAlgs = Object.keys(CONFIG.ALGORITHM_NAMES);
+                const isFeatureAlg = (alg) => ['jingpai', 'fengpai', 'tongpai', 'qisha', 'yisha', 'shisha'].includes(alg);
+
+                for (const alg of allAlgs) {
+                    const pred = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev,
+                        this.fusionWeights);
+                    const stats = this.algorithmStats[alg];
+                    const isFusion = alg === 'fusion_vote';
+                    const isFeature = isFeatureAlg(alg);
+                    const cls = isFusion ? 'algo-item fusion' : 'algo-item';
+                    const badge = isFeature ? '<span class="badge-new">特色</span>' : '';
+                    html += `<div class="${cls}">
+                        <div class="algo-item-name">${CONFIG.ALGORITHM_NAMES[alg]} ${badge}</div>
+                        <div class="algo-item-pred">推荐 <span class="p-red">${pred.predictCombos.join('+')}</span> · 杀 <span class="p-kill">${pred.killGroup}</span></div>
+                        <div class="algo-item-stats">
+                            <span>胜率 <span class="win">${stats.winRate.toFixed(1)}%</span></span>
+                            <span>连中 <span class="con">${stats.currentConsecutive}</span></span>
+                        </div>
+                    </div>`;
+                }
+                this.dom.algoGrid.innerHTML = html;
+            }
+
+            // ========== 倒计时 ==========
+            setupCountdown() {
+                if (this.countdownRAF) cancelAnimationFrame(this.countdownRAF);
+                const latest = this.apiData[this.apiData.length - 1];
+                if (!latest) return;
+
+                const lastOpenTime = latest.opentimeStamp ?
+                    new Date(latest.opentimeStamp * 1000) :
+                    new Date(latest.opentime);
+                const nextOpenTime = new Date(lastOpenTime.getTime() + 3 * 60 * 1000 + 30 * 1000);
+                const totalTime = nextOpenTime - lastOpenTime;
+                const circumference = 2 * Math.PI * 30;
+
+                this.dom.ringProgress.setAttribute('stroke-dasharray', circumference.toFixed(3));
+
+                let lastTimestamp = 0;
+                const update = (timestamp) => {
+                    if (!lastTimestamp) lastTimestamp = timestamp;
+                    if (timestamp - lastTimestamp < 900) { this.countdownRAF = requestAnimationFrame(update); return; }
+                    lastTimestamp = timestamp;
+
+                    const diff = nextOpenTime - Date.now();
+                    if (diff <= 0) {
+                        this.dom.cdText.textContent = '更新数据...';
+                        this.dom.cdText.classList.add('urgent');
+                        this.dom.ringText.textContent = '--:--';
+                        this.dom.ringText.classList.add('urgent');
+                        this.dom.ringProgress.style.strokeDashoffset = circumference.toFixed(3);
+                        this.dom.ringProgress.classList.add('urgent');
+                        setTimeout(() => this.fetchData(), 1500);
+                        return;
+                    }
+                    const progress = Math.max(0, diff / totalTime);
+                    const offset = circumference * (1 - progress);
+                    const m = Utils.fmtNum(Math.floor(diff / 60000));
+                    const s = Utils.fmtNum(Math.floor((diff % 60000) / 1000));
+
+                    this.dom.cdText.textContent = `${m}分${s}秒`;
+                    this.dom.ringText.textContent = `${m}:${s}`;
+                    this.dom.ringProgress.style.strokeDashoffset = offset.toFixed(3);
+
+                    const urgent = parseInt(m) < 1;
+                    this.dom.cdText.classList.toggle('urgent', urgent);
+                    this.dom.ringProgress.classList.toggle('urgent', urgent);
+                    this.dom.ringText.classList.toggle('urgent', urgent);
+
+                    this.countdownRAF = requestAnimationFrame(update);
+                };
+                this.countdownRAF = requestAnimationFrame(update);
+            }
+
+            // ========== 保存/加载投注 ==========
+            saveBets() {
+                try {
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.BETS, JSON.stringify({
+                        balance: this.virtualBalance,
+                        currentBet: this.currentBet,
+                        currentBetPeriod: this.currentBetPeriod,
+                        totalWinCount: this.totalWinCount,
+                        totalBetCount: this.totalBetCount
+                    }));
+                } catch (_) {}
+            }
+
+            loadBets() {
+                try {
+                    const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.BETS);
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        this.virtualBalance = data.balance ?? CONFIG.VIRTUAL_BALANCE;
+                        this.currentBet = data.currentBet || null;
+                        this.currentBetPeriod = data.currentBetPeriod || null;
+                        this.totalWinCount = data.totalWinCount || 0;
+                        this.totalBetCount = data.totalBetCount || 0;
+                    }
+                } catch (_) {
+                    this.virtualBalance = CONFIG.VIRTUAL_BALANCE;
+                }
+            }
+
+            // ========== 语音 ==========
+            toggleVoice() {
+                this.voice.enabled = !this.voice.enabled;
+                const btn = this.dom.voiceToggle;
+                if (this.voice.enabled) {
+                    btn.classList.add('active');
+                    this.dom.voiceIcon.textContent = '🔊';
+                    this.dom.voiceLabel.textContent = '开启';
+                } else {
+                    btn.classList.remove('active');
+                    this.dom.voiceIcon.textContent = '🔇';
+                    this.dom.voiceLabel.textContent = '关闭';
+                    this.voice.stop();
+                }
                 this.savePreferences();
             }
 
-            // 完整 render 函数需包含 this.renderHistory()，确保每次渲染时调用
-            // 请确保您的 render 函数中调用了 this.renderHistory()
-            // 例如：
-            render() {
-                if (this.renderPending) return;
-                this.renderPending = true;
-                requestAnimationFrame(() => {
-                    this.renderPending = false;
-                    this._doRender();
+            updateSpeed() {
+                this.voice.rate = parseFloat(this.dom.voiceSpeed.value);
+                this.dom.speedVal.textContent = this.voice.rate.toFixed(1) + 'x';
+                this.savePreferences();
+            }
+
+            speakText(text) { this.voice.speak(text); }
+
+            manualAnnounce() {
+                if (!this.apiData || this.apiData.length < 4) return;
+                const latest = this.apiData[this.apiData.length - 1];
+                const numsStr = latest.nums.join(' 加 ');
+                const history3 = this.apiData.slice(this.apiData.length - 3);
+                const prev = this.apiData[this.apiData.length - 2];
+                const current = this.apiData[this.apiData.length - 1];
+                const fullPrev = this.apiData.slice(0, this.apiData.length - 1);
+                const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
+                    fullPrev, this.fusionWeights);
+                const nextPeriod = Number(latest.period) + 1;
+                const text =
+                    `当前最新开奖第${latest.period}期，${numsStr}等于${latest.sum}，形态${latest.combo}。下一期第${nextPeriod}期预测，${CONFIG.ALGORITHM_NAMES[this.currentAlgorithm]}算法，推荐${pred.predictCombos[0]}加${pred.predictCombos[1]}，排除${pred.killGroup}`;
+                this.voice.speak(text);
+
+                if (this.isTelegram && tgInstance && this.tgHaptic) {
+                    try { this.tgHaptic.impactOccurred('light'); } catch (_) {}
+                }
+            }
+
+            // ========== 通知 ==========
+            toggleNotification() {
+                if (this.notifyEnabled) {
+                    this.notifyEnabled = false;
+                    this.updateNotifyBtn();
+                    this.savePreferences();
+                    return;
+                }
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    this.notifyEnabled = true;
+                    this.updateNotifyBtn();
+                    this.savePreferences();
+                    return;
+                }
+                if ('Notification' in window) {
+                    Notification.requestPermission().then(p => {
+                        if (p === 'granted') { this.notifyEnabled = true;
+                            this.updateNotifyBtn();
+                            this.savePreferences(); }
+                    });
+                }
+            }
+
+            updateNotifyBtn() {
+                this.dom.notifyBtn.classList.toggle('active', this.notifyEnabled);
+            }
+
+            // ========== 导出 ==========
+            exportCSV() {
+                if (!this.apiData.length) return;
+                const rows = [
+                    ['期数', '号码', '和值', '形态', '推荐1', '推荐2', '杀组', '结果']
+                ];
+                for (let i = 0; i < this.apiData.length - 3; i++) {
+                    const history3 = this.apiData.slice(i, i + 3);
+                    const prev = this.apiData[i + 2];
+                    const current = this.apiData[i + 3];
+                    const fullPrev = this.apiData.slice(0, i + 3);
+                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
+                        fullPrev, this.fusionWeights);
+                    const hit = Utils.isKillHit(pred.killGroup, current.combo);
+                    rows.push([
+                        current.period,
+                        current.nums.join(','),
+                        current.sum,
+                        current.combo,
+                        pred.predictCombos[0],
+                        pred.predictCombos[1],
+                        pred.killGroup,
+                        hit ? '命中' : '未命中'
+                    ]);
+                }
+                Utils.downloadCSV(`清浔历史_${new Date().toISOString().slice(0, 10)}.csv`, rows);
+                this.showToast('CSV导出成功', 'success');
+            }
+
+            // ========== UI 状态 ==========
+            setStatus(status, msg = '') {
+                const el = this.dom.statusIndicator;
+                const apiEl = this.dom.apiStatus;
+                if (status === 'loading') {
+                    el.className = 'meta-chip loading';
+                    el.textContent = '加载中...';
+                    apiEl.innerHTML =
+                        '<span class="status-dot" style="background:var(--warning);"></span><span>加载中...</span>';
+                    apiEl.className = 'status-badge';
+                } else if (status === 'ready') {
+                    el.className = 'meta-chip ready';
+                    el.textContent = '数据正常';
+                    const src = msg ? ` [${msg.replace(/^https?:\/\//, '').slice(0, 20)}]` : '';
+                    apiEl.innerHTML = `<span class="status-dot"></span><span>在线${src}</span>`;
+                    apiEl.className = 'status-badge';
+                } else if (status === 'error') {
+                    el.className = 'meta-chip loading';
+                    el.textContent = '加载失败';
+                    apiEl.innerHTML =
+                        `<span class="status-dot" style="background:var(--danger);box-shadow:0 0 12px var(--danger-glow);"></span><span>异常</span>`;
+                    apiEl.className = 'status-badge error';
+                }
+            }
+
+            showToast(message, type = 'info') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast`;
+                const icons = { success: '✓', error: '✗', warning: '⚠', info: 'ℹ' };
+                toast.innerHTML =
+                    `<span>${icons[type] || 'ℹ'} ${message}</span><span class="close" onclick="this.closest('.toast').remove()">×</span>`;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.classList.add('out');
+                    setTimeout(() => toast.remove(), 300);
+                }, 5000);
+            }
+
+            // ========== 持久化偏好 ==========
+            savePreferences() {
+                try {
+                    const prefs = {
+                        algorithm: this.currentAlgorithm,
+                        voiceEnabled: this.voice.enabled,
+                        voiceRate: this.voice.rate,
+                        notifyEnabled: this.notifyEnabled,
+                        theme: document.documentElement.getAttribute('data-theme'),
+                        autoAnnounce: this.autoAnnounce,
+                        musicEnabled: this.musicEnabled,
+                        musicVolume: parseFloat(this.dom.musicVolume?.value || 0.30),
+                        musicStyle: this.musicStyle,
+                        musicMode: this.musicMode
+                    };
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.PREFS, JSON.stringify(prefs));
+                } catch (_) {}
+            }
+
+            loadPreferences() {
+                try {
+                    const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.PREFS);
+                    if (!raw) return;
+                    const prefs = JSON.parse(raw);
+                    if (prefs.algorithm) {
+                        this.currentAlgorithm = prefs.algorithm;
+                        if (this.dom.algorithmSelect) this.dom.algorithmSelect.value = prefs.algorithm;
+                    }
+                    if (typeof prefs.voiceEnabled === 'boolean') {
+                        this.voice.enabled = prefs.voiceEnabled;
+                        if (this.voice.enabled) {
+                            this.dom.voiceToggle?.classList.add('active');
+                            this.dom.voiceIcon.textContent = '🔊';
+                            this.dom.voiceLabel.textContent = '开启';
+                        }
+                    }
+                    if (typeof prefs.voiceRate === 'number') {
+                        this.voice.rate = prefs.voiceRate;
+                        if (this.dom.voiceSpeed) this.dom.voiceSpeed.value = prefs.voiceRate;
+                        if (this.dom.speedVal) this.dom.speedVal.textContent = prefs.voiceRate.toFixed(1) + 'x';
+                    }
+                    if (typeof prefs.notifyEnabled === 'boolean') {
+                        this.notifyEnabled = prefs.notifyEnabled;
+                        if (this.notifyEnabled && 'Notification' in window && Notification.permission === 'granted') {
+                            this.updateNotifyBtn();
+                        } else {
+                            this.notifyEnabled = false;
+                        }
+                    }
+                    if (typeof prefs.autoAnnounce === 'boolean') {
+                        this.autoAnnounce = prefs.autoAnnounce;
+                        this.updateAutoAnnounceUI();
+                    }
+                    if (prefs.theme) {
+                        document.documentElement.setAttribute('data-theme', prefs.theme);
+                        this.updateThemeIcon(prefs.theme);
+                    }
+                    if (typeof prefs.musicEnabled === 'boolean') {
+                        this.musicEnabled = prefs.musicEnabled;
+                    }
+                    if (typeof prefs.musicVolume === 'number' && this.dom.musicVolume) {
+                        this.dom.musicVolume.value = Math.min(1, Math.max(0, prefs.musicVolume));
+                    }
+                } catch (_) {}
+            }
+
+            // ========== 音乐控制 ==========
+            _buildMusicPanel() {
+                const list = this.dom.musicStyleList;
+                if (!list) return;
+                list.innerHTML = '';
+                MUSIC_STYLES.forEach(s => {
+                    const el = document.createElement('div');
+                    el.className = 'music-style-item' + (s.id === this.musicStyle ? ' active' : '');
+                    el.innerHTML =
+                        `<span class="ms-icon">${s.icon}</span><span class="ms-name">${s.name}</span><span class="ms-check">✓</span>`;
+                    el.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.selectMusicStyle(s.id);
+                    });
+                    list.appendChild(el);
                 });
             }
-
-            _doRender() {
-                this.renderLatest();
-                this.updateMissedStats();
-                const missedPanel = document.getElementById('missed-stats');
-                if (missedPanel && missedPanel.style.display === 'block') {
-                    this.renderMissed();
+            onMusicClick(e) {
+                if (e.detail === 0) return;
+                this.toggleMusic();
+                this.toggleMusicPanel(e);
+            }
+            switchMusicMode(mode) {
+                if (this.musicMode === mode) return;
+                this._stopAllMusic();
+                this.musicMode = mode;
+                document.querySelectorAll('.music-mode-tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.mode === mode);
+                });
+                if (this.dom.musicModeMelody) this.dom.musicModeMelody.style.display = mode === 'melody' ? 'block' :
+                    'none';
+                if (this.dom.musicModeSong) this.dom.musicModeSong.style.display = mode === 'song' ? 'block' :
+                'none';
+                this.savePreferences();
+                this.showToast(mode === 'melody' ? '已切换至纯旋律模式' : '已切换至本地歌曲模式', 'info');
+            }
+            _stopAllMusic() {
+                this.ambientMusic.pause();
+                this.songPlayer.pause();
+                this.musicEnabled = false;
+                this.updateMusicUI();
+                this.hideLyricsBar();
+            }
+            toggleMusic() {
+                if (this.musicMode === 'melody') {
+                    this._toggleMelody();
+                } else {
+                    this._toggleSong();
                 }
-                this.renderPrediction();
-                this.renderHistory();   // 使用当前算法并缓存
-                this.renderMonitor();
-                this.renderAlgoCompare();
-                this.renderTrendChart();
-                this.updateBetSummary();
-                this.renderBetHistory();
+            }
+            _toggleMelody() {
+                if (this.ambientMusic.isPlaying) {
+                    this.ambientMusic.pause();
+                    this.musicEnabled = false;
+                    this.updateMusicUI();
+                    this.savePreferences();
+                    this.showToast('🔇 纯旋律已暂停', 'info');
+                } else {
+                    const vol = parseFloat(this.dom.musicVolume?.value || 0.30);
+                    const ok = this.ambientMusic.play(vol);
+                    if (ok) {
+                        this.musicEnabled = true;
+                        this.updateMusicUI();
+                        this.savePreferences();
+                        const styleName = (MUSIC_STYLES.find(s => s.id === this.musicStyle) || {}).name || '';
+                        this.showToast(`🎵 ${styleName} 已开启`, 'success');
+                    } else {
+                        this.showToast('浏览器不支持 Web Audio API', 'error');
+                    }
+                }
+            }
+            _toggleSong() {
+                if (this.songPlayer.isPlaying) {
+                    this.songPlayer.pause();
+                    this.musicEnabled = false;
+                    this.updateMusicUI();
+                    this.hideLyricsBar();
+                    this.savePreferences();
+                    this.showToast('🔇 歌曲已暂停', 'info');
+                } else {
+                    if (!this._songAudioFile) {
+                        this.showToast('请先选择音频文件', 'warning');
+                        return;
+                    }
+                    const vol = parseFloat(this.dom.musicVolume?.value || 0.30);
+                    this.songPlayer.setVolume(vol);
+                    this.songPlayer.play();
+                    this.musicEnabled = true;
+                    this.updateMusicUI();
+                    this.savePreferences();
+                    this.showLyricsBar();
+                    this.showToast('🎤 开始播放', 'success');
+                }
+            }
+            selectMusicStyle(styleId) {
+                if (styleId === this.musicStyle && this.ambientMusic.isPlaying) return;
+                this.musicStyle = styleId;
+                this.ambientMusic.currentStyle = styleId;
+                const vol = parseFloat(this.dom.musicVolume?.value || 0.30);
+                if (this.ambientMusic.isPlaying) {
+                    this.ambientMusic.switchStyle(styleId, vol);
+                }
+                this.updateMusicPanelActive();
+                this.savePreferences();
+                const styleName = (MUSIC_STYLES.find(s => s.id === styleId) || {}).name || '';
+                this.showToast(`🎵 已切换：${styleName}`, 'success');
+            }
+            toggleMusicPanel(e) {
+                if (e) e.stopPropagation();
+                const panel = this.dom.musicPanel;
+                if (!panel) return;
+                const isOpen = panel.classList.contains('show');
+                document.querySelectorAll('.music-panel.show').forEach(p => p.classList.remove('show'));
+                if (!isOpen) {
+                    panel.classList.add('show');
+                    if (this.dom.musicPanelVol) {
+                        this.dom.musicPanelVol.value = this.dom.musicVolume?.value || 0.30;
+                    }
+                }
+            }
+            updateMusicPanelActive() {
+                if (!this.dom.musicStyleList) return;
+                this.dom.musicStyleList.querySelectorAll('.music-style-item').forEach((el, i) => {
+                    el.classList.toggle('active', MUSIC_STYLES[i].id === this.musicStyle);
+                });
+            }
+            updateMusicUI() {
+                const btn = this.dom.musicToggle;
+                const icon = this.dom.musicIcon;
+                const isPlaying = this.musicMode === 'melody' ? this.ambientMusic.isPlaying : this.songPlayer.isPlaying;
+                if (this.musicEnabled && isPlaying) {
+                    icon.textContent = '🔊';
+                    btn.classList.add('playing');
+                    btn.title = '暂停背景音乐 (M)';
+                } else {
+                    icon.textContent = '🎵';
+                    btn.classList.remove('playing');
+                    btn.title = '播放背景音乐 (M)';
+                }
+            }
+            updateMusicVolume(val) {
+                const vol = val !== undefined ? parseFloat(val) : parseFloat(this.dom.musicVolume?.value || 0.30);
+                this.ambientMusic.setVolume(vol);
+                this.songPlayer.setVolume(vol);
+                if (this.dom.musicVolume) this.dom.musicVolume.value = vol;
+                if (this.dom.musicPanelVol) this.dom.musicPanelVol.value = vol;
+                clearTimeout(this._volSaveTimer);
+                this._volSaveTimer = setTimeout(() => this.savePreferences(), 300);
             }
 
-            // ===== 其余方法请保持原样，无需修改 =====
-            // ...
+            onSongAudioUpload(input) {
+                const file = input.files?.[0];
+                if (!file) return;
+                this._songAudioFile = file;
+                this.songPlayer.loadAudio(file);
+                if (this.dom.songAudioName) this.dom.songAudioName.textContent = file.name;
+                this.showToast(`📁 已加载音频：${file.name}`, 'success');
+                if (this._songLrcText) {
+                    this._parseLyricsText(this._songLrcText);
+                }
+            }
+            onSongLrcUpload(input) {
+                const file = input.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    this._songLrcText = text;
+                    this._parseLyricsText(text);
+                    if (this.dom.songLrcName) this.dom.songLrcName.textContent = file.name;
+                    if (this.dom.songLyricsText) this.dom.songLyricsText.value = text;
+                    this.showToast(`📄 已加载歌词：${file.name}`, 'success');
+                };
+                reader.readAsText(file);
+            }
+            onLyricsPaste(text) {
+                if (!text.trim()) return;
+                this._songLrcText = text;
+                this._parseLyricsText(text);
+            }
+            _parseLyricsText(text) {
+                if (text.includes('[') && text.includes(']')) {
+                    this.songPlayer.parseLrc(text);
+                } else {
+                    this.songPlayer.parsePlain(text);
+                }
+            }
+            showLyricsBar() {
+                if (this.dom.lyricsBar) this.dom.lyricsBar.style.display = 'flex';
+            }
+            hideLyricsBar() {
+                if (this.dom.lyricsBar) this.dom.lyricsBar.style.display = 'none';
+            }
+            updateLyricsDisplay(data) {
+                if (this.dom.lyricsLinePrev) this.dom.lyricsLinePrev.textContent = data.prev;
+                if (this.dom.lyricsLineCurrent) this.dom.lyricsLineCurrent.textContent = data.current;
+                if (this.dom.lyricsLineNext) this.dom.lyricsLineNext.textContent = data.next;
+            }
+            restoreMusicState() {
+                this._buildMusicPanel();
+                try {
+                    const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.PREFS);
+                    if (raw) {
+                        const prefs = JSON.parse(raw);
+                        if (prefs.musicVolume && this.dom.musicVolume) {
+                            this.dom.musicVolume.value = Math.min(1, Math.max(0, prefs.musicVolume));
+                        }
+                        if (prefs.musicStyle) {
+                            this.musicStyle = prefs.musicStyle;
+                            this.ambientMusic.currentStyle = prefs.musicStyle;
+                            this.updateMusicPanelActive();
+                        }
+                        if (prefs.musicMode) {
+                            this.musicMode = prefs.musicMode;
+                            document.querySelectorAll('.music-mode-tab').forEach(tab => {
+                                tab.classList.toggle('active', tab.dataset.mode === prefs.musicMode);
+                            });
+                            if (this.dom.musicModeMelody) this.dom.musicModeMelody.style.display = prefs
+                                .musicMode === 'melody' ? 'block' : 'none';
+                            if (this.dom.musicModeSong) this.dom.musicModeSong.style.display = prefs.musicMode ===
+                                'song' ? 'block' : 'none';
+                        }
+                        if (prefs.musicEnabled) {
+                            setTimeout(() => {
+                                const vol = parseFloat(prefs.musicVolume || 0.30);
+                                if (this.musicMode === 'melody') {
+                                    const ok = this.ambientMusic.play(vol);
+                                    if (ok) { this.musicEnabled = true;
+                                        this.updateMusicUI(); }
+                                }
+                            }, 1000);
+                        } else {
+                            this.musicEnabled = false;
+                            this.updateMusicUI();
+                        }
+                    }
+                } catch (_) {
+                    this.musicEnabled = false;
+                    this.updateMusicUI();
+                }
+            }
+
+            // ========== 自动播报 ==========
+            toggleAutoAnnounce() {
+                this.autoAnnounce = !this.autoAnnounce;
+                this.updateAutoAnnounceUI();
+                this.savePreferences();
+                this.showToast(this.autoAnnounce ? '自动播报已开启' : '自动播报已关闭', 'info');
+            }
+
+            updateAutoAnnounceUI() {
+                if (this.dom.autoAnnounceBtn) {
+                    this.dom.autoAnnounceBtn.classList.toggle('active', this.autoAnnounce);
+                    this.dom.autoAnnounceIcon.textContent = this.autoAnnounce ? '🔊' : '🔕';
+                    this.dom.autoAnnounceLabel.textContent = this.autoAnnounce ? '自动播报开' : '自动播报关';
+                }
+            }
+
+            // ========== 统计功能 ==========
+            toggleFrequencyStats() {
+                const display = this.dom.frequencyStatsDisplay;
+                if (display.style.display === 'block') {
+                    display.style.display = 'none';
+                    return;
+                }
+                if (!this.apiData.length) {
+                    this.showToast('暂无数据', 'warning');
+                    return;
+                }
+                const sumCounts = new Array(28).fill(0);
+                const comboCounts = {
+                    '大': 0,
+                    '小': 0,
+                    '单': 0,
+                    '双': 0,
+                    '大单': 0,
+                    '大双': 0,
+                    '小单': 0,
+                    '小双': 0
+                };
+                this.apiData.forEach(item => {
+                    sumCounts[item.sum] = (sumCounts[item.sum] || 0) + 1;
+                    comboCounts[item.combo] = (comboCounts[item.combo] || 0) + 1;
+                    if (item.combo.startsWith('大')) comboCounts['大']++;
+                    else comboCounts['小']++;
+                    if (item.combo.endsWith('单')) comboCounts['单']++;
+                    else comboCounts['双']++;
+                });
+                let html = `<div style="font-weight:700;margin-bottom:6px;">📈 和值出现次数</div>
+                            <table class="stats-table"><tr>`;
+                for (let i = 0; i <= 27; i++) {
+                    html += `<th>${i}</th>`;
+                }
+                html += `</tr><tr>`;
+                for (let i = 0; i <= 27; i++) {
+                    const cls = sumCounts[i] > 10 ? 'highlight' : '';
+                    html += `<td class="${cls}">${sumCounts[i]}</td>`;
+                }
+                html += `</tr></table>`;
+
+                html += `<div style="font-weight:700;margin:12px 0 6px;">🎲 形态出现次数</div>
+                         <table class="stats-table"><tr>`;
+                const comboKeys = ['大', '小', '单', '双', '大单', '大双', '小单', '小双'];
+                comboKeys.forEach(k => { html += `<th>${k}</th>`; });
+                html += `</tr><tr>`;
+                comboKeys.forEach(k => {
+                    const cls = comboCounts[k] > 20 ? 'highlight' : '';
+                    html += `<td class="${cls}">${comboCounts[k]}</td>`;
+                });
+                html += `</tr></table>`;
+
+                display.innerHTML = html;
+                display.style.display = 'block';
+            }
+
+            queryDaysStats() {
+                const input = this.dom.daysInput;
+                let days = parseInt(input.value, 10);
+                if (isNaN(days) || days < 1) days = 1;
+                if (days > 30) days = 30;
+                input.value = days;
+
+                if (!this.apiData.length) {
+                    this.showToast('暂无数据', 'warning');
+                    return;
+                }
+                const total = this.apiData.length;
+                const count = Math.min(days * 480, total);
+                const recent = this.apiData.slice(-count);
+                if (!recent.length) {
+                    this.showToast('数据不足', 'warning');
+                    return;
+                }
+                const sums = recent.map(d => d.sum);
+                const combos = recent.map(d => d.combo);
+                const avg = (sums.reduce((a, b) => a + b, 0) / sums.length).toFixed(1);
+                const maxSum = Math.max(...sums);
+                const minSum = Math.min(...sums);
+                const comboFreq = {};
+                combos.forEach(c => { comboFreq[c] = (comboFreq[c] || 0) + 1; });
+
+                const display = this.dom.daysStatsDisplay;
+                let html = `<div style="font-weight:700;margin-bottom:6px;">📅 最近 ${days} 天（${recent.length} 期）统计</div>
+                            <table class="stats-table">
+                                <tr><th>总期数</th><th>平均和值</th><th>最大和值</th><th>最小和值</th></tr>
+                                <tr><td>${recent.length}</td><td>${avg}</td><td>${maxSum}</td><td>${minSum}</td></tr>
+                            </table>
+                            <div style="font-weight:700;margin:10px 0 6px;">形态分布</div>
+                            <table class="stats-table"><tr>`;
+                const keys = ['大单', '大双', '小单', '小双'];
+                keys.forEach(k => { html += `<th>${k}</th>`; });
+                html += `</tr><tr>`;
+                keys.forEach(k => {
+                    const val = comboFreq[k] || 0;
+                    const pct = ((val / recent.length) * 100).toFixed(1);
+                    html += `<td>${val} (${pct}%)</td>`;
+                });
+                html += `</tr></table>`;
+
+                display.innerHTML = html;
+                display.style.display = 'block';
+            }
+
+            // ========== 交互 ==========
+            changeAlgorithm() {
+                this.currentAlgorithm = this.dom.algorithmSelect.value;
+                this.render();
+                this.savePreferences();
+            }
+
+            toggleAlgoCompare() {
+                const body = this.dom.algoBody;
+                const toggle = this.dom.algoToggle;
+                this.algoCompareOpen = !body.classList.contains('open');
+                body.classList.toggle('open', this.algoCompareOpen);
+                toggle.classList.toggle('open', this.algoCompareOpen);
+                if (this.algoCompareOpen) this.renderAlgoCompare();
+            }
+
+            bindKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+                    switch (e.key.toLowerCase()) {
+                        case 'r':
+                            e.preventDefault();
+                            this.fetchData();
+                            break;
+                        case 't':
+                            e.preventDefault();
+                            this.toggleTheme();
+                            break;
+                        case 'v':
+                            e.preventDefault();
+                            this.toggleVoice();
+                            break;
+                        case 'm':
+                            e.preventDefault();
+                            this.toggleMusic();
+                            break;
+                        case ' ':
+                            e.preventDefault();
+                            this.manualAnnounce();
+                            break;
+                    }
+                });
+                document.addEventListener('click', (e) => {
+                    const panel = this.dom.musicPanel;
+                    const btn = this.dom.musicToggle;
+                    if (panel && !panel.contains(e.target) && !btn?.contains(e.target)) {
+                        panel.classList.remove('show');
+                    }
+                });
+            }
         }
 
         // ==================== 启动 ====================
