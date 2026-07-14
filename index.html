@@ -2204,6 +2204,9 @@
          * 清浔杀组预测 Pro · 整合 Telegram 机器人特色算法 + 共识投票
          * 算法：天机策、玄机策、逆形态、趋势捕手、冷热探针、银河锚点、威震天机、五行之合
          *      京派、枫派、通派、奇杀、异杀、势杀（共14种）
+         *
+         * [MODIFIED] 历史预测记录现在与每期预测实时数据同步，但历史预测结果一旦生成即被固定保存，
+         *            切换算法或刷新页面不会修改已保存的历史预测结果。
          */
         const isTelegram = !!(window.Telegram && window.Telegram.WebApp);
         let tgInstance = null;
@@ -2248,7 +2251,9 @@
                 PREFS: 'qingxun-prefs-v2',
                 BETS: 'qingxun-bets-v2',
                 CACHE: 'qingxun-cache-v2',
-                BET_HISTORY: 'qingxun-bet-history-v2'
+                BET_HISTORY: 'qingxun-bet-history-v2',
+                // [NEW] 预测结果存储前缀
+                PRED_PREFIX: 'qingxun-pred-'
             },
             FETCH_INTERVAL: 3 * 60 * 1000,
             FETCH_TIMEOUT: 10000,
@@ -2377,53 +2382,88 @@
             }
             // ---- 风格1: 静谧和弦 ----
             _playChill(now) {
-                const chords = [[220,261.63,329.63],[174.61,220,261.63],[261.63,329.63,392],[196,246.94,293.66]];
+                const chords = [
+                    [220, 261.63, 329.63],
+                    [174.61, 220, 261.63],
+                    [261.63, 329.63, 392],
+                    [196, 246.94, 293.66]
+                ];
                 const chord = chords[this._ci % chords.length];
                 chord.forEach((f, i) => {
-                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
-                    o.type = 'sine'; o.frequency.value = f;
-                    g.gain.setValueAtTime(0, now + i*0.15);
-                    g.gain.linearRampToValueAtTime(0.06, now + i*0.15 + 0.4);
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = f;
+                    g.gain.setValueAtTime(0, now + i * 0.15);
+                    g.gain.linearRampToValueAtTime(0.06, now + i * 0.15 + 0.4);
                     g.gain.linearRampToValueAtTime(0.02, now + 3.2);
                     g.gain.linearRampToValueAtTime(0, now + 4.0);
-                    o.connect(g); g.connect(this.masterGain);
-                    o.start(now + i*0.15); o.stop(now + 4.0);
-                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    o.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(now + i * 0.15);
+                    o.stop(now + 4.0);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 });
                 if (this._ci % 2 === 0) {
-                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
-                    o.type = 'sine'; o.frequency.value = chord[2]*2;
-                    g.gain.setValueAtTime(0, now+1.5); g.gain.linearRampToValueAtTime(0.025, now+1.8);
-                    g.gain.linearRampToValueAtTime(0, now+2.8);
-                    o.connect(g); g.connect(this.masterGain);
-                    o.start(now+1.5); o.stop(now+2.8);
-                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = chord[2] * 2;
+                    g.gain.setValueAtTime(0, now + 1.5);
+                    g.gain.linearRampToValueAtTime(0.025, now + 1.8);
+                    g.gain.linearRampToValueAtTime(0, now + 2.8);
+                    o.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(now + 1.5);
+                    o.stop(now + 2.8);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 }
             }
             // ---- 风格2: Lo-Fi 氛围 ----
             _playLofi(now) {
                 const bass = [110, 87.31, 130.81, 98];
-                const mel = [[329.63,392,440,392],[261.63,329.63,392,329.63],[349.23,440,523.25,440],[293.66,349.23,392,349.23]];
+                const mel = [
+                    [329.63, 392, 440, 392],
+                    [261.63, 329.63, 392, 329.63],
+                    [349.23, 440, 523.25, 440],
+                    [293.66, 349.23, 392, 349.23]
+                ];
                 const b = bass[this._ci % bass.length];
                 const m = mel[this._ci % mel.length];
                 // 低音pad
-                const bo = this.ctx.createOscillator(), bg = this.ctx.createGain();
-                bo.type = 'triangle'; bo.frequency.value = b;
-                bg.gain.setValueAtTime(0, now); bg.gain.linearRampToValueAtTime(0.08, now+0.3);
-                bg.gain.setValueAtTime(0.08, now+3.5); bg.gain.linearRampToValueAtTime(0, now+4.0);
-                bo.connect(bg); bg.connect(this.masterGain);
-                bo.start(now); bo.stop(now+4.0);
-                this.nodes.push(bo); bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
+                const bo = this.ctx.createOscillator(),
+                    bg = this.ctx.createGain();
+                bo.type = 'triangle';
+                bo.frequency.value = b;
+                bg.gain.setValueAtTime(0, now);
+                bg.gain.linearRampToValueAtTime(0.08, now + 0.3);
+                bg.gain.setValueAtTime(0.08, now + 3.5);
+                bg.gain.linearRampToValueAtTime(0, now + 4.0);
+                bo.connect(bg);
+                bg.connect(this.masterGain);
+                bo.start(now);
+                bo.stop(now + 4.0);
+                this.nodes.push(bo);
+                bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
                 // 旋律
                 m.forEach((f, i) => {
-                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
-                    o.type = 'sine'; o.frequency.value = f;
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = f;
                     const t = now + i * 0.9;
-                    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.04, t+0.08);
-                    g.gain.setValueAtTime(0.04, t+0.6); g.gain.linearRampToValueAtTime(0, t+0.85);
-                    o.connect(g); g.connect(this.masterGain);
-                    o.start(t); o.stop(t+0.9);
-                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.04, t + 0.08);
+                    g.gain.setValueAtTime(0.04, t + 0.6);
+                    g.gain.linearRampToValueAtTime(0, t + 0.85);
+                    o.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(t);
+                    o.stop(t + 0.9);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 });
                 // 模拟黑胶噪音
                 this._noiseBurst(now, 0.012, 3800);
@@ -2431,37 +2471,66 @@
             // ---- 风格3: 电子律动 ----
             _playElectric(now) {
                 const bassNotes = [55, 55, 65.41, 73.42];
-                const arp = [[329.63,392,523.25,659.25,523.25,392],[293.66,349.23,440,587.33,440,349.23],
-                             [349.23,440,523.25,698.46,523.25,440],[261.63,329.63,392,523.25,392,329.63]];
+                const arp = [
+                    [329.63, 392, 523.25, 659.25, 523.25, 392],
+                    [293.66, 349.23, 440, 587.33, 440, 349.23],
+                    [349.23, 440, 523.25, 698.46, 523.25, 440],
+                    [261.63, 329.63, 392, 523.25, 392, 329.63]
+                ];
                 const bn = bassNotes[this._ci % bassNotes.length];
                 const ar = arp[this._ci % arp.length];
                 // 低音kick
-                const ko = this.ctx.createOscillator(), kg = this.ctx.createGain();
-                ko.type = 'sine'; ko.frequency.setValueAtTime(150, now); ko.frequency.linearRampToValueAtTime(40, now+0.12);
-                kg.gain.setValueAtTime(0.18, now); kg.gain.linearRampToValueAtTime(0, now+0.2);
-                ko.connect(kg); kg.connect(this.masterGain);
-                ko.start(now); ko.stop(now+0.25);
-                this.nodes.push(ko); ko.onended = () => { this.nodes = this.nodes.filter(n => n !== ko); };
+                const ko = this.ctx.createOscillator(),
+                    kg = this.ctx.createGain();
+                ko.type = 'sine';
+                ko.frequency.setValueAtTime(150, now);
+                ko.frequency.linearRampToValueAtTime(40, now + 0.12);
+                kg.gain.setValueAtTime(0.18, now);
+                kg.gain.linearRampToValueAtTime(0, now + 0.2);
+                ko.connect(kg);
+                kg.connect(this.masterGain);
+                ko.start(now);
+                ko.stop(now + 0.25);
+                this.nodes.push(ko);
+                ko.onended = () => { this.nodes = this.nodes.filter(n => n !== ko); };
                 // 低音
-                const bo = this.ctx.createOscillator(), bg = this.ctx.createGain();
-                bo.type = 'sawtooth'; bo.frequency.value = bn;
-                const bq = this.ctx.createBiquadFilter(); bq.type = 'lowpass'; bq.frequency.value = 200;
-                bg.gain.setValueAtTime(0, now+0.15); bg.gain.linearRampToValueAtTime(0.05, now+0.25);
-                bg.gain.linearRampToValueAtTime(0, now+1.5);
-                bo.connect(bq); bq.connect(bg); bg.connect(this.masterGain);
-                bo.start(now+0.15); bo.stop(now+1.5);
-                this.nodes.push(bo); bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
+                const bo = this.ctx.createOscillator(),
+                    bg = this.ctx.createGain();
+                bo.type = 'sawtooth';
+                bo.frequency.value = bn;
+                const bq = this.ctx.createBiquadFilter();
+                bq.type = 'lowpass';
+                bq.frequency.value = 200;
+                bg.gain.setValueAtTime(0, now + 0.15);
+                bg.gain.linearRampToValueAtTime(0.05, now + 0.25);
+                bg.gain.linearRampToValueAtTime(0, now + 1.5);
+                bo.connect(bq);
+                bq.connect(bg);
+                bg.connect(this.masterGain);
+                bo.start(now + 0.15);
+                bo.stop(now + 1.5);
+                this.nodes.push(bo);
+                bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
                 // 琶音
                 ar.forEach((f, i) => {
-                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
-                    o.type = 'square'; o.frequency.value = f;
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'square';
+                    o.frequency.value = f;
                     const t = now + 0.4 + i * 0.15;
-                    const fl = this.ctx.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = 1200;
-                    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.03, t+0.02);
-                    g.gain.linearRampToValueAtTime(0, t+0.13);
-                    o.connect(fl); fl.connect(g); g.connect(this.masterGain);
-                    o.start(t); o.stop(t+0.15);
-                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    const fl = this.ctx.createBiquadFilter();
+                    fl.type = 'lowpass';
+                    fl.frequency.value = 1200;
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.03, t + 0.02);
+                    g.gain.linearRampToValueAtTime(0, t + 0.13);
+                    o.connect(fl);
+                    fl.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(t);
+                    o.stop(t + 0.15);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 });
                 // hi-hat
                 this._noiseBurst(now + 0.5, 0.02, 8000);
@@ -2478,81 +2547,131 @@
                     do { idx = Math.floor(Math.random() * pentatonic.length); } while (used.has(idx));
                     used.add(idx);
                     const f = pentatonic[idx];
-                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
-                    o.type = 'sine'; o.frequency.value = f;
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = f;
                     const t = now + i * (1.2 + Math.random() * 0.8);
-                    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.05, t+0.3);
-                    g.gain.exponentialRampToValueAtTime(0.001, t+3.5);
-                    o.connect(g); g.connect(this.masterGain);
-                    o.start(t); o.stop(t+3.6);
-                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.05, t + 0.3);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 3.5);
+                    o.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(t);
+                    o.stop(t + 3.6);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 }
                 // 底层低音drone
                 if (this._ci % 3 === 0) {
-                    const d = this.ctx.createOscillator(), dg = this.ctx.createGain();
-                    d.type = 'sine'; d.frequency.value = 130.81;
-                    dg.gain.setValueAtTime(0, now); dg.gain.linearRampToValueAtTime(0.025, now+1);
-                    dg.gain.setValueAtTime(0.025, now+3); dg.gain.linearRampToValueAtTime(0, now+4.5);
-                    d.connect(dg); dg.connect(this.masterGain);
-                    d.start(now); d.stop(now+4.5);
-                    this.nodes.push(d); d.onended = () => { this.nodes = this.nodes.filter(n => n !== d); };
+                    const d = this.ctx.createOscillator(),
+                        dg = this.ctx.createGain();
+                    d.type = 'sine';
+                    d.frequency.value = 130.81;
+                    dg.gain.setValueAtTime(0, now);
+                    dg.gain.linearRampToValueAtTime(0.025, now + 1);
+                    dg.gain.setValueAtTime(0.025, now + 3);
+                    dg.gain.linearRampToValueAtTime(0, now + 4.5);
+                    d.connect(dg);
+                    dg.connect(this.masterGain);
+                    d.start(now);
+                    d.stop(now + 4.5);
+                    this.nodes.push(d);
+                    d.onended = () => { this.nodes = this.nodes.filter(n => n !== d); };
                 }
             }
             // ---- 风格5: 复古脉冲 ----
             _playRetro(now) {
-                const chords = [[220,277.18,329.63],[196,246.94,329.63],[261.63,329.63,392],[233.08,293.66,349.23]];
+                const chords = [
+                    [220, 277.18, 329.63],
+                    [196, 246.94, 329.63],
+                    [261.63, 329.63, 392],
+                    [233.08, 293.66, 349.23]
+                ];
                 const chord = chords[this._ci % chords.length];
                 // 方波pad
                 chord.forEach((f, i) => {
-                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
-                    const fl = this.ctx.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = 600;
-                    o.type = 'square'; o.frequency.value = f;
-                    g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(0.03, now+0.2);
-                    g.gain.setValueAtTime(0.03, now+3.5); g.gain.linearRampToValueAtTime(0, now+4.0);
-                    o.connect(fl); fl.connect(g); g.connect(this.masterGain);
-                    o.start(now); o.stop(now+4.0);
-                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    const fl = this.ctx.createBiquadFilter();
+                    fl.type = 'lowpass';
+                    fl.frequency.value = 600;
+                    o.type = 'square';
+                    o.frequency.value = f;
+                    g.gain.setValueAtTime(0, now);
+                    g.gain.linearRampToValueAtTime(0.03, now + 0.2);
+                    g.gain.setValueAtTime(0.03, now + 3.5);
+                    g.gain.linearRampToValueAtTime(0, now + 4.0);
+                    o.connect(fl);
+                    fl.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(now);
+                    o.stop(now + 4.0);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 });
                 // 8-bit 旋律
-                const melNotes = [chord[0]*2, chord[1]*2, chord[2]*2, chord[1]*2];
+                const melNotes = [chord[0] * 2, chord[1] * 2, chord[2] * 2, chord[1] * 2];
                 melNotes.forEach((f, i) => {
-                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
-                    o.type = 'square'; o.frequency.value = f;
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'square';
+                    o.frequency.value = f;
                     const t = now + i * 0.5;
-                    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.035, t+0.03);
-                    g.gain.setValueAtTime(0.035, t+0.35); g.gain.linearRampToValueAtTime(0, t+0.48);
-                    o.connect(g); g.connect(this.masterGain);
-                    o.start(t); o.stop(t+0.5);
-                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.035, t + 0.03);
+                    g.gain.setValueAtTime(0.035, t + 0.35);
+                    g.gain.linearRampToValueAtTime(0, t + 0.48);
+                    o.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(t);
+                    o.stop(t + 0.5);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 });
             }
             // ---- 风格6: 深夜低语 ----
             _playNight(now) {
                 const bassNotes = [82.41, 73.42, 65.41, 61.74];
-                const mel = [[246.94,293.66,329.63,293.66,246.94],
-                             [220,261.63,293.66,261.63,220],
-                             [196,233.08,261.63,233.08,196],
-                             [174.61,220,246.94,220,174.61]];
+                const mel = [
+                    [246.94, 293.66, 329.63, 293.66, 246.94],
+                    [220, 261.63, 293.66, 261.63, 220],
+                    [196, 233.08, 261.63, 233.08, 196],
+                    [174.61, 220, 246.94, 220, 174.61]
+                ];
                 const bn = bassNotes[this._ci % bassNotes.length];
                 const m = mel[this._ci % mel.length];
                 // 深沉pad
-                const bo = this.ctx.createOscillator(), bg = this.ctx.createGain();
-                bo.type = 'sine'; bo.frequency.value = bn;
-                bg.gain.setValueAtTime(0, now); bg.gain.linearRampToValueAtTime(0.06, now+0.8);
-                bg.gain.setValueAtTime(0.06, now+3.5); bg.gain.linearRampToValueAtTime(0, now+4.5);
-                bo.connect(bg); bg.connect(this.masterGain);
-                bo.start(now); bo.stop(now+4.5);
-                this.nodes.push(bo); bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
+                const bo = this.ctx.createOscillator(),
+                    bg = this.ctx.createGain();
+                bo.type = 'sine';
+                bo.frequency.value = bn;
+                bg.gain.setValueAtTime(0, now);
+                bg.gain.linearRampToValueAtTime(0.06, now + 0.8);
+                bg.gain.setValueAtTime(0.06, now + 3.5);
+                bg.gain.linearRampToValueAtTime(0, now + 4.5);
+                bo.connect(bg);
+                bg.connect(this.masterGain);
+                bo.start(now);
+                bo.stop(now + 4.5);
+                this.nodes.push(bo);
+                bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
                 // 柔和旋律
                 m.forEach((f, i) => {
-                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
-                    o.type = 'sine'; o.frequency.value = f;
+                    const o = this.ctx.createOscillator(),
+                        g = this.ctx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = f;
                     const t = now + 0.5 + i * 0.7;
-                    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.035, t+0.2);
-                    g.gain.exponentialRampToValueAtTime(0.001, t+0.65);
-                    o.connect(g); g.connect(this.masterGain);
-                    o.start(t); o.stop(t+0.7);
-                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.035, t + 0.2);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 0.65);
+                    o.connect(g);
+                    g.connect(this.masterGain);
+                    o.start(t);
+                    o.stop(t + 0.7);
+                    this.nodes.push(o);
+                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 });
                 // 夜晚氛围噪音
                 this._noiseBurst(now, 0.008, 2500);
@@ -2564,14 +2683,21 @@
                 const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
                 const data = buf.getChannelData(0);
                 for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
-                const src = this.ctx.createBufferSource(); src.buffer = buf;
+                const src = this.ctx.createBufferSource();
+                src.buffer = buf;
                 const g = this.ctx.createGain();
-                const fl = this.ctx.createBiquadFilter(); fl.type = 'highpass'; fl.frequency.value = filterFreq * 0.3;
+                const fl = this.ctx.createBiquadFilter();
+                fl.type = 'highpass';
+                fl.frequency.value = filterFreq * 0.3;
                 g.gain.setValueAtTime(vol, startTime);
                 g.gain.linearRampToValueAtTime(0, startTime + len);
-                src.connect(fl); fl.connect(g); g.connect(this.masterGain);
-                src.start(startTime); src.stop(startTime + len);
-                this.nodes.push(src); src.onended = () => { this.nodes = this.nodes.filter(n => n !== src); };
+                src.connect(fl);
+                fl.connect(g);
+                g.connect(this.masterGain);
+                src.start(startTime);
+                src.stop(startTime + len);
+                this.nodes.push(src);
+                src.onended = () => { this.nodes = this.nodes.filter(n => n !== src); };
             }
             // ---- 风格调度 ----
             _getStyleDuration() {
@@ -2582,12 +2708,24 @@
                 if (!this.isPlaying || !this.ctx) return;
                 const now = this.ctx.currentTime;
                 switch (this.currentStyle) {
-                    case 'chill': this._playChill(now); break;
-                    case 'lofi': this._playLofi(now); break;
-                    case 'electric': this._playElectric(now); break;
-                    case 'zen': this._playZen(now); break;
-                    case 'retro': this._playRetro(now); break;
-                    case 'night': this._playNight(now); break;
+                    case 'chill':
+                        this._playChill(now);
+                        break;
+                    case 'lofi':
+                        this._playLofi(now);
+                        break;
+                    case 'electric':
+                        this._playElectric(now);
+                        break;
+                    case 'zen':
+                        this._playZen(now);
+                        break;
+                    case 'retro':
+                        this._playRetro(now);
+                        break;
+                    case 'night':
+                        this._playNight(now);
+                        break;
                 }
                 this._ci++;
             }
@@ -2601,7 +2739,8 @@
                 this._ci = 0;
                 this._playStyleOnce();
                 const dur = this._getStyleDuration();
-                const loop = setInterval(() => { if (this.isPlaying) this._playStyleOnce(); else clearInterval(loop); }, dur);
+                const loop = setInterval(() => { if (this.isPlaying) this._playStyleOnce(); else clearInterval(loop); },
+                    dur);
                 this.timers.push(loop);
                 return true;
             }
@@ -2610,7 +2749,6 @@
                 this.pause();
                 this.currentStyle = styleId;
                 if (wasPlaying) {
-                    // 短暂延迟让节点清理完
                     setTimeout(() => this.play(volume), 100);
                 }
             }
@@ -2651,15 +2789,19 @@
                 this._setupEvents();
             }
             _setupEvents() {
-                this.audio.addEventListener('play', () => { this.isPlaying = true; this._startSync(); });
-                this.audio.addEventListener('pause', () => { this.isPlaying = false; this._stopSync(); });
+                this.audio.addEventListener('play', () => { this.isPlaying = true;
+                    this._startSync(); });
+                this.audio.addEventListener('pause', () => { this.isPlaying = false;
+                    this._stopSync(); });
                 this.audio.addEventListener('ended', () => {
-                    this.isPlaying = false; this._stopSync();
+                    this.isPlaying = false;
+                    this._stopSync();
                     if (this._onEnded) this._onEnded();
                 });
                 this.audio.addEventListener('error', (e) => {
                     console.warn('音频加载失败:', e);
-                    this.isPlaying = false; this._stopSync();
+                    this.isPlaying = false;
+                    this._stopSync();
                 });
             }
             // 加载音频文件 (File对象或URL)
@@ -2728,7 +2870,8 @@
                 tick();
             }
             _stopSync() {
-                if (this._raf) { cancelAnimationFrame(this._raf); this._raf = null; }
+                if (this._raf) { cancelAnimationFrame(this._raf);
+                    this._raf = null; }
             }
             _updateLyrics() {
                 if (!this.lyrics.length || !this._onLyricsUpdate) return;
@@ -3213,7 +3356,7 @@
                 this.autoAnnounce = false;
                 this.musicEnabled = false;
                 this.musicStyle = 'chill';
-                this.musicMode = 'melody'; // 'melody' | 'song'
+                this.musicMode = 'melody';
                 this.ambientMusic = new AmbientMusic();
                 this.songPlayer = new SongPlayer();
                 this._songAudioFile = null;
@@ -3391,6 +3534,83 @@
                         timestamp: Date.now()
                     }));
                 } catch (_) {}
+            }
+
+            // ==================== [NEW] 预测结果存储 ====================
+            getPredKey(period) {
+                return `${CONFIG.STORAGE_KEYS.PRED_PREFIX}${period}`;
+            }
+
+            savePrediction(period, prediction) {
+                if (!period) return;
+                try {
+                    const key = this.getPredKey(period);
+                    const data = {
+                        period: String(period),
+                        killGroup: prediction.killGroup || '--',
+                        predictCombos: prediction.predictCombos || ['--', '--'],
+                        algorithm: prediction.algorithm || this.currentAlgorithm,
+                        algorithmName: CONFIG.ALGORITHM_NAMES[prediction.algorithm || this.currentAlgorithm] || '未知',
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem(key, JSON.stringify(data));
+                } catch (_) {}
+            }
+
+            getPrediction(period) {
+                if (!period) return null;
+                try {
+                    const key = this.getPredKey(period);
+                    const raw = localStorage.getItem(key);
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        // 兼容旧数据
+                        if (data.period === String(period)) {
+                            return data;
+                        }
+                    }
+                } catch (_) {}
+                return null;
+            }
+
+            getPredictionForPeriod(period) {
+                // 尝试多种格式
+                const p = String(period);
+                let result = this.getPrediction(p);
+                if (result) return result;
+                // 尝试数字格式
+                try {
+                    const num = parseInt(p, 10);
+                    const key = this.getPredKey(num);
+                    const raw = localStorage.getItem(key);
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        if (data.period === String(num)) return data;
+                    }
+                } catch (_) {}
+                return null;
+            }
+
+            // 获取所有已保存的预测记录
+            getAllSavedPredictions() {
+                const results = {};
+                try {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key && key.startsWith(CONFIG.STORAGE_KEYS.PRED_PREFIX)) {
+                            try {
+                                const raw = localStorage.getItem(key);
+                                if (raw) {
+                                    const data = JSON.parse(raw);
+                                    if (data.period) {
+                                        results[String(data.period)] = data;
+                                    }
+                                }
+                            } catch (_) {}
+                        }
+                    }
+                } catch (_) {}
+                return results;
             }
 
             // ==================== 数据获取 ====================
@@ -3765,25 +3985,49 @@
                 this.dom.comboMissedBody.innerHTML = comboHTML;
             }
 
+            // ==================== [MODIFIED] 预测渲染 — 保存并复用历史预测 ====================
             renderPrediction() {
                 if (!this.apiData || this.apiData.length < 4) return;
                 const history3 = this.apiData.slice(this.apiData.length - 3);
                 const prev = this.apiData[this.apiData.length - 2];
                 const current = this.apiData[this.apiData.length - 1];
                 const fullPrev = this.apiData.slice(0, this.apiData.length - 1);
-                const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
-                    fullPrev, this.fusionWeights);
                 const nextPeriod = Number(this.apiData[this.apiData.length - 1].period) + 1;
+
+                // 检查是否已有保存的预测记录
+                let savedPred = this.getPredictionForPeriod(nextPeriod);
+
+                let pred;
+                if (savedPred) {
+                    // 使用已保存的预测
+                    pred = {
+                        killGroup: savedPred.killGroup,
+                        predictCombos: savedPred.predictCombos || ['--', '--']
+                    };
+                    // 更新算法标签显示为保存时的算法
+                    const savedAlgName = savedPred.algorithmName || CONFIG.ALGORITHM_NAMES[savedPred.algorithm] || '未知';
+                    this.dom.algorithmTag.textContent = savedAlgName;
+                    this.dom.tableAlgoTag.textContent = savedAlgName;
+                } else {
+                    // 生成新预测并保存
+                    pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
+                        fullPrev, this.fusionWeights);
+                    this.savePrediction(nextPeriod, {
+                        killGroup: pred.killGroup,
+                        predictCombos: pred.predictCombos,
+                        algorithm: this.currentAlgorithm
+                    });
+                    const algName = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
+                    this.dom.algorithmTag.textContent = algName;
+                    this.dom.tableAlgoTag.textContent = algName;
+                }
 
                 this.dom.aiNextPeriod.textContent = `预测期数：${nextPeriod}`;
                 this.dom.predictCombo1.textContent = pred.predictCombos[0];
                 this.dom.predictCombo2.textContent = pred.predictCombos[1];
                 this.dom.killGroup.textContent = pred.killGroup;
-                const name = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
-                this.dom.algorithmTag.textContent = name;
-                this.dom.tableAlgoTag.textContent = name;
 
-                // ----- 共识投票 -----
+                // ----- 共识投票（仅用于展示，不保存） -----
                 const allPreds = Algorithms.getAllPredictions(history3, prev.combo, prev.sum, current.nums, fullPrev);
                 const consensus = Algorithms.getConsensus(allPreds);
                 if (consensus.totalVotes > 0) {
@@ -3804,6 +4048,7 @@
                 }
             }
 
+            // ==================== [MODIFIED] 历史记录 — 从存储读取，不重新计算 ====================
             renderHistory() {
                 const tbody = this.dom.predictionTbody;
                 tbody.innerHTML = '';
@@ -3811,6 +4056,9 @@
                     this.dom.stats.innerHTML = '<span>基础胜率</span><span class="rate">0.0%</span><span>0 / 0</span>';
                     return;
                 }
+
+                // 获取所有已保存的预测记录
+                const savedPreds = this.getAllSavedPredictions();
 
                 let winCount = 0,
                     totalCount = 0;
@@ -3820,24 +4068,42 @@
                 const rows = [];
 
                 for (let i = startI; i < this.apiData.length - 3; i++) {
-                    const history3 = this.apiData.slice(i, i + 3);
-                    const prev = this.apiData[i + 2];
+                    // 当前开奖数据
                     const current = this.apiData[i + 3];
-                    const fullPrev = this.apiData.slice(0, i + 3);
-                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
-                        fullPrev, this.fusionWeights);
-                    if (pred.killGroup === '--') continue;
-                    const hit = Utils.isKillHit(pred.killGroup, current.combo);
-                    totalCount++;
-                    if (hit) winCount++;
+                    const period = current.period;
+
+                    // 从存储中读取预测记录
+                    const saved = savedPreds[String(period)] || this.getPredictionForPeriod(period);
+
+                    let killGroup = '--';
+                    let combos = ['--', '--'];
+                    let hit = false;
+
+                    if (saved) {
+                        killGroup = saved.killGroup || '--';
+                        combos = saved.predictCombos || ['--', '--'];
+                        if (killGroup !== '--') {
+                            hit = Utils.isKillHit(killGroup, current.combo);
+                            totalCount++;
+                            if (hit) winCount++;
+                        }
+                    } else {
+                        // 没有预测记录，显示为未预测
+                        hit = false;
+                        // 不计入统计
+                    }
 
                     const tr = document.createElement('tr');
+                    const resultHtml = saved ?
+                        `<span class="badge-result ${hit ? 'hit' : 'miss'}">${hit ? '✓ 命中' : '✗ 未命中'}</span>` :
+                        '<span style="color:var(--text-muted);font-size:11px;">未预测</span>';
+
                     tr.innerHTML = `
                         <td>${current.period}</td>
                         <td>${current.nums.join('+')}=${current.sum}（${current.combo}）</td>
-                        <td>${pred.predictCombos.join('+')}</td>
-                        <td>${pred.killGroup}</td>
-                        <td><span class="badge-result ${hit ? 'hit' : 'miss'}">${hit ? '✓ 命中' : '✗ 未命中'}</span></td>
+                        <td>${combos.join('+')}</td>
+                        <td>${killGroup}</td>
+                        <td>${resultHtml}</td>
                     `;
                     rows.push(tr);
                 }
@@ -3851,6 +4117,10 @@
                     <span class="rate">${winRate}%</span>
                     <span>${winCount} / ${totalCount}</span>
                 `;
+
+                // 更新算法标签（从当前算法获取）
+                const algName = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm] || '天机策';
+                this.dom.tableAlgoTag.textContent = algName;
             }
 
             renderMonitor() {
@@ -4080,26 +4350,31 @@
             // ==================== 导出 ====================
             exportCSV() {
                 if (!this.apiData.length) return;
+                const savedPreds = this.getAllSavedPredictions();
                 const rows = [
                     ['期数', '号码', '和值', '形态', '推荐1', '推荐2', '杀组', '结果']
                 ];
                 for (let i = 0; i < this.apiData.length - 3; i++) {
-                    const history3 = this.apiData.slice(i, i + 3);
-                    const prev = this.apiData[i + 2];
                     const current = this.apiData[i + 3];
-                    const fullPrev = this.apiData.slice(0, i + 3);
-                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
-                        fullPrev, this.fusionWeights);
-                    const hit = Utils.isKillHit(pred.killGroup, current.combo);
+                    const period = current.period;
+                    const saved = savedPreds[String(period)] || this.getPredictionForPeriod(period);
+                    let kill = '--',
+                        combos = ['--', '--'],
+                        hit = false;
+                    if (saved) {
+                        kill = saved.killGroup || '--';
+                        combos = saved.predictCombos || ['--', '--'];
+                        if (kill !== '--') hit = Utils.isKillHit(kill, current.combo);
+                    }
                     rows.push([
                         current.period,
                         current.nums.join(','),
                         current.sum,
                         current.combo,
-                        pred.predictCombos[0],
-                        pred.predictCombos[1],
-                        pred.killGroup,
-                        hit ? '命中' : '未命中'
+                        combos[0],
+                        combos[1],
+                        kill,
+                        saved ? (hit ? '命中' : '未命中') : '未预测'
                     ]);
                 }
                 Utils.downloadCSV(`清浔历史_${new Date().toISOString().slice(0, 10)}.csv`, rows);
@@ -4218,7 +4493,8 @@
                 MUSIC_STYLES.forEach(s => {
                     const el = document.createElement('div');
                     el.className = 'music-style-item' + (s.id === this.musicStyle ? ' active' : '');
-                    el.innerHTML = `<span class="ms-icon">${s.icon}</span><span class="ms-name">${s.name}</span><span class="ms-check">✓</span>`;
+                    el.innerHTML =
+                        `<span class="ms-icon">${s.icon}</span><span class="ms-name">${s.name}</span><span class="ms-check">✓</span>`;
                     el.addEventListener('click', (e) => {
                         e.stopPropagation();
                         this.selectMusicStyle(s.id);
@@ -4233,10 +4509,8 @@
             }
             switchMusicMode(mode) {
                 if (this.musicMode === mode) return;
-                // 停止当前播放
                 this._stopAllMusic();
                 this.musicMode = mode;
-                // 更新UI标签
                 document.querySelectorAll('.music-mode-tab').forEach(tab => {
                     tab.classList.toggle('active', tab.dataset.mode === mode);
                 });
@@ -4366,7 +4640,6 @@
                 this.songPlayer.loadAudio(file);
                 if (this.dom.songAudioName) this.dom.songAudioName.textContent = file.name;
                 this.showToast(`📁 已加载音频：${file.name}`, 'success');
-                // 如果已有歌词，自动解析
                 if (this._songLrcText) {
                     this._parseLyricsText(this._songLrcText);
                 }
@@ -4428,17 +4701,19 @@
                             document.querySelectorAll('.music-mode-tab').forEach(tab => {
                                 tab.classList.toggle('active', tab.dataset.mode === prefs.musicMode);
                             });
-                            if (this.dom.musicModeMelody) this.dom.musicModeMelody.style.display = prefs.musicMode === 'melody' ? 'block' : 'none';
-                            if (this.dom.musicModeSong) this.dom.musicModeSong.style.display = prefs.musicMode === 'song' ? 'block' : 'none';
+                            if (this.dom.musicModeMelody) this.dom.musicModeMelody.style.display = prefs.musicMode ===
+                                'melody' ? 'block' : 'none';
+                            if (this.dom.musicModeSong) this.dom.musicModeSong.style.display = prefs.musicMode ===
+                                'song' ? 'block' : 'none';
                         }
                         if (prefs.musicEnabled) {
                             setTimeout(() => {
                                 const vol = parseFloat(prefs.musicVolume || 0.30);
                                 if (this.musicMode === 'melody') {
                                     const ok = this.ambientMusic.play(vol);
-                                    if (ok) { this.musicEnabled = true; this.updateMusicUI(); }
+                                    if (ok) { this.musicEnabled = true;
+                                        this.updateMusicUI(); }
                                 }
-                                // song模式不自动播放，需要用户重新选择文件
                             }, 1000);
                         } else {
                             this.musicEnabled = false;
@@ -4480,8 +4755,14 @@
                 }
                 const sumCounts = new Array(28).fill(0);
                 const comboCounts = {
-                    '大': 0, '小': 0, '单': 0, '双': 0,
-                    '大单': 0, '大双': 0, '小单': 0, '小双': 0
+                    '大': 0,
+                    '小': 0,
+                    '单': 0,
+                    '双': 0,
+                    '大单': 0,
+                    '大双': 0,
+                    '小单': 0,
+                    '小双': 0
                 };
                 this.apiData.forEach(item => {
                     sumCounts[item.sum] = (sumCounts[item.sum] || 0) + 1;
@@ -4569,8 +4850,13 @@
             // ==================== 交互 ====================
             changeAlgorithm() {
                 this.currentAlgorithm = this.dom.algorithmSelect.value;
+                // 注意：切换算法时，当前预测期如果已有保存的预测，不会改变
+                // 但历史记录从存储读取，也不会改变
                 this.render();
                 this.savePreferences();
+                // 播报提示
+                const algName = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
+                this.showToast(`已切换至 ${algName}`, 'info');
             }
 
             toggleAlgoCompare() {
