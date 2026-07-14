@@ -2128,12 +2128,31 @@
 
             <!-- Missed -->
             <div id="missed-stats" style="display:none;margin-top:12px;">
-                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">🧊 遗漏统计 <span style="font-size:11px;font-weight:400;color:var(--text-muted);">红=热号 绿=冷号</span></div>
+                <!-- 热号摘要 -->
+                <div id="missed-summary" style="margin-bottom:10px;"></div>
+                <!-- 号码遗漏 -->
+                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+                    🔢 号码遗漏 <span style="font-size:11px;font-weight:400;color:var(--text-muted);">红=热号(长期未出) 绿=冷号(刚出)</span>
+                </div>
+                <div class="missed-section">
+                    <table class="missed-table">
+                        <thead><tr><th>位次</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr></thead>
+                        <tbody id="num-missed-body"></tbody>
+                    </table>
+                </div>
+                <!-- 和值遗漏 -->
+                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin:10px 0 4px;">
+                    📊 和值遗漏 <span style="font-size:11px;font-weight:400;color:var(--text-muted);">红=热号 绿=冷号</span>
+                </div>
                 <div class="missed-section">
                     <table class="missed-table">
                         <thead><tr><th colspan="28">和值遗漏 (0-27)</th></tr></thead>
                         <tbody id="sum-missed-body"></tbody>
                     </table>
+                </div>
+                <!-- 形态遗漏 -->
+                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin:10px 0 4px;">
+                    🎲 形态遗漏
                 </div>
                 <div class="missed-section">
                     <table class="missed-table">
@@ -2146,6 +2165,7 @@
             <!-- 附加统计 -->
             <div id="extra-stats" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
                 <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;">
+                    <button class="btn" onclick="app.toggleMissedPanel()">🧊 遗漏查询</button>
                     <button class="btn" onclick="app.toggleFrequencyStats()">📊 出现次数</button>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:12px;color:var(--text-muted);">前</span>
@@ -3127,6 +3147,8 @@
                     consecSpark: this.$('consecutive-spark'),
                     sumMissedBody: this.$('sum-missed-body'),
                     comboMissedBody: this.$('combo-missed-body'),
+                    numMissedBody: this.$('num-missed-body'),
+                    missedSummary: this.$('missed-summary'),
                     predictCombo1: this.$('predict-combo1'),
                     predictCombo2: this.$('predict-combo2'),
                     killGroup: this.$('kill-group'),
@@ -3190,7 +3212,7 @@
                 this.apiData = [];
                 this.currentAlgorithm = 'shuying_v1';
                 this.algorithmStats = {};
-                this.missedStats = { sums: new Array(28).fill(0), combos: {} };
+                this.missedStats = { sums: new Array(28).fill(0), combos: {}, nums: { pos0: new Array(10).fill(0), pos1: new Array(10).fill(0), pos2: new Array(10).fill(0) } };
                 this.fetchTimer = null;
                 this.countdownRAF = null;
                 this.isFetching = false;
@@ -3671,10 +3693,26 @@
                 this.missedStats.sums = new Array(28).fill(len);
                 const combos = ['大', '小', '单', '双', '大单', '大双', '小单', '小双'];
                 combos.forEach(c => this.missedStats.combos[c] = len);
+                // 号码遗漏：3个位置各0-9
+                const posKeys = ['pos0', 'pos1', 'pos2'];
+                posKeys.forEach(k => { this.missedStats.nums[k] = new Array(10).fill(len); });
 
                 for (let i = 0; i < len; i++) {
                     const item = this.apiData[i];
-                    if (this.missedStats.sums[item.sum] === len) this.missedStats.sums[item.sum] = i;
+                    // 和值遗漏
+                    if (this.missedStats.sums[item.sum] === len)
+                        this.missedStats.sums[item.sum] = i;
+                    // 号码遗漏
+                    const nums = String(item.period_result).split('');
+                    // 兼容不同数据格式
+                    const digits = item.nums ? item.nums : (nums.length === 3 ? nums.map(Number) : [0,0,0]);
+                    [0,1,2].forEach(pos => {
+                        const d = digits[pos];
+                        if (d >= 0 && d <= 9 && this.missedStats.nums['pos' + pos][d] === len) {
+                            this.missedStats.nums['pos' + pos][d] = i;
+                        }
+                    });
+                    // 形态遗漏
                     for (const key of combos) {
                         let match = false;
                         if (key === '大' && item.combo.startsWith('大')) match = true;
@@ -3682,7 +3720,8 @@
                         else if (key === '单' && item.combo.endsWith('单')) match = true;
                         else if (key === '双' && item.combo.endsWith('双')) match = true;
                         else if (key === item.combo) match = true;
-                        if (match && this.missedStats.combos[key] === len) this.missedStats.combos[key] = i;
+                        if (match && this.missedStats.combos[key] === len)
+                            this.missedStats.combos[key] = i;
                     }
                 }
             }
@@ -3699,7 +3738,12 @@
 
             _doRender() {
                 this.renderLatest();
-                this.renderMissed();
+                this.updateMissedStats();
+                // 遗漏面板由按钮控制显示
+                const missedPanel = document.getElementById('missed-stats');
+                if (missedPanel && missedPanel.style.display === 'block') {
+                    this.renderMissed();
+                }
                 this.renderPrediction();
                 this.renderHistory();
                 this.renderMonitor();
@@ -3742,27 +3786,85 @@
                 container.appendChild(sumEl);
             }
 
+            toggleMissedPanel() {
+                const panel = document.getElementById('missed-stats');
+                if (!panel) return;
+                if (panel.style.display === 'none' || !panel.style.display) {
+                    if (!this.apiData.length) { this.showToast('暂无数据，请先刷新', 'warning'); return; }
+                    this.updateMissedStats();
+                    this.renderMissed();
+                    panel.style.display = 'block';
+                } else {
+                    panel.style.display = 'none';
+                }
+            }
+
             renderMissed() {
                 if (!this.apiData.length) return;
-                document.getElementById('missed-stats').style.display = 'block';
+                // ---- 热号摘要 ----
+                const sumHot = this.missedStats.sums.map((v, i) => ({v, i})).sort((a,b) => b.v - a.v).slice(0, 3);
+                const comboArr = Object.entries(this.missedStats.combos).sort((a,b) => b[1] - a[1]).slice(0, 3);
+                const allNums = [];
+                ['pos0','pos1','pos2'].forEach(k => {
+                    this.missedStats.nums[k].forEach((v, i) => allNums.push({v, i, pos: k}));
+                });
+                const numHot = allNums.sort((a,b) => b.v - a.v).slice(0, 3);
 
+                if (this.dom.missedSummary) {
+                    const posName = {pos0:'第1位', pos1:'第2位', pos2:'第3位'};
+                    this.dom.missedSummary.innerHTML = `
+                        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                            <div style="flex:1;min-width:140px;padding:8px 10px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                                <div style="font-size:11px;color:var(--text-muted);font-weight:600;">🔥 和值热号TOP3</div>
+                                <div style="font-size:14px;font-weight:700;color:var(--danger);margin-top:2px;">${sumHot.map(s => '和值'+s.i+':'+s.v+'期').join(' | ')}</div>
+                            </div>
+                            <div style="flex:1;min-width:140px;padding:8px 10px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                                <div style="font-size:11px;color:var(--text-muted);font-weight:600;">🔥 号码热号TOP3</div>
+                                <div style="font-size:14px;font-weight:700;color:var(--danger);margin-top:2px;">${numHot.map(n => posName[n.pos]+n.i+':'+n.v+'期').join(' | ')}</div>
+                            </div>
+                            <div style="flex:1;min-width:140px;padding:8px 10px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                                <div style="font-size:11px;color:var(--text-muted);font-weight:600;">🔥 形态热号TOP3</div>
+                                <div style="font-size:14px;font-weight:700;color:var(--danger);margin-top:2px;">${comboArr.map(c => c[0]+':'+c[1]+'期').join(' | ')}</div>
+                            </div>
+                        </div>`;
+                }
+
+                // ---- 号码遗漏表 ----
+                const posLabels = ['第1位', '第2位', '第3位'];
+                const posKeys = ['pos0', 'pos1', 'pos2'];
+                let numHTML = '';
+                posKeys.forEach((k, pi) => {
+                    numHTML += `<tr><td style="font-weight:700;color:var(--text-secondary);font-size:11px;">${posLabels[pi]}</td>`;
+                    for (let d = 0; d <= 9; d++) {
+                        const v = this.missedStats.nums[k][d];
+                        const cls = v >= 20 ? 'hot' : (v <= 2 ? 'cold' : 'neutral');
+                        numHTML += `<td class="${cls}">${v}</td>`;
+                    }
+                    numHTML += '</tr>';
+                });
+                if (this.dom.numMissedBody) this.dom.numMissedBody.innerHTML = numHTML;
+
+                // ---- 和值遗漏表 ----
                 let sumHTML = '<tr>' + Array.from({ length: 28 }, (_, i) =>
-                    `<td style="font-weight:700;color:var(--text-secondary);">${i}</td>`).join('') + '</tr>';
+                    `<td style="font-weight:700;color:var(--text-secondary);font-size:11px;">${i}</td>`).join('') + '</tr>';
                 sumHTML += '<tr>' + this.missedStats.sums.map((v) => {
-                    const cls = v >= 20 ? 'hot' : (v <= 3 ? 'cold' : 'neutral');
+                    const cls = v >= 15 ? 'hot' : (v <= 2 ? 'cold' : 'neutral');
                     return `<td class="${cls}">${v}</td>`;
                 }).join('') + '</tr>';
                 this.dom.sumMissedBody.innerHTML = sumHTML;
 
+                // ---- 形态遗漏表 ----
                 const combos = ['大', '小', '单', '双', '大单', '大双', '小单', '小双'];
                 let comboHTML = '<tr>' + combos.map(c =>
                     `<td style="font-weight:700;color:var(--text-secondary);">${c}</td>`).join('') + '</tr>';
                 comboHTML += '<tr>' + combos.map(c => {
                     const v = this.missedStats.combos[c] || 0;
-                    const cls = v >= 10 ? 'hot' : (v <= 2 ? 'cold' : 'neutral');
+                    const cls = v >= 8 ? 'hot' : (v <= 2 ? 'cold' : 'neutral');
                     return `<td class="${cls}">${v}</td>`;
                 }).join('') + '</tr>';
                 this.dom.comboMissedBody.innerHTML = comboHTML;
+
+                document.getElementById('missed-stats').style.display = 'block';
             }
 
             renderPrediction() {
