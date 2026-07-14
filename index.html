@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>清浔 · 杀组预测 Pro</title>
 
-    <!-- PWA 支持 -->
+    <!-- ===== PWA 支持 ===== -->
     <link rel="manifest" href="data:application/json,{%22name%22:%22清浔杀组预测%22,%22short_name%22:%22清浔%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230b0f1a%22,%22theme_color%22:%22%237c3aed%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%237c3aed'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-size='280' font-family='sans-serif' fill='white'%3E🔮%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22}]}" />
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%237c3aed'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-size='280' font-family='sans-serif' fill='white'%3E🔮%3C/text%3E%3C/svg%3E" />
     <meta name="theme-color" content="#7c3aed" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-    <!-- Telegram Web App SDK -->
+    <!-- ===== Telegram Web App SDK ===== -->
     <script src="https://telegram.org/js/telegram-web-app.js">
     </script>
 
@@ -20,7 +20,7 @@
 
     <style>
         /* ============================================================
-           完整样式（全部保留，无改动）
+           ROOT VARIABLES — 玻璃态暗色主题
            ============================================================ */
         :root {
             --bg-primary: #0e0e18;
@@ -29,31 +29,40 @@
             --bg-card-hover: rgba(30, 30, 60, 0.75);
             --bg-glass: rgba(255, 255, 255, 0.04);
             --bg-overlay: rgba(0, 0, 0, 0.25);
+
             --text-primary: #f0f0ff;
             --text-secondary: #b0b0d0;
             --text-muted: #6a6a8a;
+
             --accent: #8b5cf6;
             --accent-light: #a78bfa;
             --accent-glow: rgba(139, 92, 246, 0.35);
             --accent-weak: rgba(139, 92, 246, 0.08);
+
             --cyan: #22d3ee;
             --cyan-glow: rgba(34, 211, 238, 0.25);
+
             --success: #34d399;
             --success-glow: rgba(52, 211, 153, 0.20);
             --danger: #f87171;
             --danger-glow: rgba(248, 113, 113, 0.20);
             --warning: #fbbf24;
             --warning-glow: rgba(251, 191, 36, 0.20);
+
             --border: rgba(255, 255, 255, 0.06);
             --border-strong: rgba(255, 255, 255, 0.10);
+
             --shadow-card: 0 12px 48px rgba(0, 0, 0, 0.50);
             --shadow-glow: 0 8px 40px rgba(139, 92, 246, 0.25);
+
             --radius-sm: 10px;
             --radius-md: 16px;
             --radius-lg: 24px;
             --radius-xl: 32px;
+
             --font: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'SF Mono', 'Fira Code', 'Inter', monospace;
+
             --transition: all 0.30s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -77,6 +86,9 @@
             --shadow-glow: 0 8px 40px rgba(124, 58, 237, 0.08);
         }
 
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -154,7 +166,9 @@
             padding: 16px 16px 80px;
         }
 
-        /* 导航栏 */
+        /* ============================================================
+           NAVBAR
+           ============================================================ */
         .navbar {
             display: flex;
             align-items: center;
@@ -354,6 +368,7 @@
             font-weight: 600;
             margin-right: 4px;
         }
+        /* 音乐风格切换面板 */
         .music-panel {
             display: none;
             position: absolute;
@@ -420,6 +435,7 @@
             border: 2px solid var(--bg-primary);
         }
         .music-panel-vol span { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+        /* 音乐模式切换标签 */
         .music-mode-tabs {
             display: flex; gap: 4px; margin-bottom: 10px;
             background: var(--bg-glass); border-radius: var(--radius-sm); padding: 3px;
@@ -435,6 +451,7 @@
             box-shadow: 0 2px 8px var(--accent-glow);
         }
         .music-mode-tab:hover:not(.active) { color: var(--text-primary); background: var(--bg-glass); }
+        /* 本地歌曲上传 */
         .song-upload-row {
             display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
         }
@@ -460,7 +477,7 @@
         }
         .song-lyrics-paste textarea:focus { border-color: var(--accent); }
         .song-lyrics-paste textarea::placeholder { color: var(--text-muted); font-size: 10px; }
-
+        /* 歌词浮动条 */
         .lyrics-bar {
             position: fixed; bottom: 0; left: 0; right: 0;
             z-index: 50; background: rgba(14,14,24,0.92);
@@ -516,7 +533,9 @@
             display: flex;
         }
 
-        /* 卡片 */
+        /* ============================================================
+           CARDS
+           ============================================================ */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -541,8 +560,12 @@
             animation: shimmer 6s linear infinite;
         }
         @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
         }
         .card:hover {
             border-color: var(--border-strong);
@@ -575,6 +598,7 @@
             white-space: nowrap;
         }
 
+        /* ===== 最新开奖 ===== */
         .hero-numbers {
             display: flex;
             align-items: center;
@@ -600,11 +624,21 @@
             transform: scale(0);
         }
         @keyframes ball-pop {
-            0% { transform: scale(0) rotate(-10deg); opacity: 0; }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            0% {
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
         }
-        .hero-ball:nth-child(2) { animation-delay: 0.08s; }
-        .hero-ball:nth-child(3) { animation-delay: 0.16s; }
+        .hero-ball:nth-child(2) {
+            animation-delay: 0.08s;
+        }
+        .hero-ball:nth-child(3) {
+            animation-delay: 0.16s;
+        }
         .hero-sep {
             font-size: 22px;
             color: var(--text-muted);
@@ -632,6 +666,7 @@
             font-weight: 700;
         }
 
+        /* ===== 倒计时 ===== */
         .countdown-section {
             display: flex;
             align-items: center;
@@ -661,8 +696,13 @@
             animation: urgent-pulse 1s ease-in-out infinite;
         }
         @keyframes urgent-pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
         }
         .ring-wrap {
             position: relative;
@@ -692,8 +732,13 @@
             animation: ring-flash 1s ease-in-out infinite;
         }
         @keyframes ring-flash {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
         }
         .ring-text {
             position: absolute;
@@ -711,6 +756,7 @@
             color: var(--danger);
         }
 
+        /* ===== 预测卡片 ===== */
         .predict-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -790,6 +836,7 @@
             margin-top: 2px;
         }
 
+        /* ===== 共识投票 ===== */
         .consensus-box {
             margin-top: 14px;
             padding: 14px 16px;
@@ -838,6 +885,7 @@
             font-size: 11px;
         }
 
+        /* ===== 投注 ===== */
         .bet-section {
             margin-top: 16px;
             border-top: 1px solid var(--border);
@@ -961,6 +1009,7 @@
             font-weight: 700;
         }
 
+        /* ===== 算法对比 ===== */
         .algo-panel {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -1048,9 +1097,15 @@
             z-index: -1;
         }
         @keyframes border-flow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
         .algo-item-name {
             font-size: 12px;
@@ -1095,6 +1150,7 @@
             vertical-align: middle;
         }
 
+        /* ===== 控制栏 ===== */
         .controls {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -1152,8 +1208,13 @@
             animation: voice-pulse 1.5s ease-in-out infinite;
         }
         @keyframes voice-pulse {
-            0%, 100% { box-shadow: 0 0 0 0 var(--warning-glow); }
-            50% { box-shadow: 0 0 0 10px transparent; }
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 var(--warning-glow);
+            }
+            50% {
+                box-shadow: 0 0 0 10px transparent;
+            }
         }
         .btn-primary {
             background: linear-gradient(135deg, var(--accent), var(--cyan));
@@ -1224,6 +1285,7 @@
             font-family: var(--font-mono);
         }
 
+        /* ===== 监视器 ===== */
         .monitor-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1290,6 +1352,7 @@
             border-radius: var(--radius-sm);
         }
 
+        /* ===== 遗漏统计 ===== */
         .missed-section {
             margin-top: 12px;
             overflow-x: auto;
@@ -1342,6 +1405,7 @@
             color: var(--text-secondary);
         }
 
+        /* ===== 历史表格 ===== */
         .history-wrap {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -1439,6 +1503,7 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* ===== Toast ===== */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -1483,13 +1548,23 @@
             opacity: 0.8;
         }
         @keyframes toast-in {
-            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
         @keyframes toast-out {
-            to { opacity: 0; transform: translateY(-10px) scale(0.95); }
+            to {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
         }
 
+        /* ===== 通用 ===== */
         .footer {
             text-align: center;
             padding: 24px 16px 12px;
@@ -1517,14 +1592,30 @@
             opacity: 0;
         }
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .delay-1 { animation-delay: 0.05s; }
-        .delay-2 { animation-delay: 0.12s; }
-        .delay-3 { animation-delay: 0.20s; }
-        .delay-4 { animation-delay: 0.30s; }
-        .delay-5 { animation-delay: 0.40s; }
+        .delay-1 {
+            animation-delay: 0.05s;
+        }
+        .delay-2 {
+            animation-delay: 0.12s;
+        }
+        .delay-3 {
+            animation-delay: 0.20s;
+        }
+        .delay-4 {
+            animation-delay: 0.30s;
+        }
+        .delay-5 {
+            animation-delay: 0.40s;
+        }
         .flex-between {
             display: flex;
             justify-content: space-between;
@@ -1590,54 +1681,163 @@
             display: block;
         }
 
+        /* ===== 响应式 ===== */
         @media (max-width: 640px) {
-            .container { padding: 10px 10px 70px; }
-            .navbar { padding: 10px 14px; flex-wrap: wrap; }
-            .navbar-title { font-size: 16px; }
-            .navbar-sub { font-size: 9px; }
-            .navbar-icon { width: 36px; height: 36px; font-size: 18px; }
-            .hero-ball { width: 44px; height: 44px; font-size: 18px; }
-            .hero-eq { font-size: 22px; }
-            .hero-sep { font-size: 16px; }
-            .hero-numbers { gap: 6px; }
-            .card { padding: 16px 14px; }
-            .predict-item-value { font-size: 20px; }
-            .controls { padding: 12px 12px; flex-direction: column; align-items: stretch; }
-            .controls-group { justify-content: space-between; }
-            .countdown-text { font-size: 16px; }
-            .ring-wrap { width: 56px; height: 56px; }
-            .ring-svg { width: 56px; height: 56px; }
-            .ring-text { font-size: 11px; }
-            .bet-btn { font-size: 14px; padding: 10px 6px; }
-            .bet-summary { font-size: 12px; padding: 10px; }
-            .bet-summary .stat .num { font-size: 14px; }
-            .monitor-item .value { font-size: 15px; }
-            .history-table { min-width: 380px; font-size: 11px; }
-            .history-table th, .history-table td { padding: 6px 4px; }
-            .algo-item { padding: 10px; }
-            .algo-item-pred { font-size: 10px; }
-            .btn { font-size: 12px; padding: 6px 10px; }
-            select { font-size: 12px; padding: 6px 28px 6px 10px; min-width: 100px; }
-            .icon-btn { width: 36px; height: 36px; font-size: 16px; }
-            .status-badge { font-size: 10px; padding: 4px 10px; }
-            .tg-close-btn { width: 36px; height: 36px; font-size: 16px; }
-            .music-vol-wrap { bottom: -28px; padding: 2px 6px; }
-            .music-vol-wrap input[type="range"] { width: 40px; }
-            .consensus-box .row { font-size: 13px; }
+            .container {
+                padding: 10px 10px 70px;
+            }
+            .navbar {
+                padding: 10px 14px;
+                flex-wrap: wrap;
+            }
+            .navbar-title {
+                font-size: 16px;
+            }
+            .navbar-sub {
+                font-size: 9px;
+            }
+            .navbar-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+            .hero-ball {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+            .hero-eq {
+                font-size: 22px;
+            }
+            .hero-sep {
+                font-size: 16px;
+            }
+            .hero-numbers {
+                gap: 6px;
+            }
+            .card {
+                padding: 16px 14px;
+            }
+            .predict-item-value {
+                font-size: 20px;
+            }
+            .controls {
+                padding: 12px 12px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .controls-group {
+                justify-content: space-between;
+            }
+            .countdown-text {
+                font-size: 16px;
+            }
+            .ring-wrap {
+                width: 56px;
+                height: 56px;
+            }
+            .ring-svg {
+                width: 56px;
+                height: 56px;
+            }
+            .ring-text {
+                font-size: 11px;
+            }
+            .bet-btn {
+                font-size: 14px;
+                padding: 10px 6px;
+            }
+            .bet-summary {
+                font-size: 12px;
+                padding: 10px;
+            }
+            .bet-summary .stat .num {
+                font-size: 14px;
+            }
+            .monitor-item .value {
+                font-size: 15px;
+            }
+            .history-table {
+                min-width: 380px;
+                font-size: 11px;
+            }
+            .history-table th,
+            .history-table td {
+                padding: 6px 4px;
+            }
+            .algo-item {
+                padding: 10px;
+            }
+            .algo-item-pred {
+                font-size: 10px;
+            }
+            .btn {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            select {
+                font-size: 12px;
+                padding: 6px 28px 6px 10px;
+                min-width: 100px;
+            }
+            .icon-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            .status-badge {
+                font-size: 10px;
+                padding: 4px 10px;
+            }
+            .tg-close-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            .music-vol-wrap {
+                bottom: -28px;
+                padding: 2px 6px;
+            }
+            .music-vol-wrap input[type="range"] {
+                width: 40px;
+            }
+            .consensus-box .row {
+                font-size: 13px;
+            }
         }
         @media (max-width: 380px) {
-            .hero-ball { width: 36px; height: 36px; font-size: 15px; }
-            .hero-eq { font-size: 18px; }
-            .predict-item-value { font-size: 17px; }
-            .navbar-title { font-size: 13px; }
-            .bet-grid { grid-template-columns: 1fr 1fr; }
-            .algo-grid { grid-template-columns: 1fr 1fr; }
+            .hero-ball {
+                width: 36px;
+                height: 36px;
+                font-size: 15px;
+            }
+            .hero-eq {
+                font-size: 18px;
+            }
+            .predict-item-value {
+                font-size: 17px;
+            }
+            .navbar-title {
+                font-size: 13px;
+            }
+            .bet-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .algo-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
-        .in-telegram .tg-only { display: flex !important; }
-        .in-telegram .tg-only-inline { display: inline-flex !important; }
+        .in-telegram .tg-only {
+            display: flex !important;
+        }
+        .in-telegram .tg-only-inline {
+            display: inline-flex !important;
+        }
         .not-in-telegram .tg-only,
-        .not-in-telegram .tg-only-inline { display: none !important; }
+        .not-in-telegram .tg-only-inline {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -1673,14 +1873,17 @@
                         <input type="range" id="music-volume" min="0" max="1" step="0.05" value="0.30" oninput="app.updateMusicVolume()" />
                     </span>
                     <div class="music-panel" id="music-panel">
+                        <!-- 模式切换标签 -->
                         <div class="music-mode-tabs" id="music-mode-tabs">
                             <div class="music-mode-tab active" data-mode="melody" onclick="app.switchMusicMode('melody')">🎹 纯旋律</div>
                             <div class="music-mode-tab" data-mode="song" onclick="app.switchMusicMode('song')">🎤 本地歌曲</div>
                         </div>
+                        <!-- 纯旋律模式内容 -->
                         <div class="music-mode-content" id="music-mode-melody">
                             <div class="music-panel-title">音乐风格</div>
                             <div class="music-style-list" id="music-style-list"></div>
                         </div>
+                        <!-- 本地歌曲模式内容 -->
                         <div class="music-mode-content" id="music-mode-song" style="display:none;">
                             <div class="music-panel-title">本地歌曲（需自行提供音频）</div>
                             <div class="song-upload-row">
@@ -1704,6 +1907,7 @@
 ..." oninput="app.onLyricsPaste(this.value)"></textarea>
                             </div>
                         </div>
+                        <!-- 共用音量 -->
                         <div class="music-panel-vol">
                             <span>🔊</span>
                             <input type="range" id="music-panel-vol" min="0" max="1" step="0.05" value="0.30" oninput="app.updateMusicVolume(this.value)" />
@@ -1719,6 +1923,7 @@
             </div>
         </nav>
 
+        <!-- ===== Telegram 环境标识 ===== -->
         <div id="tg-env-badge" style="display:none;text-align:center;font-size:11px;color:var(--text-muted);margin:-8px 0 12px;padding:4px 14px;background:var(--accent-weak);border-radius:999px;border:1px solid var(--border);">
             📱 Telegram 小程序模式
         </div>
@@ -1740,6 +1945,7 @@
             </div>
             <div style="text-align:center;font-size:12px;color:var(--text-muted);" id="cur-time">加载中...</div>
 
+            <!-- Countdown -->
             <div class="countdown-section" id="countdown-box">
                 <span class="countdown-label">⏱ 下一期开奖</span>
                 <span class="countdown-text" id="cd-text">--:--</span>
@@ -1779,6 +1985,7 @@
                 </div>
             </div>
 
+            <!-- ===== 共识投票 (新增) ===== -->
             <div class="consensus-box" id="consensus-box" style="display:none;">
                 <div class="label">🗳️ 算法共识（全算法投票）</div>
                 <div class="row" id="consensus-row">
@@ -1787,6 +1994,7 @@
                 </div>
             </div>
 
+            <!-- ===== Betting ===== -->
             <div class="bet-section">
                 <div class="flex-between">
                     <span class="bet-label">💰 模拟投注 · 每注100筹码 · 命中得190</span>
@@ -1820,6 +2028,7 @@
                 </div>
             </div>
 
+            <!-- Rules -->
             <div style="margin-top:14px;padding:12px 16px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
                 <div style="font-size:10px;font-weight:700;color:var(--accent-light);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px;">📌 杀组规则</div>
                 <div style="font-size:13px;color:var(--text-secondary);line-height:2;">
@@ -1868,6 +2077,7 @@
                 <span class="controls-label">🧠 算法</span>
                 <div class="select-wrap">
                     <select id="algorithm-select" onchange="app.changeAlgorithm()">
+                        <!-- 基础算法 -->
                         <option value="shuying_v1">天机策</option>
                         <option value="shuying_v2">玄机策</option>
                         <option value="module1">逆形态</option>
@@ -1876,6 +2086,7 @@
                         <option value="module4">银河锚点</option>
                         <option value="module5">威震天机</option>
                         <option value="fusion_vote">五行之合</option>
+                        <!-- 特色算法 (来自机器人) -->
                         <option value="jingpai">京派</option>
                         <option value="fengpai">枫派</option>
                         <option value="tongpai">通派</option>
@@ -1909,33 +2120,20 @@
                 </div>
             </div>
 
+            <!-- Trend -->
             <div id="trend-card" style="display:none;margin-top:4px;">
                 <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">📈 和值走势 (近30期)</div>
                 <div class="trend-wrap"><canvas id="trend-canvas"></canvas></div>
             </div>
 
+            <!-- Missed -->
             <div id="missed-stats" style="display:none;margin-top:12px;">
-                <div id="missed-summary" style="margin-bottom:10px;"></div>
-                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
-                    🔢 号码遗漏 <span style="font-size:11px;font-weight:400;color:var(--text-muted);">红=热号(长期未出) 绿=冷号(刚出)</span>
-                </div>
-                <div class="missed-section">
-                    <table class="missed-table">
-                        <thead><tr><th>位次</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr></thead>
-                        <tbody id="num-missed-body"></tbody>
-                    </table>
-                </div>
-                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin:10px 0 4px;">
-                    📊 和值遗漏 <span style="font-size:11px;font-weight:400;color:var(--text-muted);">红=热号 绿=冷号</span>
-                </div>
+                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">🧊 遗漏统计 <span style="font-size:11px;font-weight:400;color:var(--text-muted);">红=热号 绿=冷号</span></div>
                 <div class="missed-section">
                     <table class="missed-table">
                         <thead><tr><th colspan="28">和值遗漏 (0-27)</th></tr></thead>
                         <tbody id="sum-missed-body"></tbody>
                     </table>
-                </div>
-                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin:10px 0 4px;">
-                    🎲 形态遗漏
                 </div>
                 <div class="missed-section">
                     <table class="missed-table">
@@ -1945,9 +2143,9 @@
                 </div>
             </div>
 
+            <!-- 附加统计 -->
             <div id="extra-stats" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
                 <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;">
-                    <button class="btn" onclick="app.toggleMissedPanel()">🧊 遗漏查询</button>
                     <button class="btn" onclick="app.toggleFrequencyStats()">📊 出现次数</button>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:12px;color:var(--text-muted);">前</span>
@@ -1988,6 +2186,7 @@
             </div>
         </div>
 
+        <!-- ===== Footer ===== -->
         <div class="footer">
             清浔杀组预测 Pro · 数据仅供参考 · 仅供学习娱乐<br>
             <span style="font-size:11px;opacity:0.6;">随机事件无记忆性，理性看待预测结果</span>
@@ -1995,24 +2194,16 @@
         </div>
     </div>
 
-    <!-- ===== 歌词浮动显示条 ===== -->
-    <div class="lyrics-bar" id="lyrics-bar" style="display:none;">
-        <div class="lyrics-bar-inner" id="lyrics-bar-inner">
-            <div class="lyrics-line prev" id="lyrics-line-prev"></div>
-            <div class="lyrics-line current" id="lyrics-line-current">准备播放...</div>
-            <div class="lyrics-line next" id="lyrics-line-next"></div>
-        </div>
-        <button class="lyrics-close" onclick="app.hideLyricsBar()" title="隐藏歌词">✕</button>
-    </div>
+    <!-- ===== 背景音乐由 Web Audio API 程序化生成，无需网络 ===== -->
 
+    <!-- ============================================================
+    JAVASCRIPT — 完整应用 + 共识投票 + 特色算法
+    ============================================================ -->
     <script>
         /**
-         * 清浔杀组预测 Pro - 完整优化版
-         * 核心特性：
-         *   1. 历史预测与当前算法联动，不同算法独立缓存。
-         *   2. 缓存持久化存储（localStorage），同算法下历史固定。
-         *   3. 切换算法后历史表格自动刷新，显示该算法对应的缓存或实时计算结果。
-         *   4. 所有功能完整保留（音乐、语音、投注、共识、遗漏统计等）。
+         * 清浔杀组预测 Pro · 整合 Telegram 机器人特色算法 + 共识投票
+         * 算法：天机策、玄机策、逆形态、趋势捕手、冷热探针、银河锚点、威震天机、五行之合
+         *      京派、枫派、通派、奇杀、异杀、势杀（共14种）
          */
         const isTelegram = !!(window.Telegram && window.Telegram.WebApp);
         let tgInstance = null;
@@ -2057,8 +2248,7 @@
                 PREFS: 'qingxun-prefs-v2',
                 BETS: 'qingxun-bets-v2',
                 CACHE: 'qingxun-cache-v2',
-                BET_HISTORY: 'qingxun-bet-history-v2',
-                HISTORY_PREDS: 'qingxun-history-preds-v3'   // 历史预测缓存（v3版本，独立key）
+                BET_HISTORY: 'qingxun-bet-history-v2'
             },
             FETCH_INTERVAL: 3 * 60 * 1000,
             FETCH_TIMEOUT: 10000,
@@ -2148,14 +2338,14 @@
             }
         };
 
-        // ==================== 程序化背景音乐（Web Audio API） ====================
+        // ==================== 程序化背景音乐（Web Audio API，离线可用） ====================
         const MUSIC_STYLES = [
-            { id: 'chill', name: '静谧和弦', icon: '🎹' },
-            { id: 'lofi', name: 'Lo-Fi 氛围', icon: '🎧' },
+            { id: 'chill',    name: '静谧和弦', icon: '🎹' },
+            { id: 'lofi',     name: 'Lo-Fi 氛围', icon: '🎧' },
             { id: 'electric', name: '电子律动', icon: '⚡' },
-            { id: 'zen', name: '禅意空灵', icon: '🪷' },
-            { id: 'retro', name: '复古脉冲', icon: '📼' },
-            { id: 'night', name: '深夜低语', icon: '🌙' },
+            { id: 'zen',      name: '禅意空灵', icon: '🪷' },
+            { id: 'retro',    name: '复古脉冲', icon: '📼' },
+            { id: 'night',    name: '深夜低语', icon: '🌙' },
         ];
 
         class AmbientMusic {
@@ -2180,159 +2370,107 @@
                 } catch (_) { return false; }
             }
             _stopNodes() {
-                this.nodes.forEach(n => { try { n.stop(); } catch (_) {} });
+                this.nodes.forEach(n => { try { n.stop(); } catch(_) {} });
                 this.nodes = [];
                 this.timers.forEach(t => clearInterval(t));
                 this.timers = [];
             }
+            // ---- 风格1: 静谧和弦 ----
             _playChill(now) {
-                const chords = [
-                    [220, 261.63, 329.63],
-                    [174.61, 220, 261.63],
-                    [261.63, 329.63, 392],
-                    [196, 246.94, 293.66]
-                ];
+                const chords = [[220,261.63,329.63],[174.61,220,261.63],[261.63,329.63,392],[196,246.94,293.66]];
                 const chord = chords[this._ci % chords.length];
                 chord.forEach((f, i) => {
-                    const o = this.ctx.createOscillator(),
-                        g = this.ctx.createGain();
-                    o.type = 'sine';
-                    o.frequency.value = f;
-                    g.gain.setValueAtTime(0, now + i * 0.15);
-                    g.gain.linearRampToValueAtTime(0.06, now + i * 0.15 + 0.4);
+                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+                    o.type = 'sine'; o.frequency.value = f;
+                    g.gain.setValueAtTime(0, now + i*0.15);
+                    g.gain.linearRampToValueAtTime(0.06, now + i*0.15 + 0.4);
                     g.gain.linearRampToValueAtTime(0.02, now + 3.2);
                     g.gain.linearRampToValueAtTime(0, now + 4.0);
-                    o.connect(g);
-                    g.connect(this.masterGain);
-                    o.start(now + i * 0.15);
-                    o.stop(now + 4.0);
-                    this.nodes.push(o);
-                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    o.connect(g); g.connect(this.masterGain);
+                    o.start(now + i*0.15); o.stop(now + 4.0);
+                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 });
                 if (this._ci % 2 === 0) {
-                    const o = this.ctx.createOscillator(),
-                        g = this.ctx.createGain();
-                    o.type = 'sine';
-                    o.frequency.value = chord[2] * 2;
-                    g.gain.setValueAtTime(0, now + 1.5);
-                    g.gain.linearRampToValueAtTime(0.025, now + 1.8);
-                    g.gain.linearRampToValueAtTime(0, now + 2.8);
-                    o.connect(g);
-                    g.connect(this.masterGain);
-                    o.start(now + 1.5);
-                    o.stop(now + 2.8);
-                    this.nodes.push(o);
-                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+                    o.type = 'sine'; o.frequency.value = chord[2]*2;
+                    g.gain.setValueAtTime(0, now+1.5); g.gain.linearRampToValueAtTime(0.025, now+1.8);
+                    g.gain.linearRampToValueAtTime(0, now+2.8);
+                    o.connect(g); g.connect(this.masterGain);
+                    o.start(now+1.5); o.stop(now+2.8);
+                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 }
             }
+            // ---- 风格2: Lo-Fi 氛围 ----
             _playLofi(now) {
                 const bass = [110, 87.31, 130.81, 98];
-                const mel = [
-                    [329.63, 392, 440, 392],
-                    [261.63, 329.63, 392, 329.63],
-                    [349.23, 440, 523.25, 440],
-                    [293.66, 349.23, 392, 349.23]
-                ];
+                const mel = [[329.63,392,440,392],[261.63,329.63,392,329.63],[349.23,440,523.25,440],[293.66,349.23,392,349.23]];
                 const b = bass[this._ci % bass.length];
                 const m = mel[this._ci % mel.length];
-                const bo = this.ctx.createOscillator(),
-                    bg = this.ctx.createGain();
-                bo.type = 'triangle';
-                bo.frequency.value = b;
-                bg.gain.setValueAtTime(0, now);
-                bg.gain.linearRampToValueAtTime(0.08, now + 0.3);
-                bg.gain.setValueAtTime(0.08, now + 3.5);
-                bg.gain.linearRampToValueAtTime(0, now + 4.0);
-                bo.connect(bg);
-                bg.connect(this.masterGain);
-                bo.start(now);
-                bo.stop(now + 4.0);
-                this.nodes.push(bo);
-                bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
+                // 低音pad
+                const bo = this.ctx.createOscillator(), bg = this.ctx.createGain();
+                bo.type = 'triangle'; bo.frequency.value = b;
+                bg.gain.setValueAtTime(0, now); bg.gain.linearRampToValueAtTime(0.08, now+0.3);
+                bg.gain.setValueAtTime(0.08, now+3.5); bg.gain.linearRampToValueAtTime(0, now+4.0);
+                bo.connect(bg); bg.connect(this.masterGain);
+                bo.start(now); bo.stop(now+4.0);
+                this.nodes.push(bo); bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
+                // 旋律
                 m.forEach((f, i) => {
-                    const o = this.ctx.createOscillator(),
-                        g = this.ctx.createGain();
-                    o.type = 'sine';
-                    o.frequency.value = f;
+                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+                    o.type = 'sine'; o.frequency.value = f;
                     const t = now + i * 0.9;
-                    g.gain.setValueAtTime(0, t);
-                    g.gain.linearRampToValueAtTime(0.04, t + 0.08);
-                    g.gain.setValueAtTime(0.04, t + 0.6);
-                    g.gain.linearRampToValueAtTime(0, t + 0.85);
-                    o.connect(g);
-                    g.connect(this.masterGain);
-                    o.start(t);
-                    o.stop(t + 0.9);
-                    this.nodes.push(o);
-                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.04, t+0.08);
+                    g.gain.setValueAtTime(0.04, t+0.6); g.gain.linearRampToValueAtTime(0, t+0.85);
+                    o.connect(g); g.connect(this.masterGain);
+                    o.start(t); o.stop(t+0.9);
+                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 });
+                // 模拟黑胶噪音
                 this._noiseBurst(now, 0.012, 3800);
             }
+            // ---- 风格3: 电子律动 ----
             _playElectric(now) {
                 const bassNotes = [55, 55, 65.41, 73.42];
-                const arp = [
-                    [329.63, 392, 523.25, 659.25, 523.25, 392],
-                    [293.66, 349.23, 440, 587.33, 440, 349.23],
-                    [349.23, 440, 523.25, 698.46, 523.25, 440],
-                    [261.63, 329.63, 392, 523.25, 392, 329.63]
-                ];
+                const arp = [[329.63,392,523.25,659.25,523.25,392],[293.66,349.23,440,587.33,440,349.23],
+                             [349.23,440,523.25,698.46,523.25,440],[261.63,329.63,392,523.25,392,329.63]];
                 const bn = bassNotes[this._ci % bassNotes.length];
                 const ar = arp[this._ci % arp.length];
-                const ko = this.ctx.createOscillator(),
-                    kg = this.ctx.createGain();
-                ko.type = 'sine';
-                ko.frequency.setValueAtTime(150, now);
-                ko.frequency.linearRampToValueAtTime(40, now + 0.12);
-                kg.gain.setValueAtTime(0.18, now);
-                kg.gain.linearRampToValueAtTime(0, now + 0.2);
-                ko.connect(kg);
-                kg.connect(this.masterGain);
-                ko.start(now);
-                ko.stop(now + 0.25);
-                this.nodes.push(ko);
-                ko.onended = () => { this.nodes = this.nodes.filter(n => n !== ko); };
-                const bo = this.ctx.createOscillator(),
-                    bg = this.ctx.createGain();
-                bo.type = 'sawtooth';
-                bo.frequency.value = bn;
-                const bq = this.ctx.createBiquadFilter();
-                bq.type = 'lowpass';
-                bq.frequency.value = 200;
-                bg.gain.setValueAtTime(0, now + 0.15);
-                bg.gain.linearRampToValueAtTime(0.05, now + 0.25);
-                bg.gain.linearRampToValueAtTime(0, now + 1.5);
-                bo.connect(bq);
-                bq.connect(bg);
-                bg.connect(this.masterGain);
-                bo.start(now + 0.15);
-                bo.stop(now + 1.5);
-                this.nodes.push(bo);
-                bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
+                // 低音kick
+                const ko = this.ctx.createOscillator(), kg = this.ctx.createGain();
+                ko.type = 'sine'; ko.frequency.setValueAtTime(150, now); ko.frequency.linearRampToValueAtTime(40, now+0.12);
+                kg.gain.setValueAtTime(0.18, now); kg.gain.linearRampToValueAtTime(0, now+0.2);
+                ko.connect(kg); kg.connect(this.masterGain);
+                ko.start(now); ko.stop(now+0.25);
+                this.nodes.push(ko); ko.onended = () => { this.nodes = this.nodes.filter(n => n !== ko); };
+                // 低音
+                const bo = this.ctx.createOscillator(), bg = this.ctx.createGain();
+                bo.type = 'sawtooth'; bo.frequency.value = bn;
+                const bq = this.ctx.createBiquadFilter(); bq.type = 'lowpass'; bq.frequency.value = 200;
+                bg.gain.setValueAtTime(0, now+0.15); bg.gain.linearRampToValueAtTime(0.05, now+0.25);
+                bg.gain.linearRampToValueAtTime(0, now+1.5);
+                bo.connect(bq); bq.connect(bg); bg.connect(this.masterGain);
+                bo.start(now+0.15); bo.stop(now+1.5);
+                this.nodes.push(bo); bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
+                // 琶音
                 ar.forEach((f, i) => {
-                    const o = this.ctx.createOscillator(),
-                        g = this.ctx.createGain();
-                    o.type = 'square';
-                    o.frequency.value = f;
+                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+                    o.type = 'square'; o.frequency.value = f;
                     const t = now + 0.4 + i * 0.15;
-                    const fl = this.ctx.createBiquadFilter();
-                    fl.type = 'lowpass';
-                    fl.frequency.value = 1200;
-                    g.gain.setValueAtTime(0, t);
-                    g.gain.linearRampToValueAtTime(0.03, t + 0.02);
-                    g.gain.linearRampToValueAtTime(0, t + 0.13);
-                    o.connect(fl);
-                    fl.connect(g);
-                    g.connect(this.masterGain);
-                    o.start(t);
-                    o.stop(t + 0.15);
-                    this.nodes.push(o);
-                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    const fl = this.ctx.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = 1200;
+                    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.03, t+0.02);
+                    g.gain.linearRampToValueAtTime(0, t+0.13);
+                    o.connect(fl); fl.connect(g); g.connect(this.masterGain);
+                    o.start(t); o.stop(t+0.15);
+                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 });
+                // hi-hat
                 this._noiseBurst(now + 0.5, 0.02, 8000);
                 this._noiseBurst(now + 1.0, 0.015, 9000);
             }
+            // ---- 风格4: 禅意空灵 ----
             _playZen(now) {
                 const pentatonic = [261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25];
+                // 随机选3-4个音符
                 const count = 3 + (this._ci % 2);
                 const used = new Set();
                 for (let i = 0; i < count; i++) {
@@ -2340,149 +2478,102 @@
                     do { idx = Math.floor(Math.random() * pentatonic.length); } while (used.has(idx));
                     used.add(idx);
                     const f = pentatonic[idx];
-                    const o = this.ctx.createOscillator(),
-                        g = this.ctx.createGain();
-                    o.type = 'sine';
-                    o.frequency.value = f;
+                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+                    o.type = 'sine'; o.frequency.value = f;
                     const t = now + i * (1.2 + Math.random() * 0.8);
-                    g.gain.setValueAtTime(0, t);
-                    g.gain.linearRampToValueAtTime(0.05, t + 0.3);
-                    g.gain.exponentialRampToValueAtTime(0.001, t + 3.5);
-                    o.connect(g);
-                    g.connect(this.masterGain);
-                    o.start(t);
-                    o.stop(t + 3.6);
-                    this.nodes.push(o);
-                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.05, t+0.3);
+                    g.gain.exponentialRampToValueAtTime(0.001, t+3.5);
+                    o.connect(g); g.connect(this.masterGain);
+                    o.start(t); o.stop(t+3.6);
+                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 }
+                // 底层低音drone
                 if (this._ci % 3 === 0) {
-                    const d = this.ctx.createOscillator(),
-                        dg = this.ctx.createGain();
-                    d.type = 'sine';
-                    d.frequency.value = 130.81;
-                    dg.gain.setValueAtTime(0, now);
-                    dg.gain.linearRampToValueAtTime(0.025, now + 1);
-                    dg.gain.setValueAtTime(0.025, now + 3);
-                    dg.gain.linearRampToValueAtTime(0, now + 4.5);
-                    d.connect(dg);
-                    dg.connect(this.masterGain);
-                    d.start(now);
-                    d.stop(now + 4.5);
-                    this.nodes.push(d);
-                    d.onended = () => { this.nodes = this.nodes.filter(n => n !== d); };
+                    const d = this.ctx.createOscillator(), dg = this.ctx.createGain();
+                    d.type = 'sine'; d.frequency.value = 130.81;
+                    dg.gain.setValueAtTime(0, now); dg.gain.linearRampToValueAtTime(0.025, now+1);
+                    dg.gain.setValueAtTime(0.025, now+3); dg.gain.linearRampToValueAtTime(0, now+4.5);
+                    d.connect(dg); dg.connect(this.masterGain);
+                    d.start(now); d.stop(now+4.5);
+                    this.nodes.push(d); d.onended = () => { this.nodes = this.nodes.filter(n => n !== d); };
                 }
             }
+            // ---- 风格5: 复古脉冲 ----
             _playRetro(now) {
-                const chords = [
-                    [220, 277.18, 329.63],
-                    [196, 246.94, 329.63],
-                    [261.63, 329.63, 392],
-                    [233.08, 293.66, 349.23]
-                ];
+                const chords = [[220,277.18,329.63],[196,246.94,329.63],[261.63,329.63,392],[233.08,293.66,349.23]];
                 const chord = chords[this._ci % chords.length];
+                // 方波pad
                 chord.forEach((f, i) => {
-                    const o = this.ctx.createOscillator(),
-                        g = this.ctx.createGain();
-                    const fl = this.ctx.createBiquadFilter();
-                    fl.type = 'lowpass';
-                    fl.frequency.value = 600;
-                    o.type = 'square';
-                    o.frequency.value = f;
-                    g.gain.setValueAtTime(0, now);
-                    g.gain.linearRampToValueAtTime(0.03, now + 0.2);
-                    g.gain.setValueAtTime(0.03, now + 3.5);
-                    g.gain.linearRampToValueAtTime(0, now + 4.0);
-                    o.connect(fl);
-                    fl.connect(g);
-                    g.connect(this.masterGain);
-                    o.start(now);
-                    o.stop(now + 4.0);
-                    this.nodes.push(o);
-                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+                    const fl = this.ctx.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = 600;
+                    o.type = 'square'; o.frequency.value = f;
+                    g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(0.03, now+0.2);
+                    g.gain.setValueAtTime(0.03, now+3.5); g.gain.linearRampToValueAtTime(0, now+4.0);
+                    o.connect(fl); fl.connect(g); g.connect(this.masterGain);
+                    o.start(now); o.stop(now+4.0);
+                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 });
-                const melNotes = [chord[0] * 2, chord[1] * 2, chord[2] * 2, chord[1] * 2];
+                // 8-bit 旋律
+                const melNotes = [chord[0]*2, chord[1]*2, chord[2]*2, chord[1]*2];
                 melNotes.forEach((f, i) => {
-                    const o = this.ctx.createOscillator(),
-                        g = this.ctx.createGain();
-                    o.type = 'square';
-                    o.frequency.value = f;
+                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+                    o.type = 'square'; o.frequency.value = f;
                     const t = now + i * 0.5;
-                    g.gain.setValueAtTime(0, t);
-                    g.gain.linearRampToValueAtTime(0.035, t + 0.03);
-                    g.gain.setValueAtTime(0.035, t + 0.35);
-                    g.gain.linearRampToValueAtTime(0, t + 0.48);
-                    o.connect(g);
-                    g.connect(this.masterGain);
-                    o.start(t);
-                    o.stop(t + 0.5);
-                    this.nodes.push(o);
-                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.035, t+0.03);
+                    g.gain.setValueAtTime(0.035, t+0.35); g.gain.linearRampToValueAtTime(0, t+0.48);
+                    o.connect(g); g.connect(this.masterGain);
+                    o.start(t); o.stop(t+0.5);
+                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 });
             }
+            // ---- 风格6: 深夜低语 ----
             _playNight(now) {
                 const bassNotes = [82.41, 73.42, 65.41, 61.74];
-                const mel = [
-                    [246.94, 293.66, 329.63, 293.66, 246.94],
-                    [220, 261.63, 293.66, 261.63, 220],
-                    [196, 233.08, 261.63, 233.08, 196],
-                    [174.61, 220, 246.94, 220, 174.61]
-                ];
+                const mel = [[246.94,293.66,329.63,293.66,246.94],
+                             [220,261.63,293.66,261.63,220],
+                             [196,233.08,261.63,233.08,196],
+                             [174.61,220,246.94,220,174.61]];
                 const bn = bassNotes[this._ci % bassNotes.length];
                 const m = mel[this._ci % mel.length];
-                const bo = this.ctx.createOscillator(),
-                    bg = this.ctx.createGain();
-                bo.type = 'sine';
-                bo.frequency.value = bn;
-                bg.gain.setValueAtTime(0, now);
-                bg.gain.linearRampToValueAtTime(0.06, now + 0.8);
-                bg.gain.setValueAtTime(0.06, now + 3.5);
-                bg.gain.linearRampToValueAtTime(0, now + 4.5);
-                bo.connect(bg);
-                bg.connect(this.masterGain);
-                bo.start(now);
-                bo.stop(now + 4.5);
-                this.nodes.push(bo);
-                bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
+                // 深沉pad
+                const bo = this.ctx.createOscillator(), bg = this.ctx.createGain();
+                bo.type = 'sine'; bo.frequency.value = bn;
+                bg.gain.setValueAtTime(0, now); bg.gain.linearRampToValueAtTime(0.06, now+0.8);
+                bg.gain.setValueAtTime(0.06, now+3.5); bg.gain.linearRampToValueAtTime(0, now+4.5);
+                bo.connect(bg); bg.connect(this.masterGain);
+                bo.start(now); bo.stop(now+4.5);
+                this.nodes.push(bo); bo.onended = () => { this.nodes = this.nodes.filter(n => n !== bo); };
+                // 柔和旋律
                 m.forEach((f, i) => {
-                    const o = this.ctx.createOscillator(),
-                        g = this.ctx.createGain();
-                    o.type = 'sine';
-                    o.frequency.value = f;
+                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+                    o.type = 'sine'; o.frequency.value = f;
                     const t = now + 0.5 + i * 0.7;
-                    g.gain.setValueAtTime(0, t);
-                    g.gain.linearRampToValueAtTime(0.035, t + 0.2);
-                    g.gain.exponentialRampToValueAtTime(0.001, t + 0.65);
-                    o.connect(g);
-                    g.connect(this.masterGain);
-                    o.start(t);
-                    o.stop(t + 0.7);
-                    this.nodes.push(o);
-                    o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
+                    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.035, t+0.2);
+                    g.gain.exponentialRampToValueAtTime(0.001, t+0.65);
+                    o.connect(g); g.connect(this.masterGain);
+                    o.start(t); o.stop(t+0.7);
+                    this.nodes.push(o); o.onended = () => { this.nodes = this.nodes.filter(n => n !== o); };
                 });
+                // 夜晚氛围噪音
                 this._noiseBurst(now, 0.008, 2500);
             }
+            // ---- 噪音辅助 ----
             _noiseBurst(startTime, vol, filterFreq) {
                 const len = 0.08;
                 const bufSize = this.ctx.sampleRate * len;
                 const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
                 const data = buf.getChannelData(0);
                 for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
-                const src = this.ctx.createBufferSource();
-                src.buffer = buf;
+                const src = this.ctx.createBufferSource(); src.buffer = buf;
                 const g = this.ctx.createGain();
-                const fl = this.ctx.createBiquadFilter();
-                fl.type = 'highpass';
-                fl.frequency.value = filterFreq * 0.3;
+                const fl = this.ctx.createBiquadFilter(); fl.type = 'highpass'; fl.frequency.value = filterFreq * 0.3;
                 g.gain.setValueAtTime(vol, startTime);
                 g.gain.linearRampToValueAtTime(0, startTime + len);
-                src.connect(fl);
-                fl.connect(g);
-                g.connect(this.masterGain);
-                src.start(startTime);
-                src.stop(startTime + len);
-                this.nodes.push(src);
-                src.onended = () => { this.nodes = this.nodes.filter(n => n !== src); };
+                src.connect(fl); fl.connect(g); g.connect(this.masterGain);
+                src.start(startTime); src.stop(startTime + len);
+                this.nodes.push(src); src.onended = () => { this.nodes = this.nodes.filter(n => n !== src); };
             }
+            // ---- 风格调度 ----
             _getStyleDuration() {
                 const d = { chill: 4000, lofi: 4000, electric: 2000, zen: 5000, retro: 4000, night: 4500 };
                 return d[this.currentStyle] || 4000;
@@ -2491,27 +2582,16 @@
                 if (!this.isPlaying || !this.ctx) return;
                 const now = this.ctx.currentTime;
                 switch (this.currentStyle) {
-                    case 'chill':
-                        this._playChill(now);
-                        break;
-                    case 'lofi':
-                        this._playLofi(now);
-                        break;
-                    case 'electric':
-                        this._playElectric(now);
-                        break;
-                    case 'zen':
-                        this._playZen(now);
-                        break;
-                    case 'retro':
-                        this._playRetro(now);
-                        break;
-                    case 'night':
-                        this._playNight(now);
-                        break;
+                    case 'chill': this._playChill(now); break;
+                    case 'lofi': this._playLofi(now); break;
+                    case 'electric': this._playElectric(now); break;
+                    case 'zen': this._playZen(now); break;
+                    case 'retro': this._playRetro(now); break;
+                    case 'night': this._playNight(now); break;
                 }
                 this._ci++;
             }
+            // ---- 公开接口 ----
             play(volume = 0.30) {
                 if (this.isPlaying) return;
                 if (!this._ensureCtx()) return false;
@@ -2521,8 +2601,7 @@
                 this._ci = 0;
                 this._playStyleOnce();
                 const dur = this._getStyleDuration();
-                const loop = setInterval(() => { if (this.isPlaying) this._playStyleOnce(); else clearInterval(loop); },
-                dur);
+                const loop = setInterval(() => { if (this.isPlaying) this._playStyleOnce(); else clearInterval(loop); }, dur);
                 this.timers.push(loop);
                 return true;
             }
@@ -2531,6 +2610,7 @@
                 this.pause();
                 this.currentStyle = styleId;
                 if (wasPlaying) {
+                    // 短暂延迟让节点清理完
                     setTimeout(() => this.play(volume), 100);
                 }
             }
@@ -2553,7 +2633,7 @@
             get paused() { return !this.isPlaying; }
             destroy() {
                 this.pause();
-                setTimeout(() => { try { this.ctx?.close(); } catch (_) {} }, 700);
+                setTimeout(() => { try { this.ctx?.close(); } catch(_) {} }, 700);
             }
         }
 
@@ -2563,7 +2643,7 @@
                 this.audio = new Audio();
                 this.audio.preload = 'metadata';
                 this.audio.loop = true;
-                this.lyrics = [];
+                this.lyrics = []; // [{time, text}]
                 this.isPlaying = false;
                 this._raf = null;
                 this._onLyricsUpdate = null;
@@ -2571,21 +2651,18 @@
                 this._setupEvents();
             }
             _setupEvents() {
-                this.audio.addEventListener('play', () => { this.isPlaying = true;
-                    this._startSync(); });
-                this.audio.addEventListener('pause', () => { this.isPlaying = false;
-                    this._stopSync(); });
+                this.audio.addEventListener('play', () => { this.isPlaying = true; this._startSync(); });
+                this.audio.addEventListener('pause', () => { this.isPlaying = false; this._stopSync(); });
                 this.audio.addEventListener('ended', () => {
-                    this.isPlaying = false;
-                    this._stopSync();
+                    this.isPlaying = false; this._stopSync();
                     if (this._onEnded) this._onEnded();
                 });
                 this.audio.addEventListener('error', (e) => {
                     console.warn('音频加载失败:', e);
-                    this.isPlaying = false;
-                    this._stopSync();
+                    this.isPlaying = false; this._stopSync();
                 });
             }
+            // 加载音频文件 (File对象或URL)
             loadAudio(fileOrUrl) {
                 if (this.audio.src) URL.revokeObjectURL(this.audio.src);
                 if (fileOrUrl instanceof File) {
@@ -2595,6 +2672,7 @@
                 }
                 this.audio.load();
             }
+            // 解析LRC歌词文本
             parseLrc(text) {
                 this.lyrics = [];
                 if (!text) return;
@@ -2613,10 +2691,12 @@
                 }
                 this.lyrics.sort((a, b) => a.time - b.time);
             }
+            // 从时间戳解析简单歌词（无时间标签）
             parsePlain(text) {
                 this.lyrics = [];
                 if (!text) return;
                 const lines = text.split(/\r?\n/).filter(l => l.trim());
+                // 均匀分配时间，每行5秒
                 lines.forEach((line, i) => {
                     this.lyrics.push({ time: i * 5, text: line.trim() });
                 });
@@ -2648,8 +2728,7 @@
                 tick();
             }
             _stopSync() {
-                if (this._raf) { cancelAnimationFrame(this._raf);
-                    this._raf = null; }
+                if (this._raf) { cancelAnimationFrame(this._raf); this._raf = null; }
             }
             _updateLyrics() {
                 if (!this.lyrics.length || !this._onLyricsUpdate) return;
@@ -2673,8 +2752,9 @@
             }
         }
 
-        // ==================== 算法引擎 ====================
+        // ==================== 算法引擎（整合机器人全部算法） ====================
         const Algorithms = {
+            // ----- 基础算法 -----
             module1(prevGroup) {
                 const map = { "大双": "小双", "小双": "大单", "大单": "小单", "小单": "大双" };
                 return map[prevGroup] || null;
@@ -2766,6 +2846,8 @@
                 const kill = Utils.judgeSizeOdd(intPart);
                 return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill) };
             },
+
+            // ----- 特色算法（来自机器人） -----
             jingpai(history) {
                 if (history.length < 3) return null;
                 const A = history[history.length - 3],
@@ -2834,6 +2916,7 @@
                 return opposite[pred] || null;
             },
 
+            // ----- 统一预测入口 -----
             predict(algName, history3, prevGroup, prevSum, currentNums, fullHistoryPrev, weights) {
                 let kill = null;
                 switch (algName) {
@@ -2884,6 +2967,7 @@
                 return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill) };
             },
 
+            // ----- 共识投票（全算法） -----
             getAllPredictions(history3, prevGroup, prevSum, currentNums, fullHistoryPrev) {
                 const algNames = Object.keys(CONFIG.ALGORITHM_NAMES);
                 const results = {};
@@ -2958,6 +3042,7 @@
                 const voice = this.getChineseVoice();
                 if (voice) utterance.voice = voice;
                 let resumeInterval;
+
                 const startResumeLoop = () => {
                     resumeInterval = setInterval(() => {
                         if (this.synth.paused || !this.synth.speaking) return;
@@ -3042,8 +3127,6 @@
                     consecSpark: this.$('consecutive-spark'),
                     sumMissedBody: this.$('sum-missed-body'),
                     comboMissedBody: this.$('combo-missed-body'),
-                    numMissedBody: this.$('num-missed-body'),
-                    missedSummary: this.$('missed-summary'),
                     predictCombo1: this.$('predict-combo1'),
                     predictCombo2: this.$('predict-combo2'),
                     killGroup: this.$('kill-group'),
@@ -3107,8 +3190,7 @@
                 this.apiData = [];
                 this.currentAlgorithm = 'shuying_v1';
                 this.algorithmStats = {};
-                this.missedStats = { sums: new Array(28).fill(0), combos: {}, nums: { pos0: new Array(10).fill(0),
-                        pos1: new Array(10).fill(0), pos2: new Array(10).fill(0) } };
+                this.missedStats = { sums: new Array(28).fill(0), combos: {} };
                 this.fetchTimer = null;
                 this.countdownRAF = null;
                 this.isFetching = false;
@@ -3131,17 +3213,18 @@
                 this.autoAnnounce = false;
                 this.musicEnabled = false;
                 this.musicStyle = 'chill';
-                this.musicMode = 'melody';
+                this.musicMode = 'melody'; // 'melody' | 'song'
                 this.ambientMusic = new AmbientMusic();
                 this.songPlayer = new SongPlayer();
                 this._songAudioFile = null;
                 this._songLrcText = '';
-                // 历史预测缓存（内存镜像 + 持久化）
-                this.historyPredsCache = this.loadHistoryPredsCache();
 
                 this.voice = new VoiceEngine();
+
+                // 初始化歌词同步回调
                 this.songPlayer.onLyricsUpdate = (data) => this.updateLyricsDisplay(data);
 
+                // 初始化所有算法统计
                 for (const k of Object.keys(CONFIG.ALGORITHM_NAMES)) {
                     this.algorithmStats[k] = { total: 0, win: 0, currentConsecutive: 0, winRate: 0 };
                 }
@@ -3150,21 +3233,7 @@
                 this.init();
             }
 
-            // ========== 历史预测缓存 ==========
-            loadHistoryPredsCache() {
-                try {
-                    const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.HISTORY_PREDS);
-                    if (raw) return JSON.parse(raw);
-                } catch (_) {}
-                return {};
-            }
-            saveHistoryPredsCache() {
-                try {
-                    localStorage.setItem(CONFIG.STORAGE_KEYS.HISTORY_PREDS, JSON.stringify(this.historyPredsCache));
-                } catch (_) {}
-            }
-
-            // ========== Telegram ==========
+            // ==================== Telegram 初始化 ====================
             initTelegram() {
                 if (this.isTelegram && tgInstance) {
                     document.body.classList.add('in-telegram');
@@ -3262,7 +3331,7 @@
                 return (stats.win / stats.total * 100).toFixed(1);
             }
 
-            // ========== 初始化 ==========
+            // ==================== 初始化 ====================
             init() {
                 this.initTheme();
                 this.loadPreferences();
@@ -3324,7 +3393,7 @@
                 } catch (_) {}
             }
 
-            // ========== 数据获取 ==========
+            // ==================== 数据获取 ====================
             async fetchData() {
                 if (this.isFetching) return;
                 this.isFetching = true;
@@ -3414,7 +3483,7 @@
                 this.isFetching = false;
             }
 
-            // ========== 投注 ==========
+            // ==================== 投注结算 ====================
             settleBet() {
                 if (this.isSettling) return;
                 this.isSettling = true;
@@ -3551,7 +3620,7 @@
                 this.showToast('投注历史已清空', 'info');
             }
 
-            // ========== 统计 ==========
+            // ==================== 统计计算 ====================
             calculateAllStats() {
                 if (this.apiData.length < 4) return;
                 const testPeriods = Math.min(this.apiData.length - 3, CONFIG.MAX_HISTORY);
@@ -3602,20 +3671,10 @@
                 this.missedStats.sums = new Array(28).fill(len);
                 const combos = ['大', '小', '单', '双', '大单', '大双', '小单', '小双'];
                 combos.forEach(c => this.missedStats.combos[c] = len);
-                const posKeys = ['pos0', 'pos1', 'pos2'];
-                posKeys.forEach(k => { this.missedStats.nums[k] = new Array(10).fill(len); });
 
                 for (let i = 0; i < len; i++) {
                     const item = this.apiData[i];
-                    if (this.missedStats.sums[item.sum] === len)
-                        this.missedStats.sums[item.sum] = i;
-                    const digits = item.nums ? item.nums : [0, 0, 0];
-                    [0, 1, 2].forEach(pos => {
-                        const d = digits[pos];
-                        if (d >= 0 && d <= 9 && this.missedStats.nums['pos' + pos][d] === len) {
-                            this.missedStats.nums['pos' + pos][d] = i;
-                        }
-                    });
+                    if (this.missedStats.sums[item.sum] === len) this.missedStats.sums[item.sum] = i;
                     for (const key of combos) {
                         let match = false;
                         if (key === '大' && item.combo.startsWith('大')) match = true;
@@ -3623,13 +3682,12 @@
                         else if (key === '单' && item.combo.endsWith('单')) match = true;
                         else if (key === '双' && item.combo.endsWith('双')) match = true;
                         else if (key === item.combo) match = true;
-                        if (match && this.missedStats.combos[key] === len)
-                            this.missedStats.combos[key] = i;
+                        if (match && this.missedStats.combos[key] === len) this.missedStats.combos[key] = i;
                     }
                 }
             }
 
-            // ========== 渲染 ==========
+            // ==================== 渲染 ====================
             render() {
                 if (this.renderPending) return;
                 this.renderPending = true;
@@ -3641,13 +3699,9 @@
 
             _doRender() {
                 this.renderLatest();
-                this.updateMissedStats();
-                const missedPanel = document.getElementById('missed-stats');
-                if (missedPanel && missedPanel.style.display === 'block') {
-                    this.renderMissed();
-                }
+                this.renderMissed();
                 this.renderPrediction();
-                this.renderHistory(); // 使用当前算法并缓存
+                this.renderHistory();
                 this.renderMonitor();
                 this.renderAlgoCompare();
                 this.renderTrendChart();
@@ -3688,67 +3742,14 @@
                 container.appendChild(sumEl);
             }
 
-            toggleMissedPanel() {
-                const panel = document.getElementById('missed-stats');
-                if (!panel) return;
-                if (panel.style.display === 'none' || !panel.style.display) {
-                    if (!this.apiData.length) { this.showToast('暂无数据，请先刷新', 'warning'); return; }
-                    this.updateMissedStats();
-                    this.renderMissed();
-                    panel.style.display = 'block';
-                } else {
-                    panel.style.display = 'none';
-                }
-            }
-
             renderMissed() {
                 if (!this.apiData.length) return;
-                const sumHot = this.missedStats.sums.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v).slice(0, 3);
-                const comboArr = Object.entries(this.missedStats.combos).sort((a, b) => b[1] - a[1]).slice(0, 3);
-                const allNums = [];
-                ['pos0', 'pos1', 'pos2'].forEach(k => {
-                    this.missedStats.nums[k].forEach((v, i) => allNums.push({ v, i, pos: k }));
-                });
-                const numHot = allNums.sort((a, b) => b.v - a.v).slice(0, 3);
-
-                if (this.dom.missedSummary) {
-                    const posName = { pos0: '第1位', pos1: '第2位', pos2: '第3位' };
-                    this.dom.missedSummary.innerHTML = `
-                        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                            <div style="flex:1;min-width:140px;padding:8px 10px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
-                                <div style="font-size:11px;color:var(--text-muted);font-weight:600;">🔥 和值热号TOP3</div>
-                                <div style="font-size:14px;font-weight:700;color:var(--danger);margin-top:2px;">${sumHot.map(s => '和值'+s.i+':'+s.v+'期').join(' | ')}</div>
-                            </div>
-                            <div style="flex:1;min-width:140px;padding:8px 10px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
-                                <div style="font-size:11px;color:var(--text-muted);font-weight:600;">🔥 号码热号TOP3</div>
-                                <div style="font-size:14px;font-weight:700;color:var(--danger);margin-top:2px;">${numHot.map(n => posName[n.pos]+n.i+':'+n.v+'期').join(' | ')}</div>
-                            </div>
-                            <div style="flex:1;min-width:140px;padding:8px 10px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
-                                <div style="font-size:11px;color:var(--text-muted);font-weight:600;">🔥 形态热号TOP3</div>
-                                <div style="font-size:14px;font-weight:700;color:var(--danger);margin-top:2px;">${comboArr.map(c => c[0]+':'+c[1]+'期').join(' | ')}</div>
-                            </div>
-                        </div>`;
-                }
-
-                const posLabels = ['第1位', '第2位', '第3位'];
-                const posKeys = ['pos0', 'pos1', 'pos2'];
-                let numHTML = '';
-                posKeys.forEach((k, pi) => {
-                    numHTML +=
-                        `<tr><td style="font-weight:700;color:var(--text-secondary);font-size:11px;">${posLabels[pi]}</td>`;
-                    for (let d = 0; d <= 9; d++) {
-                        const v = this.missedStats.nums[k][d];
-                        const cls = v >= 20 ? 'hot' : (v <= 2 ? 'cold' : 'neutral');
-                        numHTML += `<td class="${cls}">${v}</td>`;
-                    }
-                    numHTML += '</tr>';
-                });
-                if (this.dom.numMissedBody) this.dom.numMissedBody.innerHTML = numHTML;
+                document.getElementById('missed-stats').style.display = 'block';
 
                 let sumHTML = '<tr>' + Array.from({ length: 28 }, (_, i) =>
-                    `<td style="font-weight:700;color:var(--text-secondary);font-size:11px;">${i}</td>`).join('') + '</tr>';
+                    `<td style="font-weight:700;color:var(--text-secondary);">${i}</td>`).join('') + '</tr>';
                 sumHTML += '<tr>' + this.missedStats.sums.map((v) => {
-                    const cls = v >= 15 ? 'hot' : (v <= 2 ? 'cold' : 'neutral');
+                    const cls = v >= 20 ? 'hot' : (v <= 3 ? 'cold' : 'neutral');
                     return `<td class="${cls}">${v}</td>`;
                 }).join('') + '</tr>';
                 this.dom.sumMissedBody.innerHTML = sumHTML;
@@ -3758,12 +3759,10 @@
                     `<td style="font-weight:700;color:var(--text-secondary);">${c}</td>`).join('') + '</tr>';
                 comboHTML += '<tr>' + combos.map(c => {
                     const v = this.missedStats.combos[c] || 0;
-                    const cls = v >= 8 ? 'hot' : (v <= 2 ? 'cold' : 'neutral');
+                    const cls = v >= 10 ? 'hot' : (v <= 2 ? 'cold' : 'neutral');
                     return `<td class="${cls}">${v}</td>`;
                 }).join('') + '</tr>';
                 this.dom.comboMissedBody.innerHTML = comboHTML;
-
-                document.getElementById('missed-stats').style.display = 'block';
             }
 
             renderPrediction() {
@@ -3784,6 +3783,7 @@
                 this.dom.algorithmTag.textContent = name;
                 this.dom.tableAlgoTag.textContent = name;
 
+                // ----- 共识投票 -----
                 const allPreds = Algorithms.getAllPredictions(history3, prev.combo, prev.sum, current.nums, fullPrev);
                 const consensus = Algorithms.getConsensus(allPreds);
                 if (consensus.totalVotes > 0) {
@@ -3812,7 +3812,6 @@
                     return;
                 }
 
-                const algo = this.currentAlgorithm;
                 let winCount = 0,
                     totalCount = 0;
                 const maxShow = Math.min(CONFIG.MAX_HISTORY, this.apiData.length - 3);
@@ -3821,19 +3820,12 @@
                 const rows = [];
 
                 for (let i = startI; i < this.apiData.length - 3; i++) {
+                    const history3 = this.apiData.slice(i, i + 3);
+                    const prev = this.apiData[i + 2];
                     const current = this.apiData[i + 3];
-                    const period = current.period;
-                    const cacheKey = `${period}_${algo}`;
-                    let pred = this.historyPredsCache[cacheKey];
-                    if (!pred) {
-                        const history3 = this.apiData.slice(i, i + 3);
-                        const prev = this.apiData[i + 2];
-                        const fullPrev = this.apiData.slice(0, i + 3);
-                        pred = Algorithms.predict(algo, history3, prev.combo, prev.sum, current.nums,
-                            fullPrev, this.fusionWeights);
-                        this.historyPredsCache[cacheKey] = pred;
-                        this.saveHistoryPredsCache();
-                    }
+                    const fullPrev = this.apiData.slice(0, i + 3);
+                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums,
+                        fullPrev, this.fusionWeights);
                     if (pred.killGroup === '--') continue;
                     const hit = Utils.isKillHit(pred.killGroup, current.combo);
                     totalCount++;
@@ -3859,7 +3851,6 @@
                     <span class="rate">${winRate}%</span>
                     <span>${winCount} / ${totalCount}</span>
                 `;
-                this.dom.tableAlgoTag.textContent = CONFIG.ALGORITHM_NAMES[algo] || algo;
             }
 
             renderMonitor() {
@@ -3934,7 +3925,7 @@
                 this.dom.algoGrid.innerHTML = html;
             }
 
-            // ========== 倒计时 ==========
+            // ==================== 倒计时 ====================
             setupCountdown() {
                 if (this.countdownRAF) cancelAnimationFrame(this.countdownRAF);
                 const latest = this.apiData[this.apiData.length - 1];
@@ -3985,7 +3976,7 @@
                 this.countdownRAF = requestAnimationFrame(update);
             }
 
-            // ========== 保存/加载投注 ==========
+            // ==================== 保存/加载投注 ====================
             saveBets() {
                 try {
                     localStorage.setItem(CONFIG.STORAGE_KEYS.BETS, JSON.stringify({
@@ -4014,7 +4005,7 @@
                 }
             }
 
-            // ========== 语音 ==========
+            // ==================== 语音 ====================
             toggleVoice() {
                 this.voice.enabled = !this.voice.enabled;
                 const btn = this.dom.voiceToggle;
@@ -4059,7 +4050,7 @@
                 }
             }
 
-            // ========== 通知 ==========
+            // ==================== 通知 ====================
             toggleNotification() {
                 if (this.notifyEnabled) {
                     this.notifyEnabled = false;
@@ -4086,7 +4077,7 @@
                 this.dom.notifyBtn.classList.toggle('active', this.notifyEnabled);
             }
 
-            // ========== 导出 ==========
+            // ==================== 导出 ====================
             exportCSV() {
                 if (!this.apiData.length) return;
                 const rows = [
@@ -4115,15 +4106,14 @@
                 this.showToast('CSV导出成功', 'success');
             }
 
-            // ========== UI 状态 ==========
+            // ==================== UI 状态 ====================
             setStatus(status, msg = '') {
                 const el = this.dom.statusIndicator;
                 const apiEl = this.dom.apiStatus;
                 if (status === 'loading') {
                     el.className = 'meta-chip loading';
                     el.textContent = '加载中...';
-                    apiEl.innerHTML =
-                        '<span class="status-dot" style="background:var(--warning);"></span><span>加载中...</span>';
+                    apiEl.innerHTML = '<span class="status-dot" style="background:var(--warning);"></span><span>加载中...</span>';
                     apiEl.className = 'status-badge';
                 } else if (status === 'ready') {
                     el.className = 'meta-chip ready';
@@ -4154,7 +4144,7 @@
                 }, 5000);
             }
 
-            // ========== 持久化偏好 ==========
+            // ==================== 持久化 ====================
             savePreferences() {
                 try {
                     const prefs = {
@@ -4220,7 +4210,7 @@
                 } catch (_) {}
             }
 
-            // ========== 音乐控制 ==========
+            // ==================== 音乐控制（Web Audio API + 本地歌曲，多风格） ====================
             _buildMusicPanel() {
                 const list = this.dom.musicStyleList;
                 if (!list) return;
@@ -4228,8 +4218,7 @@
                 MUSIC_STYLES.forEach(s => {
                     const el = document.createElement('div');
                     el.className = 'music-style-item' + (s.id === this.musicStyle ? ' active' : '');
-                    el.innerHTML =
-                        `<span class="ms-icon">${s.icon}</span><span class="ms-name">${s.name}</span><span class="ms-check">✓</span>`;
+                    el.innerHTML = `<span class="ms-icon">${s.icon}</span><span class="ms-name">${s.name}</span><span class="ms-check">✓</span>`;
                     el.addEventListener('click', (e) => {
                         e.stopPropagation();
                         this.selectMusicStyle(s.id);
@@ -4244,15 +4233,15 @@
             }
             switchMusicMode(mode) {
                 if (this.musicMode === mode) return;
+                // 停止当前播放
                 this._stopAllMusic();
                 this.musicMode = mode;
+                // 更新UI标签
                 document.querySelectorAll('.music-mode-tab').forEach(tab => {
                     tab.classList.toggle('active', tab.dataset.mode === mode);
                 });
-                if (this.dom.musicModeMelody) this.dom.musicModeMelody.style.display = mode === 'melody' ? 'block' :
-                    'none';
-                if (this.dom.musicModeSong) this.dom.musicModeSong.style.display = mode === 'song' ? 'block' :
-                'none';
+                if (this.dom.musicModeMelody) this.dom.musicModeMelody.style.display = mode === 'melody' ? 'block' : 'none';
+                if (this.dom.musicModeSong) this.dom.musicModeSong.style.display = mode === 'song' ? 'block' : 'none';
                 this.savePreferences();
                 this.showToast(mode === 'melody' ? '已切换至纯旋律模式' : '已切换至本地歌曲模式', 'info');
             }
@@ -4369,7 +4358,7 @@
                 clearTimeout(this._volSaveTimer);
                 this._volSaveTimer = setTimeout(() => this.savePreferences(), 300);
             }
-
+            // ---- 本地歌曲上传 ----
             onSongAudioUpload(input) {
                 const file = input.files?.[0];
                 if (!file) return;
@@ -4377,6 +4366,7 @@
                 this.songPlayer.loadAudio(file);
                 if (this.dom.songAudioName) this.dom.songAudioName.textContent = file.name;
                 this.showToast(`📁 已加载音频：${file.name}`, 'success');
+                // 如果已有歌词，自动解析
                 if (this._songLrcText) {
                     this._parseLyricsText(this._songLrcText);
                 }
@@ -4407,6 +4397,7 @@
                     this.songPlayer.parsePlain(text);
                 }
             }
+            // ---- 歌词显示 ----
             showLyricsBar() {
                 if (this.dom.lyricsBar) this.dom.lyricsBar.style.display = 'flex';
             }
@@ -4437,19 +4428,17 @@
                             document.querySelectorAll('.music-mode-tab').forEach(tab => {
                                 tab.classList.toggle('active', tab.dataset.mode === prefs.musicMode);
                             });
-                            if (this.dom.musicModeMelody) this.dom.musicModeMelody.style.display = prefs
-                                .musicMode === 'melody' ? 'block' : 'none';
-                            if (this.dom.musicModeSong) this.dom.musicModeSong.style.display = prefs.musicMode ===
-                                'song' ? 'block' : 'none';
+                            if (this.dom.musicModeMelody) this.dom.musicModeMelody.style.display = prefs.musicMode === 'melody' ? 'block' : 'none';
+                            if (this.dom.musicModeSong) this.dom.musicModeSong.style.display = prefs.musicMode === 'song' ? 'block' : 'none';
                         }
                         if (prefs.musicEnabled) {
                             setTimeout(() => {
                                 const vol = parseFloat(prefs.musicVolume || 0.30);
                                 if (this.musicMode === 'melody') {
                                     const ok = this.ambientMusic.play(vol);
-                                    if (ok) { this.musicEnabled = true;
-                                        this.updateMusicUI(); }
+                                    if (ok) { this.musicEnabled = true; this.updateMusicUI(); }
                                 }
+                                // song模式不自动播放，需要用户重新选择文件
                             }, 1000);
                         } else {
                             this.musicEnabled = false;
@@ -4462,7 +4451,7 @@
                 }
             }
 
-            // ========== 自动播报 ==========
+            // ==================== 自动播报 ====================
             toggleAutoAnnounce() {
                 this.autoAnnounce = !this.autoAnnounce;
                 this.updateAutoAnnounceUI();
@@ -4478,7 +4467,7 @@
                 }
             }
 
-            // ========== 统计功能 ==========
+            // ==================== 统计功能 ====================
             toggleFrequencyStats() {
                 const display = this.dom.frequencyStatsDisplay;
                 if (display.style.display === 'block') {
@@ -4491,14 +4480,8 @@
                 }
                 const sumCounts = new Array(28).fill(0);
                 const comboCounts = {
-                    '大': 0,
-                    '小': 0,
-                    '单': 0,
-                    '双': 0,
-                    '大单': 0,
-                    '大双': 0,
-                    '小单': 0,
-                    '小双': 0
+                    '大': 0, '小': 0, '单': 0, '双': 0,
+                    '大单': 0, '大双': 0, '小单': 0, '小双': 0
                 };
                 this.apiData.forEach(item => {
                     sumCounts[item.sum] = (sumCounts[item.sum] || 0) + 1;
@@ -4583,7 +4566,7 @@
                 display.style.display = 'block';
             }
 
-            // ========== 交互 ==========
+            // ==================== 交互 ====================
             changeAlgorithm() {
                 this.currentAlgorithm = this.dom.algorithmSelect.value;
                 this.render();
@@ -4625,6 +4608,7 @@
                             break;
                     }
                 });
+                // 点击空白处关闭音乐面板
                 document.addEventListener('click', (e) => {
                     const panel = this.dom.musicPanel;
                     const btn = this.dom.musicToggle;
