@@ -1951,6 +1951,33 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        /* [BACKFILL] 回溯参考标签 */
+        .backfill-badge {
+            display: inline-block;
+            font-size: 9px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(156, 163, 175, 0.15);
+            border: 1px solid rgba(156, 163, 175, 0.2);
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        .history-table .backfill-row td {
+            opacity: 0.7;
+        }
+        .history-table .backfill-row .badge-result {
+            background: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        .history-table .backfill-row .badge-result::after {
+            content: ' 回溯';
+            font-size: 8px;
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body>
@@ -2336,7 +2363,7 @@
     <!-- ===== 背景音乐由 Web Audio API 程序化生成，无需网络 ===== -->
 
     <!-- ============================================================
-    JAVASCRIPT — 完整应用 + 共识投票 + 特色算法 + 回测模拟
+    JAVASCRIPT — 完整应用 + 共识投票 + 特色算法 + 回测模拟 + 自动补录
     ============================================================ -->
     <script>
         /**
@@ -2344,8 +2371,9 @@
          * 算法：天机策、玄机策、逆形态、趋势捕手、冷热探针、银河锚点、威震天机、五行之合
          *      京派、枫派、通派、奇杀、异杀、势杀（共14种）
          *
-         * [BACKTEST] 新增独立回测模拟功能：使用当前算法对历史期次进行回溯预测，
-         *           结果展示在独立区域，不写入主历史记录，不保存到 localStorage。
+         * [BACKFILL] 新增自动补录功能：每次数据更新（约3分钟）时，自动检查最近30期中缺失预测的期次，
+         *             使用当前算法基于当时之前的数据生成预测并保存，标记为“回溯参考”，
+         *             补录数据只填充历史表格，不影响正式胜率统计。
          */
         const isTelegram = !!(window.Telegram && window.Telegram.WebApp);
         let tgInstance = null;
@@ -2402,7 +2430,8 @@
             CACHE_TTL: 10 * 60 * 1000,
             BET_AMOUNT: 100,
             BET_WIN: 190,
-            BACKTEST_DEFAULT_COUNT: 30
+            BACKTEST_DEFAULT_COUNT: 30,
+            BACKFILL_LIMIT: 30 // 补录最近30期
         };
 
         // ==================== 工具 ====================
@@ -3432,7 +3461,6 @@
                     consensusComboVote: this.$('consensus-combo-vote'),
                     consensusKill: this.$('consensus-kill'),
                     consensusKillVote: this.$('consensus-kill-vote'),
-                    // [BACKTEST] 新增
                     backtestBtn: this.$('backtest-btn'),
                     backtestTbody: this.$('backtest-tbody'),
                     backtestTableWrap: this.$('backtest-table-wrap'),
@@ -3586,14 +3614,17 @@
                 this.loadCache();
                 this.bindKeyboard();
                 this.restoreMusicState();
-                if (this.apiData.length > 0) this.render();
+                if (this.apiData.length > 0) {
+                    this.render();
+                    // 首次加载时自动补录
+                    this.autoBackfill();
+                }
                 this.fetchData();
                 this.fetchTimer = setInterval(() => this.fetchData(), CONFIG.FETCH_INTERVAL);
                 if (window.speechSynthesis) {
                     window.speechSynthesis.onvoiceschanged = () => { this.voice.getChineseVoice(); };
                 }
                 if (this.isTelegram && tgInstance) tgInstance.ready();
-                // [BACKTEST] 更新算法标签
                 this.updateBacktestAlgLabel();
             }
 
@@ -3656,7 +3687,8 @@
                         predictCombos: prediction.predictCombos || ['--', '--'],
                         algorithm: prediction.algorithm || this.currentAlgorithm,
                         algorithmName: CONFIG.ALGORITHM_NAMES[prediction.algorithm || this.currentAlgorithm] || '未知',
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
+                        isBacktest: prediction.isBacktest || false // [BACKFILL] 标记是否补录
                     };
                     localStorage.setItem(key, JSON.stringify(data));
                 } catch (_) {}
@@ -3712,6 +3744,59 @@
                     }
                 } catch (_) {}
                 return results;
+            }
+
+            // ==================== [BACKFILL] 自动补录 ====================
+            autoBackfill() {
+                if (!this.apiData || this.apiData.length < 4) return;
+                const limit = CONFIG.BACKFILL_LIMIT;
+                // 获取最近limit期（从最新往旧）
+                const recentPeriods = this.apiData.slice(-limit).map(d => d.period);
+                let filledCount = 0;
+                for (const period of recentPeriods) {
+                    // 检查是否已有预测记录
+                    const existing = this.getPredictionForPeriod(period);
+                    if (existing) continue; // 已有记录，跳过
+
+                    // 找到该期在apiData中的索引
+                    const idx = this.apiData.findIndex(d => d.period === period);
+                    if (idx < 3) continue; // 不足3期历史数据，无法预测
+
+                    // 构建该期之前的数据
+                    const current = this.apiData[idx];
+                    const prev = this.apiData[idx - 1];
+                    const history3 = this.apiData.slice(idx - 3, idx); // 前3期
+                    const fullPrev = this.apiData.slice(0, idx); // 该期之前所有数据
+
+                    // 使用当前算法进行预测
+                    const pred = Algorithms.predict(
+                        this.currentAlgorithm,
+                        history3,
+                        prev.combo,
+                        prev.sum,
+                        current.nums,
+                        fullPrev,
+                        this.fusionWeights
+                    );
+
+                    if (pred.killGroup === '--') continue;
+
+                    // 保存为补录记录
+                    this.savePrediction(period, {
+                        killGroup: pred.killGroup,
+                        predictCombos: pred.predictCombos,
+                        algorithm: this.currentAlgorithm,
+                        isBacktest: true // 标记为补录
+                    });
+                    filledCount++;
+                }
+                if (filledCount > 0) {
+                    console.log(`[BACKFILL] 补录了 ${filledCount} 期历史预测`);
+                    // 重新渲染历史表格
+                    this.renderHistory();
+                    // 显示提示（但不打扰用户）
+                    this.showToast(`自动补录 ${filledCount} 期历史预测（回溯参考）`, 'info');
+                }
             }
 
             // ==================== 数据获取 ====================
@@ -3788,8 +3873,9 @@
                     if (this.isTelegram && tgInstance) {
                         try { tgInstance.HapticFeedback?.impactOccurred('light'); } catch (_) {}
                     }
-                    // [BACKTEST] 更新算法标签
                     this.updateBacktestAlgLabel();
+                    // [BACKFILL] 每次数据更新后自动补录
+                    this.autoBackfill();
                 } else {
                     this.setStatus('error', lastError?.message || '所有数据源不可用');
                     this.showToast(`数据加载失败: ${lastError?.message}`, 'error');
@@ -4112,7 +4198,8 @@
                     this.savePrediction(nextPeriod, {
                         killGroup: pred.killGroup,
                         predictCombos: pred.predictCombos,
-                        algorithm: this.currentAlgorithm
+                        algorithm: this.currentAlgorithm,
+                        isBacktest: false // 实时预测，非补录
                     });
                     const algName = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
                     this.dom.algorithmTag.textContent = algName;
@@ -4142,10 +4229,10 @@
                     const winRate = this.getCurrentWinRate();
                     tgInstance.MainButton.setText(`📤 分享预测 (胜率${winRate}%)`);
                 }
-                // [BACKTEST] 更新算法标签
                 this.updateBacktestAlgLabel();
             }
 
+            // ==================== [MODIFIED] 历史渲染，支持补录标记 ====================
             renderHistory() {
                 const tbody = this.dom.predictionTbody;
                 tbody.innerHTML = '';
@@ -4170,11 +4257,14 @@
                     let killGroup = '--';
                     let combos = ['--', '--'];
                     let hit = false;
+                    let isBacktest = false;
 
                     if (saved) {
                         killGroup = saved.killGroup || '--';
                         combos = saved.predictCombos || ['--', '--'];
-                        if (killGroup !== '--') {
+                        isBacktest = saved.isBacktest || false;
+                        if (killGroup !== '--' && !isBacktest) {
+                            // 只有非补录的预测才计入胜率统计
                             hit = Utils.isKillHit(killGroup, current.combo);
                             totalCount++;
                             if (hit) winCount++;
@@ -4182,9 +4272,18 @@
                     }
 
                     const tr = document.createElement('tr');
-                    const resultHtml = saved ?
-                        `<span class="badge-result ${hit ? 'hit' : 'miss'}">${hit ? '✓ 命中' : '✗ 未命中'}</span>` :
-                        '<span style="color:var(--text-muted);font-size:11px;">未预测</span>';
+                    let resultHtml = '';
+                    if (saved) {
+                        if (isBacktest) {
+                            resultHtml = `<span class="badge-result" style="background:transparent;border:1px solid var(--text-muted);color:var(--text-muted);font-weight:400;">🔍 回溯参考</span>`;
+                            tr.classList.add('backfill-row');
+                        } else {
+                            resultHtml =
+                                `<span class="badge-result ${hit ? 'hit' : 'miss'}">${hit ? '✓ 命中' : '✗ 未命中'}</span>`;
+                        }
+                    } else {
+                        resultHtml = '<span style="color:var(--text-muted);font-size:11px;">未预测</span>';
+                    }
 
                     tr.innerHTML = `
                         <td>${current.period}</td>
@@ -4439,7 +4538,7 @@
                 if (!this.apiData.length) return;
                 const savedPreds = this.getAllSavedPredictions();
                 const rows = [
-                    ['期数', '号码', '和值', '形态', '推荐1', '推荐2', '杀组', '结果']
+                    ['期数', '号码', '和值', '形态', '推荐1', '推荐2', '杀组', '结果', '类型']
                 ];
                 for (let i = 0; i < this.apiData.length - 3; i++) {
                     const current = this.apiData[i + 3];
@@ -4447,11 +4546,13 @@
                     const saved = savedPreds[String(period)] || this.getPredictionForPeriod(period);
                     let kill = '--',
                         combos = ['--', '--'],
-                        hit = false;
+                        hit = false,
+                        isBacktest = false;
                     if (saved) {
                         kill = saved.killGroup || '--';
                         combos = saved.predictCombos || ['--', '--'];
-                        if (kill !== '--') hit = Utils.isKillHit(kill, current.combo);
+                        isBacktest = saved.isBacktest || false;
+                        if (kill !== '--' && !isBacktest) hit = Utils.isKillHit(kill, current.combo);
                     }
                     rows.push([
                         current.period,
@@ -4461,7 +4562,8 @@
                         combos[0],
                         combos[1],
                         kill,
-                        saved ? (hit ? '命中' : '未命中') : '未预测'
+                        saved ? (isBacktest ? '回溯参考' : (hit ? '命中' : '未命中')) : '未预测',
+                        isBacktest ? '补录' : '实时'
                     ]);
                 }
                 Utils.downloadCSV(`清浔历史_${new Date().toISOString().slice(0, 10)}.csv`, rows);
@@ -4932,7 +5034,7 @@
                 display.style.display = 'block';
             }
 
-            // ==================== [BACKTEST] 回测模拟核心方法 ====================
+            // ==================== [BACKTEST] 回测模拟 ====================
             updateBacktestAlgLabel() {
                 if (this.dom.backtestAlgLabel) {
                     const name = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm] || '天机策';
@@ -4951,12 +5053,9 @@
                     return;
                 }
 
-                // 显示加载状态
-                const originalText = btn.textContent;
                 btn.textContent = '⏳ 计算中...';
                 btn.disabled = true;
 
-                // 使用 setTimeout 让 UI 有机会更新
                 setTimeout(() => {
                     try {
                         const count = CONFIG.BACKTEST_DEFAULT_COUNT;
@@ -4998,13 +5097,9 @@
                             });
                         }
 
-                        // 渲染结果
                         this._renderBacktestResults(results, winCount, totalCount);
-
-                        // 显示表格
                         wrap.classList.add('show');
                         summaryArea.style.display = 'block';
-
                         this.showToast(`回测完成：${totalCount}期，命中${winCount}期，胜率${totalCount > 0 ? ((winCount/totalCount)*100).toFixed(1) : 0}%`, 'info');
 
                     } catch (err) {
@@ -5030,7 +5125,6 @@
                     return;
                 }
 
-                // 构建表格行（从旧到新显示）
                 let html = '';
                 for (let i = results.length - 1; i >= 0; i--) {
                     const r = results[i];
@@ -5048,7 +5142,6 @@
                 }
                 tbody.innerHTML = html;
 
-                // 汇总信息
                 const rate = totalCount > 0 ? ((winCount / totalCount) * 100).toFixed(1) : 0;
                 const algName = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm] || '天机策';
                 summaryArea.innerHTML = `
@@ -5070,9 +5163,7 @@
                 this.savePreferences();
                 const algName = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
                 this.showToast(`已切换至 ${algName}`, 'info');
-                // [BACKTEST] 更新标签
                 this.updateBacktestAlgLabel();
-                // 如果回测表格已打开，重新运行回测（自动刷新）
                 if (this.dom.backtestTableWrap && this.dom.backtestTableWrap.classList.contains('show')) {
                     this.runBacktest();
                 }
@@ -5145,7 +5236,7 @@
         }
 
         console.log('[清浔] 应用已启动, Telegram模式:', isTelegram);
-        console.log('[清浔] 回测模拟功能已加载，点击"回测模拟"按钮即可使用');
+        console.log('[清浔] 自动补录功能已启用，每3分钟检查并补录缺失预测');
     </script>
 
     <!-- ===== 歌词浮动显示条 ===== -->
