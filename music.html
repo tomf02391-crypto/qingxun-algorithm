@@ -1,90 +1,127 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎵 音乐搜索 - 静态版</title>
-    <style>
-        /* 你可以沿用自己站点的样式 */
-        body { font-family: sans-serif; background: #0f0f0f; color: #fff; padding: 20px; }
-        input { padding: 10px; border-radius: 8px; border: none; width: 60%; }
-        button { padding: 10px 20px; border: none; border-radius: 8px; background: #1db954; cursor: pointer; }
-        .card { display: flex; align-items: center; gap: 12px; background: #1a1a1a; margin: 8px 0; padding: 10px; border-radius: 8px; }
-        .card img { width: 48px; height: 48px; border-radius: 4px; }
-        .card .info { flex: 1; }
-        .card button { background: #1db954; border: none; padding: 6px 14px; border-radius: 20px; cursor: pointer; }
-        audio { width: 100%; margin-top: 20px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>🎵 音乐搜索</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#0f0f0f;color:#fff;margin:0;padding:20px}
+  h2{margin:0 0 16px;font-size:20px}
+  .bar{display:flex;gap:8px;margin-bottom:16px}
+  input{flex:1;padding:10px 14px;border-radius:8px;border:none;font-size:15px;outline:none}
+  button{padding:10px 18px;border:none;border-radius:8px;background:#1db954;color:#000;font-weight:700;cursor:pointer;font-size:14px}
+  .card{display:flex;align-items:center;gap:12px;background:#181818;padding:10px 12px;border-radius:10px;margin:6px 0}
+  .card img{width:48px;height:48px;border-radius:6px;object-fit:cover;background:#333}
+  .card .info{flex:1;min-width:0}
+  .card .info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .info span{font-size:12px;color:#aaa}
+  .card .play{background:#1db954;color:#000;border:none;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:13px}
+  audio{width:100%;margin-top:16px;border-radius:8px}
+  .tip{color:#888;font-size:13px;margin-top:8px}
+  .err{color:#ff6b6b;font-size:13px;margin-top:8px}
+</style>
 </head>
 <body>
-    <h2>🎵 音乐搜索（静态版）</h2>
-    <div>
-        <input id="keyword" placeholder="输入歌曲名或歌手..." onkeydown="if(event.key==='Enter') search()">
-        <button onclick="search()">🔍 搜索</button>
-    </div>
-    <div id="result"></div>
-    <audio id="player" controls></audio>
+<h2>🎵 音乐搜索</h2>
+<div class="bar">
+  <input id="kw" placeholder="输入歌名 / 歌手..." onkeydown="if(event.key==='Enter')go()">
+  <button onclick="go()">🔍 搜索</button>
+</div>
+<div id="tip" class="tip">试试搜：邓紫棋 / 周杰伦 / 起风了</div>
+<div id="err" class="err"></div>
+<div id="list"></div>
+<audio id="player" controls></audio>
 
-    <script>
-        const API_BASE = 'https://apione.apibyte.cn/kwmusic';  // 酷我音乐中转API
+<script>
+// ===== 配置：优先用网易云镜像，挂了自动切 iTunes 兜底 =====
+const API_NETEASE = 'https://netease-cloud-music-api-ten-zeta.vercel.app';
+const API_ITUNES   = 'https://itunes.apple.com/search';
 
-        async function search() {
-            const kw = document.getElementById('keyword').value.trim();
-            if (!kw) return;
-            document.getElementById('result').innerHTML = '搜索中...';
+const player = document.getElementById('player');
+const list = document.getElementById('list');
+const tip = document.getElementById('tip');
+const errBox = document.getElementById('err');
 
-            try {
-                // 1. 搜索歌曲
-                const searchUrl = `${API_BASE}?action=search&keyword=${encodeURIComponent(kw)}&type=music`;
-                const resp = await fetch(searchUrl);
-                const data = await resp.json();
+async function go() {
+  const q = document.getElementById('kw').value.trim();
+  if (!q) return;
+  list.innerHTML = ''; errBox.textContent = ''; tip.textContent = '搜索中...';
 
-                // 处理返回格式（apibyte 返回的 data.list 是数组）
-                let songs = [];
-                if (data.code === 200 && data.data && data.data.list) {
-                    songs = data.data.list;
-                } else if (Array.isArray(data)) {
-                    songs = data;
-                } else {
-                    document.getElementById('result').innerHTML = '没有找到结果';
-                    return;
-                }
+  // 先试网易云
+  const ok = await searchNetease(q);
+  if (!ok) {
+    tip.textContent = '网易云接口不可用，正在用 iTunes 兜底...';
+    await searchItunes(q);
+  }
+}
 
-                // 2. 渲染卡片
-                const container = document.getElementById('result');
-                container.innerHTML = '';
-                songs.slice(0, 15).forEach(song => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <img src="${song.cover || song.pic || 'https://via.placeholder.com/48'}" alt="封面">
-                        <div class="info">
-                            <strong>${song.name || song.title}</strong>
-                            <span style="color:#aaa; font-size:13px;">${song.artist || song.singer || ''}</span>
-                        </div>
-                        <button onclick="playSong('${song.rid || song.id}')">▶ 播放</button>
-                    `;
-                    container.appendChild(card);
-                });
-            } catch (err) {
-                document.getElementById('result').innerHTML = '请求失败，请稍后重试';
-                console.error(err);
-            }
-        }
+// ---------- 方案1：网易云 ----------
+async function searchNetease(q) {
+  try {
+    const url = `${API_NETEASE}/search?keywords=${encodeURIComponent(q)}&limit=10`;
+    const res = await fetch(url);
+    const j = await res.json();
+    const songs = (j && j.result && j.result.songs) || [];
+    if (!songs.length) { tip.textContent = '没有找到结果'; return true; }
 
-        async function playSong(musicId) {
-            // 获取播放地址
-            const url = `${API_BASE}?action=music_url&music_id=${musicId}&quality=p`;
-            const resp = await fetch(url);
-            const data = await resp.json();
-            if (data.code === 200 && data.data && data.data.url) {
-                const player = document.getElementById('player');
-                player.src = data.data.url;
-                player.play();
-            } else {
-                alert('无法获取播放地址');
-            }
-        }
-    </script>
+    songs.forEach(s => {
+      const artists = (s.artists || []).map(a => a.name).join(' / ');
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${(s.album && s.album.picUrl) || 'https://via.placeholder.com/48'}" alt="">
+        <div class="info"><b>${s.name}</b><span>${artists}</span></div>
+        <button class="play" onclick="playNetease('${s.id}','${s.name.replace(/'/g,"")}','${artists}')">▶</button>`;
+      list.appendChild(card);
+    });
+    tip.textContent = `网易云 · 找到 ${songs.length} 首`;
+    return true;
+  } catch(e) {
+    console.warn('网易云失败', e);
+    return false;
+  }
+}
+
+// 拿网易云播放直链
+async function playNetease(id, name, artist) {
+  try {
+    const res = await fetch(`${API_NETEASE}/song/url?id=${id}`);
+    const j = await res.json();
+    const url = j && j.data && j.data[0] && j.data[0].url;
+    if (!url) { errBox.textContent = '该歌曲暂无可用音频'; return; }
+    player.src = url; player.play();
+  } catch(e) { errBox.textContent = '播放失败：' + e.message; }
+}
+
+// ---------- 兜底方案2：iTunes（100% 可用，零Key）----------
+async function searchItunes(q) {
+  try {
+    const url = `${API_ITUNES}?term=${encodeURIComponent(q)}&media=music&limit=10&country=cn`;
+    const res = await fetch(url);
+    const j = await res.json();
+    const songs = j.results || [];
+    if (!songs.length) { tip.textContent = '没有找到结果'; return; }
+
+    songs.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${s.artworkUrl100 || 'https://via.placeholder.com/48'}" alt="">
+        <div class="info"><b>${s.trackName}</b><span>${s.artistName}</span></div>
+        <button class="play" onclick="playItunes('${s.previewUrl}')">▶</button>`;
+      list.appendChild(card);
+    });
+    tip.textContent = `iTunes · 找到 ${songs.length} 首（预览30秒）`;
+  } catch(e) {
+    tip.textContent = '';
+    errBox.textContent = '搜索失败：' + e.message;
+  }
+}
+
+function playItunes(url) {
+  if (!url) { errBox.textContent = '该歌曲无预览'; return; }
+  player.src = url; player.play();
+}
+</script>
 </body>
 </html>
