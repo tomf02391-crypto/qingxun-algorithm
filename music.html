@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 音乐搜索 - 静态版</title>
+    <style>
+        /* 你可以沿用自己站点的样式 */
+        body { font-family: sans-serif; background: #0f0f0f; color: #fff; padding: 20px; }
+        input { padding: 10px; border-radius: 8px; border: none; width: 60%; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; background: #1db954; cursor: pointer; }
+        .card { display: flex; align-items: center; gap: 12px; background: #1a1a1a; margin: 8px 0; padding: 10px; border-radius: 8px; }
+        .card img { width: 48px; height: 48px; border-radius: 4px; }
+        .card .info { flex: 1; }
+        .card button { background: #1db954; border: none; padding: 6px 14px; border-radius: 20px; cursor: pointer; }
+        audio { width: 100%; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>🎵 音乐搜索（静态版）</h2>
+    <div>
+        <input id="keyword" placeholder="输入歌曲名或歌手..." onkeydown="if(event.key==='Enter') search()">
+        <button onclick="search()">🔍 搜索</button>
+    </div>
+    <div id="result"></div>
+    <audio id="player" controls></audio>
+
+    <script>
+        const API_BASE = 'https://apione.apibyte.cn/kwmusic';  // 酷我音乐中转API
+
+        async function search() {
+            const kw = document.getElementById('keyword').value.trim();
+            if (!kw) return;
+            document.getElementById('result').innerHTML = '搜索中...';
+
+            try {
+                // 1. 搜索歌曲
+                const searchUrl = `${API_BASE}?action=search&keyword=${encodeURIComponent(kw)}&type=music`;
+                const resp = await fetch(searchUrl);
+                const data = await resp.json();
+
+                // 处理返回格式（apibyte 返回的 data.list 是数组）
+                let songs = [];
+                if (data.code === 200 && data.data && data.data.list) {
+                    songs = data.data.list;
+                } else if (Array.isArray(data)) {
+                    songs = data;
+                } else {
+                    document.getElementById('result').innerHTML = '没有找到结果';
+                    return;
+                }
+
+                // 2. 渲染卡片
+                const container = document.getElementById('result');
+                container.innerHTML = '';
+                songs.slice(0, 15).forEach(song => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <img src="${song.cover || song.pic || 'https://via.placeholder.com/48'}" alt="封面">
+                        <div class="info">
+                            <strong>${song.name || song.title}</strong>
+                            <span style="color:#aaa; font-size:13px;">${song.artist || song.singer || ''}</span>
+                        </div>
+                        <button onclick="playSong('${song.rid || song.id}')">▶ 播放</button>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                document.getElementById('result').innerHTML = '请求失败，请稍后重试';
+                console.error(err);
+            }
+        }
+
+        async function playSong(musicId) {
+            // 获取播放地址
+            const url = `${API_BASE}?action=music_url&music_id=${musicId}&quality=p`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+            if (data.code === 200 && data.data && data.data.url) {
+                const player = document.getElementById('player');
+                player.src = data.data.url;
+                player.play();
+            } else {
+                alert('无法获取播放地址');
+            }
+        }
+    </script>
+</body>
+</html>
