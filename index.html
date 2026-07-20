@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>清浔 · 杀组预测 Pro（含特码预测）</title>
+    <title>清浔 · 杀组预测 Pro（增强版特码）</title>
     <link rel="manifest" href="data:application/json,{%22name%22:%22清浔杀组预测%22,%22short_name%22:%22清浔%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230b0f1a%22,%22theme_color%22:%22%237c3aed%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%237c3aed'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-size='280' font-family='sans-serif' fill='white'%3E🔮%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22}]}" />
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%237c3aed'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-size='280' font-family='sans-serif' fill='white'%3E🔮%3C/text%3E%3C/svg%3E" />
     <meta name="theme-color" content="#7c3aed" />
@@ -12,6 +12,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
     <style>
+        /* ===== CSS 样式（完整） ===== */
         :root {
             --bg-primary: #0e0e18;
             --bg-secondary: #16162a;
@@ -503,7 +504,6 @@
         .lyrics-close { width:28px; height:28px; border-radius:50%; border:1px solid var(--border); background:var(--bg-glass); color:var(--text-muted); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:var(--transition); }
         .lyrics-close:hover { background:var(--danger); color:#fff; border-color:var(--danger); }
 
-        /* 特码预测卡片 */
         .sum-pred-card .sum-value { font-size:32px; font-weight:900; color:var(--warning); text-shadow:0 0 30px var(--warning-glow); }
         .sum-pred-card .sum-conf { font-size:14px; color:var(--text-secondary); }
         .sum-pred-card .sum-alts { font-size:13px; color:var(--text-muted); }
@@ -515,46 +515,23 @@
     <div class="bg-glow"></div>
     <div class="toast-container" id="toast-container"></div>
     <div class="container" id="app-container">
-        <!-- Navbar -->
         <nav class="navbar fade-in">
-            <div class="navbar-brand">
-                <div class="navbar-icon">🔮</div>
-                <div>
-                    <div class="navbar-title">清浔 · 杀组</div>
-                    <span class="navbar-sub">多源融合 · 实时预测</span>
-                </div>
-            </div>
+            <div class="navbar-brand"><div class="navbar-icon">🔮</div><div><div class="navbar-title">清浔 · 杀组</div><span class="navbar-sub">多源融合 · 实时预测</span></div></div>
             <div class="navbar-actions">
-                <div class="status-badge" id="api-status" onclick="app.fetchData()" title="点击刷新">
-                    <span class="status-dot"></span>
-                    <span>在线</span>
-                </div>
-                <button class="icon-btn" id="theme-toggle" onclick="app.toggleTheme()" title="切换主题 (T)">
-                    <span id="theme-icon">🌙</span>
-                </button>
-                <button class="icon-btn" id="newui-toggle" onclick="app.toggleNewUI()" title="新UI视图">
-                    <span>✨</span>
-                </button>
+                <div class="status-badge" id="api-status" onclick="app.fetchData()" title="点击刷新"><span class="status-dot"></span><span>在线</span></div>
+                <button class="icon-btn" id="theme-toggle" onclick="app.toggleTheme()" title="切换主题 (T)"><span id="theme-icon">🌙</span></button>
+                <button class="icon-btn" id="newui-toggle" onclick="app.toggleNewUI()" title="新UI视图"><span>✨</span></button>
                 <button class="tg-close-btn" id="tg-close-btn" onclick="app.closeTelegram()" title="关闭">✕</button>
             </div>
         </nav>
-        <div id="tg-env-badge" style="display:none;text-align:center;font-size:11px;color:var(--text-muted);margin:-8px 0 12px;padding:4px 14px;background:var(--accent-weak);border-radius:999px;border:1px solid var(--border);">
-            📱 Telegram 小程序模式
-        </div>
+        <div id="tg-env-badge" style="display:none;text-align:center;font-size:11px;color:var(--text-muted);margin:-8px 0 12px;padding:4px 14px;background:var(--accent-weak);border-radius:999px;border:1px solid var(--border);">📱 Telegram 小程序模式</div>
 
-        <!-- Hero -->
         <div class="card fade-in delay-1" id="hero-card">
-            <div class="hero-meta">
-                <span>📅 最新开奖 · 第 <strong id="cur-period">------</strong> 期</span>
-                <span class="card-badge" id="cur-combo">--</span>
-            </div>
+            <div class="hero-meta"><span>📅 最新开奖 · 第 <strong id="cur-period">------</strong> 期</span><span class="card-badge" id="cur-combo">--</span></div>
             <div class="hero-numbers" id="latest-nums-container">
-                <div class="hero-ball" style="animation:none;opacity:0.3;">?</div>
-                <span class="hero-sep">+</span>
-                <div class="hero-ball" style="animation:none;opacity:0.3;">?</div>
-                <span class="hero-sep">+</span>
-                <div class="hero-ball" style="animation:none;opacity:0.3;">?</div>
-                <span class="hero-sep">=</span>
+                <div class="hero-ball" style="animation:none;opacity:0.3;">?</div><span class="hero-sep">+</span>
+                <div class="hero-ball" style="animation:none;opacity:0.3;">?</div><span class="hero-sep">+</span>
+                <div class="hero-ball" style="animation:none;opacity:0.3;">?</div><span class="hero-sep">=</span>
                 <span class="hero-eq" id="cur-sum">--</span>
             </div>
             <div style="text-align:center;font-size:12px;color:var(--text-muted);" id="cur-time">加载中...</div>
@@ -562,89 +539,35 @@
                 <span class="countdown-label">⏱ 下一期开奖</span>
                 <span class="countdown-text" id="cd-text">--:--</span>
                 <div class="ring-wrap" id="ring-wrap">
-                    <svg class="ring-svg" viewBox="0 0 68 68">
-                        <circle class="ring-bg" cx="34" cy="34" r="30"></circle>
-                        <circle class="ring-progress" id="ring-progress" cx="34" cy="34" r="30" stroke-dasharray="188.496" stroke-dashoffset="0"></circle>
-                    </svg>
+                    <svg class="ring-svg" viewBox="0 0 68 68"><circle class="ring-bg" cx="34" cy="34" r="30"></circle><circle class="ring-progress" id="ring-progress" cx="34" cy="34" r="30" stroke-dasharray="188.496" stroke-dashoffset="0"></circle></svg>
                     <div class="ring-text" id="ring-text">--:--</div>
                 </div>
             </div>
         </div>
 
-        <!-- Prediction -->
         <div class="card fade-in delay-2" id="ai">
-            <div class="card-header">
-                <div class="card-title">🎯 本期预测</div>
-                <span class="card-badge" id="algorithm-tag">天机策</span>
-            </div>
+            <div class="card-header"><div class="card-title">🎯 本期预测</div><span class="card-badge" id="algorithm-tag">天机策</span></div>
             <div class="predict-meta" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
                 <span class="meta-chip" id="ai-nextperiod" style="padding:4px 14px;border-radius:999px;background:var(--bg-glass);border:1px solid var(--border);font-size:12px;color:var(--text-secondary);">预测期数：------</span>
                 <span class="meta-chip ready" id="status-indicator" style="padding:4px 14px;border-radius:999px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);color:var(--success);font-size:12px;">等待数据</span>
             </div>
             <div class="predict-grid">
-                <div class="predict-item recommend">
-                    <div class="predict-item-label">🎯 双组推荐</div>
-                    <div class="predict-item-value" id="predict-combos">
-                        <span id="predict-combo1">--</span> + <span id="predict-combo2">--</span>
-                    </div>
-                    <div class="predict-item-sub">高概率组合</div>
-                </div>
-                <div class="predict-item kill">
-                    <div class="predict-item-label">🚫 排除杀组</div>
-                    <div class="predict-item-value" id="kill-group">--</div>
-                    <div class="predict-item-sub">本期不会开出</div>
-                </div>
+                <div class="predict-item recommend"><div class="predict-item-label">🎯 双组推荐</div><div class="predict-item-value" id="predict-combos"><span id="predict-combo1">--</span> + <span id="predict-combo2">--</span></div><div class="predict-item-sub">高概率组合</div></div>
+                <div class="predict-item kill"><div class="predict-item-label">🚫 排除杀组</div><div class="predict-item-value" id="kill-group">--</div><div class="predict-item-sub">本期不会开出</div></div>
             </div>
-            <div class="consensus-box" id="consensus-box" style="display:none;">
-                <div class="label">🗳️ 算法共识（全算法投票）</div>
-                <div class="row" id="consensus-row">
-                    <span class="tag high">推荐：<span id="consensus-combo">--</span> <span class="vote" id="consensus-combo-vote"></span></span>
-                    <span class="tag kill">杀组：<span id="consensus-kill">--</span> <span class="vote" id="consensus-kill-vote"></span></span>
-                </div>
-            </div>
+            <div class="consensus-box" id="consensus-box" style="display:none;"><div class="label">🗳️ 算法共识（全算法投票）</div><div class="row" id="consensus-row"><span class="tag high">推荐：<span id="consensus-combo">--</span> <span class="vote" id="consensus-combo-vote"></span></span><span class="tag kill">杀组：<span id="consensus-kill">--</span> <span class="vote" id="consensus-kill-vote"></span></span></div></div>
             <div class="bet-section">
-                <div class="flex-between">
-                    <span class="bet-label">💰 模拟投注 · 每注100筹码 · 命中得190</span>
-                    <span style="font-size:11px;color:var(--text-muted);">当前: <span id="current-bet" style="font-weight:700;color:var(--warning);">无</span></span>
-                </div>
-                <div class="bet-grid" id="bet-panel">
-                    <button class="bet-btn" data-bet="大单" onclick="app.placeBet('大单')">大单</button>
-                    <button class="bet-btn" data-bet="大双" onclick="app.placeBet('大双')">大双</button>
-                    <button class="bet-btn" data-bet="小单" onclick="app.placeBet('小单')">小单</button>
-                    <button class="bet-btn" data-bet="小双" onclick="app.placeBet('小双')">小双</button>
-                </div>
-                <div class="bet-summary">
-                    <span class="stat">💰 资金: <strong class="num" id="virtual-balance">10000</strong></span>
-                    <span class="stat">📊 盈亏: <strong class="num" id="total-profit">0</strong></span>
-                    <span class="stat">🎯 命中率: <strong id="bet-hit-rate">--%</strong></span>
-                    <span class="stat" id="bet-status-msg" style="font-size:12px;color:var(--text-muted);"></span>
-                </div>
-                <div style="margin-top:10px;">
-                    <div class="flex-between">
-                        <span style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">📋 投注记录</span>
-                        <button class="btn" style="padding:2px 12px;font-size:10px;" onclick="app.clearBetHistory()">清空</button>
-                    </div>
-                    <div class="bet-history-wrap" id="bet-history-wrap">
-                        <table class="bet-history-table"><thead><tr><th>期数</th><th>投注</th><th>开奖</th><th>盈亏</th></tr></thead><tbody id="bet-history-body"></tbody></table>
-                    </div>
-                </div>
+                <div class="flex-between"><span class="bet-label">💰 模拟投注 · 每注100筹码 · 命中得190</span><span style="font-size:11px;color:var(--text-muted);">当前: <span id="current-bet" style="font-weight:700;color:var(--warning);">无</span></span></div>
+                <div class="bet-grid" id="bet-panel"><button class="bet-btn" data-bet="大单" onclick="app.placeBet('大单')">大单</button><button class="bet-btn" data-bet="大双" onclick="app.placeBet('大双')">大双</button><button class="bet-btn" data-bet="小单" onclick="app.placeBet('小单')">小单</button><button class="bet-btn" data-bet="小双" onclick="app.placeBet('小双')">小双</button></div>
+                <div class="bet-summary"><span class="stat">💰 资金: <strong class="num" id="virtual-balance">10000</strong></span><span class="stat">📊 盈亏: <strong class="num" id="total-profit">0</strong></span><span class="stat">🎯 命中率: <strong id="bet-hit-rate">--%</strong></span><span class="stat" id="bet-status-msg" style="font-size:12px;color:var(--text-muted);"></span></div>
+                <div style="margin-top:10px;"><div class="flex-between"><span style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">📋 投注记录</span><button class="btn" style="padding:2px 12px;font-size:10px;" onclick="app.clearBetHistory()">清空</button></div><div class="bet-history-wrap" id="bet-history-wrap"><table class="bet-history-table"><thead><tr><th>期数</th><th>投注</th><th>开奖</th><th>盈亏</th></tr></thead><tbody id="bet-history-body"></tbody></table></div></div>
             </div>
-            <div style="margin-top:14px;padding:12px 16px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);">
-                <div style="font-size:10px;font-weight:700;color:var(--accent-light);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px;">📌 杀组规则</div>
-                <div style="font-size:13px;color:var(--text-secondary);line-height:2;">
-                    <span>杀组 = 本期绝对不会开出的形态 · 双组推荐 = 高概率组合</span><br>
-                    <span style="font-size:12px;color:var(--text-muted);">快捷键: <span class="kbd">R</span> 刷新 <span class="kbd">T</span> 主题 <span class="kbd">V</span> 语音 <span class="kbd">Space</span> 播报</span>
-                </div>
-            </div>
+            <div style="margin-top:14px;padding:12px 16px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border);"><div style="font-size:10px;font-weight:700;color:var(--accent-light);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px;">📌 杀组规则</div><div style="font-size:13px;color:var(--text-secondary);line-height:2;"><span>杀组 = 本期绝对不会开出的形态 · 双组推荐 = 高概率组合</span><br><span style="font-size:12px;color:var(--text-muted);">快捷键: <span class="kbd">R</span> 刷新 <span class="kbd">T</span> 主题 <span class="kbd">V</span> 语音 <span class="kbd">Space</span> 播报</span></div></div>
             <button class="tg-main-btn" id="tg-main-btn" onclick="app.tgMainAction()">📤 分享预测</button>
         </div>
 
-        <!-- 特码预测 -->
         <div class="card fade-in delay-3 sum-pred-card" id="sum-predict-card">
-            <div class="card-header">
-                <div class="card-title">🔢 特码（和值）预测</div>
-                <span class="card-badge" id="sum-predict-badge">等待数据</span>
-            </div>
+            <div class="card-header"><div class="card-title">🔢 特码（和值）预测 <span style="font-size:10px;color:var(--text-muted);font-weight:400;">(12因子增强)</span></div><span class="card-badge" id="sum-predict-badge">等待数据</span></div>
             <div id="sum-predict-content" style="text-align:center;padding:10px 0;">
                 <div class="sum-value" id="sum-predicted-value">--</div>
                 <div class="sum-conf" id="sum-predicted-conf">置信度 --%</div>
@@ -654,84 +577,41 @@
             </div>
         </div>
 
-        <!-- 音乐 -->
         <div class="card fade-in delay-3" id="music-card">
-            <div class="card-header">
-                <div class="card-title">🎵 音乐控制</div>
-                <span class="card-badge" id="music-status">⏹ 已停止</span>
-            </div>
+            <div class="card-header"><div class="card-title">🎵 音乐控制</div><span class="card-badge" id="music-status">⏹ 已停止</span></div>
             <div class="music-tabs" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
                 <button class="btn music-tab active" data-mode="melody" onclick="app.switchMusicMode('melody')">🎹 纯旋律</button>
                 <button class="btn music-tab" data-mode="song" onclick="app.switchMusicMode('song')">🎤 本地歌曲</button>
                 <button class="btn music-tab" data-mode="online" onclick="app.switchMusicMode('online')">🌐 在线搜索</button>
             </div>
             <div class="music-content" id="music-content-melody">
-                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-                    <span style="font-size:12px;color:var(--text-muted);font-weight:600;width:100%;">选择风格：</span>
-                    <div id="music-style-list" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-                </div>
-                <div class="music-controls" style="display:flex;align-items:center;gap:12px;">
-                    <button class="btn btn-primary" id="melody-play-btn" onclick="app.toggleMelody()">▶ 播放</button>
-                    <div style="display:flex;align-items:center;gap:6px;flex:1;">
-                        <span>🔊</span>
-                        <input type="range" id="music-volume-slider" min="0" max="1" step="0.05" value="0.30" oninput="app.updateMusicVolume(this.value)" style="flex:1;">
-                    </div>
-                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><span style="font-size:12px;color:var(--text-muted);font-weight:600;width:100%;">选择风格：</span><div id="music-style-list" style="display:flex;flex-wrap:wrap;gap:6px;"></div></div>
+                <div class="music-controls" style="display:flex;align-items:center;gap:12px;"><button class="btn btn-primary" id="melody-play-btn" onclick="app.toggleMelody()">▶ 播放</button><div style="display:flex;align-items:center;gap:6px;flex:1;"><span>🔊</span><input type="range" id="music-volume-slider" min="0" max="1" step="0.05" value="0.30" oninput="app.updateMusicVolume(this.value)" style="flex:1;"></div></div>
             </div>
             <div class="music-content" id="music-content-song" style="display:none;">
-                <div class="song-upload-row" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-                    <label class="song-upload-btn"><input type="file" id="song-audio-input" accept="audio/*" onchange="app.onSongAudioUpload(this)">📁 选择音频</label>
-                    <span class="song-file-name" id="song-audio-name" style="font-size:11px;color:var(--text-muted);">未选择文件</span>
-                </div>
-                <div class="song-upload-row" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-                    <label class="song-upload-btn"><input type="file" id="song-lrc-input" accept=".lrc,.txt" onchange="app.onSongLrcUpload(this)">📄 选择歌词</label>
-                    <span class="song-file-name" id="song-lrc-name" style="font-size:11px;color:var(--text-muted);">未选择文件</span>
-                </div>
-                <div class="song-lyrics-paste">
-                    <textarea id="song-lyrics-text" placeholder="或直接粘贴LRC歌词..." style="width:100%;height:60px;resize:none;background:var(--bg-glass);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 8px;color:var(--text-secondary);font-size:11px;font-family:var(--font);outline:none;" oninput="app.onLyricsPaste(this.value)"></textarea>
-                </div>
-                <div style="margin-top:10px;display:flex;gap:10px;">
-                    <button class="btn btn-primary" id="song-play-btn" onclick="app.toggleSong()">▶ 播放</button>
-                    <button class="btn" onclick="app.songPlayer.pause(); app.updateMusicUI();">⏹ 停止</button>
-                </div>
+                <div class="song-upload-row" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;"><label class="song-upload-btn"><input type="file" id="song-audio-input" accept="audio/*" onchange="app.onSongAudioUpload(this)">📁 选择音频</label><span class="song-file-name" id="song-audio-name" style="font-size:11px;color:var(--text-muted);">未选择文件</span></div>
+                <div class="song-upload-row" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;"><label class="song-upload-btn"><input type="file" id="song-lrc-input" accept=".lrc,.txt" onchange="app.onSongLrcUpload(this)">📄 选择歌词</label><span class="song-file-name" id="song-lrc-name" style="font-size:11px;color:var(--text-muted);">未选择文件</span></div>
+                <div class="song-lyrics-paste"><textarea id="song-lyrics-text" placeholder="或直接粘贴LRC歌词..." style="width:100%;height:60px;resize:none;background:var(--bg-glass);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 8px;color:var(--text-secondary);font-size:11px;font-family:var(--font);outline:none;" oninput="app.onLyricsPaste(this.value)"></textarea></div>
+                <div style="margin-top:10px;display:flex;gap:10px;"><button class="btn btn-primary" id="song-play-btn" onclick="app.toggleSong()">▶ 播放</button><button class="btn" onclick="app.songPlayer.pause(); app.updateMusicUI();">⏹ 停止</button></div>
             </div>
             <div class="music-content" id="music-content-online" style="display:none;">
-                <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center;">
-                    <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">API 地址：</span>
-                    <input type="text" id="music-api-base" value="https://api.imjad.cn/cloudmusic" placeholder="API地址" style="flex:1;padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:12px;outline:none;">
-                </div>
-                <div class="search-box" style="display:flex;gap:8px;margin-bottom:10px;">
-                    <input type="text" id="music-search-input" placeholder="输入歌名或歌手..." autocomplete="off" style="flex:1;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:16px;outline:none;" />
-                    <button class="btn btn-primary" id="music-search-btn" onclick="app.searchOnlineMusic()">🔍 搜索</button>
-                </div>
+                <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center;"><span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">API 地址：</span><input type="text" id="music-api-base" value="https://api.imjad.cn/cloudmusic" placeholder="API地址" style="flex:1;padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:12px;outline:none;"></div>
+                <div class="search-box" style="display:flex;gap:8px;margin-bottom:10px;"><input type="text" id="music-search-input" placeholder="输入歌名或歌手..." autocomplete="off" style="flex:1;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:16px;outline:none;" /><button class="btn btn-primary" id="music-search-btn" onclick="app.searchOnlineMusic()">🔍 搜索</button></div>
                 <div id="music-search-results" style="max-height:180px;overflow-y:auto;font-size:13px;color:var(--text-secondary);"></div>
-                <div style="margin-top:10px;display:flex;align-items:center;gap:10px;">
-                    <button class="btn btn-primary" id="online-play-btn" onclick="app.toggleOnlinePlay()">▶ 播放</button>
-                    <span id="online-current-song" style="font-size:12px;color:var(--text-muted);">未播放</span>
-                </div>
+                <div style="margin-top:10px;display:flex;align-items:center;gap:10px;"><button class="btn btn-primary" id="online-play-btn" onclick="app.toggleOnlinePlay()">▶ 播放</button><span id="online-current-song" style="font-size:12px;color:var(--text-muted);">未播放</span></div>
             </div>
         </div>
 
-        <!-- Algorithm Compare -->
         <div class="algo-panel fade-in delay-3" id="algo-panel">
-            <div class="algo-toggle" id="algo-toggle" onclick="app.toggleAlgoCompare()">
-                <div class="algo-toggle-left">🔀 算法同屏对比 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(含特色算法)</span></div>
-                <span class="algo-toggle-arrow">▼</span>
-            </div>
-            <div class="algo-body" id="algo-body">
-                <div class="algo-grid" id="algo-grid"></div>
-            </div>
+            <div class="algo-toggle" id="algo-toggle" onclick="app.toggleAlgoCompare()"><div class="algo-toggle-left">🔀 算法同屏对比 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(含特色算法)</span></div><span class="algo-toggle-arrow">▼</span></div>
+            <div class="algo-body" id="algo-body"><div class="algo-grid" id="algo-grid"></div></div>
         </div>
 
-        <!-- Controls -->
         <div class="controls fade-in delay-4">
             <div class="controls-group">
                 <span class="controls-label">🔊 语音</span>
                 <button class="btn" id="voice-toggle" onclick="app.toggleVoice()"><span id="voice-icon">🔇</span><span id="voice-label">关闭</span></button>
-                <div style="display:flex;align-items:center;gap:4px;">
-                    <input type="range" id="voice-speed" min="0.5" max="2" step="0.1" value="1" oninput="app.updateSpeed()" />
-                    <span class="speed-val" id="speed-val">1.0x</span>
-                </div>
+                <div style="display:flex;align-items:center;gap:4px;"><input type="range" id="voice-speed" min="0.5" max="2" step="0.1" value="1" oninput="app.updateSpeed()" /><span class="speed-val" id="speed-val">1.0x</span></div>
                 <button class="btn" onclick="app.speakText('语音播报测试，功能正常')">🧪 测试</button>
                 <button class="btn btn-primary" onclick="app.manualAnnounce()">📢 播报</button>
                 <button class="btn" id="notify-btn" onclick="app.toggleNotification()">🔔 推送</button>
@@ -739,44 +619,27 @@
             </div>
             <div class="controls-group">
                 <span class="controls-label">🧠 算法</span>
-                <div class="select-wrap">
-                    <select id="algorithm-select" onchange="app.changeAlgorithm()">
-                        <option value="shuying_v1">天机策</option>
-                        <option value="shuying_v2">玄机策</option>
-                        <option value="module1">逆形态</option>
-                        <option value="module2">趋势捕手</option>
-                        <option value="module3">冷热探针</option>
-                        <option value="module4">银河锚点</option>
-                        <option value="module5">威震天机</option>
-                        <option value="fusion_vote">五行之合</option>
-                        <option value="jingpai">京派</option>
-                        <option value="fengpai">枫派</option>
-                        <option value="tongpai">通派</option>
-                        <option value="qisha">奇杀</option>
-                        <option value="yisha">异杀</option>
-                        <option value="shisha">势杀</option>
-                        <option value="modchain">模链法</option>
-                        <option value="wuji">无极算法</option>
-                    </select>
-                </div>
+                <div class="select-wrap"><select id="algorithm-select" onchange="app.changeAlgorithm()">
+                    <option value="shuying_v1">天机策</option><option value="shuying_v2">玄机策</option>
+                    <option value="module1">逆形态</option><option value="module2">趋势捕手</option>
+                    <option value="module3">冷热探针</option><option value="module4">银河锚点</option>
+                    <option value="module5">威震天机</option><option value="fusion_vote">五行之合</option>
+                    <option value="jingpai">京派</option><option value="fengpai">枫派</option>
+                    <option value="tongpai">通派</option><option value="qisha">奇杀</option>
+                    <option value="yisha">异杀</option><option value="shisha">势杀</option>
+                    <option value="modchain">模链法</option><option value="wuji">无极算法</option>
+                </select></div>
                 <button class="btn" onclick="app.exportCSV()">📥 导出</button>
             </div>
         </div>
 
-        <!-- Monitor -->
         <div class="card fade-in delay-5">
-            <div class="card-header">
-                <div class="card-title">📊 算法监视</div>
-                <span style="font-size:12px;color:var(--text-muted);">实时胜率</span>
-            </div>
+            <div class="card-header"><div class="card-title">📊 算法监视</div><span style="font-size:12px;color:var(--text-muted);">实时胜率</span></div>
             <div class="monitor-grid">
                 <div class="monitor-item"><span class="icon">🏆</span><div class="label">最高胜率</div><div class="value" id="highest-winrate">-- <span class="sub">--%</span></div><div class="spark-wrap" id="winrate-spark"></div></div>
                 <div class="monitor-item"><span class="icon">🔥</span><div class="label">最长连中</div><div class="value" id="most-consecutive">-- <span class="sub">--期</span></div><div class="spark-wrap" id="consecutive-spark"></div></div>
             </div>
-            <div id="trend-card" style="display:none;margin-top:4px;">
-                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">📈 和值走势 (近30期)</div>
-                <div class="trend-wrap"><canvas id="trend-canvas"></canvas></div>
-            </div>
+            <div id="trend-card" style="display:none;margin-top:4px;"><div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">📈 和值走势 (近30期)</div><div class="trend-wrap"><canvas id="trend-canvas"></canvas></div></div>
             <div id="missed-stats" style="display:none;margin-top:12px;">
                 <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">🧊 遗漏统计 <span style="font-size:11px;font-weight:400;color:var(--text-muted);">红=热号 绿=冷号</span></div>
                 <div class="missed-section"><table class="missed-table"><thead><tr><th colspan="28">和值遗漏 (0-27)</th></tr></thead><tbody id="sum-missed-body"></tbody></table></div>
@@ -785,49 +648,27 @@
             <div id="extra-stats" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
                 <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;">
                     <button class="btn" onclick="app.toggleFrequencyStats()">📊 出现次数</button>
-                    <div style="display:flex;align-items:center;gap:6px;">
-                        <span style="font-size:12px;color:var(--text-muted);">前</span>
-                        <input type="number" id="days-input" value="1" min="1" max="30" style="width:50px;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;">
-                        <span style="font-size:12px;color:var(--text-muted);">天</span>
-                        <button class="btn" onclick="app.queryDaysStats()">📅 查询</button>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;color:var(--text-muted);">前</span><input type="number" id="days-input" value="1" min="1" max="30" style="width:50px;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;"><span style="font-size:12px;color:var(--text-muted);">天</span><button class="btn" onclick="app.queryDaysStats()">📅 查询</button></div>
                 </div>
                 <div id="frequency-stats-display" style="display:none;overflow-x:auto;margin-bottom:10px;"></div>
                 <div id="days-stats-display" style="display:none;overflow-x:auto;"></div>
                 <div class="backtest-section" id="backtest-section">
-                    <div class="backtest-controls">
-                        <button class="btn btn-primary" id="backtest-btn" onclick="app.runBacktest()">🔁 回测模拟（过去30期）</button>
-                        <span class="hint">使用 <strong id="backtest-alg-label">天机策</strong> 对历史期次进行模拟预测，<span style="color:var(--warning);">不影响正式记录</span></span>
-                        <span class="hint" style="margin-left:auto;font-size:10px;opacity:0.5;">点击按钮执行</span>
-                    </div>
+                    <div class="backtest-controls"><button class="btn btn-primary" id="backtest-btn" onclick="app.runBacktest()">🔁 回测模拟（过去30期）</button><span class="hint">使用 <strong id="backtest-alg-label">天机策</strong> 对历史期次进行模拟预测，<span style="color:var(--warning);">不影响正式记录</span></span><span class="hint" style="margin-left:auto;font-size:10px;opacity:0.5;">点击按钮执行</span></div>
                     <div id="backtest-summary-area" style="display:none;"></div>
-                    <div class="backtest-table-wrap" id="backtest-table-wrap">
-                        <table class="history-table"><thead><tr><th>期数</th><th>开奖结果</th><th>双组推荐</th><th>排除杀组</th><th>模拟结果</th><th style="font-size:9px;opacity:0.6;">回溯参考</th></tr></thead><tbody id="backtest-tbody"></tbody></table>
-                    </div>
+                    <div class="backtest-table-wrap" id="backtest-table-wrap"><table class="history-table"><thead><tr><th>期数</th><th>开奖结果</th><th>双组推荐</th><th>排除杀组</th><th>模拟结果</th><th style="font-size:9px;opacity:0.6;">回溯参考</th></tr></thead><tbody id="backtest-tbody"></tbody></table></div>
                 </div>
             </div>
         </div>
 
-        <!-- History -->
         <div class="card fade-in delay-5">
-            <div class="card-header">
-                <div class="card-title">📜 历史预测记录</div>
-                <span class="card-badge" id="table-algorithm-tag" style="font-size:11px;">天机策</span>
-            </div>
-            <div class="history-wrap">
-                <table class="history-table"><thead><tr><th>期数</th><th>开奖结果</th><th>双组推荐</th><th>排除杀组</th><th>预测结果</th></tr></thead><tbody id="prediction-tbody"></tbody></table>
-            </div>
+            <div class="card-header"><div class="card-title">📜 历史预测记录</div><span class="card-badge" id="table-algorithm-tag" style="font-size:11px;">天机策</span></div>
+            <div class="history-wrap"><table class="history-table"><thead><tr><th>期数</th><th>开奖结果</th><th>双组推荐</th><th>排除杀组</th><th>预测结果</th></tr></thead><tbody id="prediction-tbody"></tbody></table></div>
             <div class="stats-footer" id="stats"><span>基础胜率</span><span class="rate">--%</span><span>-- / --</span></div>
         </div>
 
-        <div class="footer">
-            清浔杀组预测 Pro · 数据仅供参考 · 仅供学习娱乐<br>
-            <span style="font-size:11px;opacity:0.6;">随机事件无记忆性，理性看待预测结果</span>
-            <br><span style="font-size:10px;opacity:0.4;" id="tg-version-info"></span>
-        </div>
+        <div class="footer">清浔杀组预测 Pro · 数据仅供参考 · 仅供学习娱乐<br><span style="font-size:11px;opacity:0.6;">随机事件无记忆性，理性看待预测结果</span><br><span style="font-size:10px;opacity:0.4;" id="tg-version-info"></span></div>
     </div>
 
-    <!-- 歌词 -->
     <div class="lyrics-bar" id="lyrics-bar" style="display:none;">
         <div class="lyrics-bar-inner" id="lyrics-bar-inner">
             <div class="lyrics-line prev" id="lyrics-line-prev"></div>
@@ -837,12 +678,8 @@
         <button class="lyrics-close" onclick="app.hideLyricsBar()" title="隐藏歌词">✕</button>
     </div>
 
-    <!-- NEW UI -->
     <div class="newui-view" id="newui-view">
-        <div class="newui-header">
-            <div class="newui-header-title">清浔<span>算法</span></div>
-            <div style="display:flex;align-items:center;gap:10px;"><div class="newui-badge" id="newui-status">加载中</div><button class="newui-close-btn" onclick="app.toggleNewUI()" title="返回经典视图">✕</button></div>
-        </div>
+        <div class="newui-header"><div class="newui-header-title">清浔<span>算法</span></div><div style="display:flex;align-items:center;gap:10px;"><div class="newui-badge" id="newui-status">加载中</div><button class="newui-close-btn" onclick="app.toggleNewUI()" title="返回经典视图">✕</button></div></div>
         <div class="newui-page active" id="newui-page-predict">
             <div class="newui-card"><div class="newui-card-header"><div class="newui-card-title"><span class="icon">🎯</span>当前算法</div></div><div class="newui-algo-selector" id="newui-algo-selector"></div></div>
             <div class="newui-card"><div class="newui-card-header"><div class="newui-card-title"><span class="icon">🎲</span>最新开奖</div><div class="newui-card-sub" id="newui-latest-period">--</div></div><div class="newui-stats-row"><div class="newui-stat-item"><div class="newui-stat-val" id="newui-latest-nums">--</div><div class="newui-stat-lab">开奖号码</div></div><div class="newui-stat-item"><div class="newui-stat-val" id="newui-latest-sum">--</div><div class="newui-stat-lab">和值</div></div><div class="newui-stat-item"><div class="newui-stat-val" id="newui-latest-combo">--</div><div class="newui-stat-lab">形态</div></div></div></div>
@@ -869,7 +706,7 @@
 
     <script>
         // ================================================================
-        // 清浔杀组预测 Pro · 完整应用（含特码预测）
+        // 清浔杀组预测 Pro · 完整应用（增强版特码 12因子）
         // ================================================================
 
         // ==================== 配置 ====================
@@ -942,7 +779,7 @@
             }
         };
 
-        // ==================== 算法引擎 ====================
+        // ==================== 算法引擎（含增强版特码 12因子） ====================
         const Algorithms = {
             // ----- 贝叶斯修正 -----
             _bayesianPrior(algName, stats) {
@@ -1022,7 +859,7 @@
                 for (const g of ["小单","小双","大单","大双"]) if (cnt[g] > maxV) { maxV = cnt[g]; winner = g; }
                 return winner;
             },
-            // 树影
+            // ----- 树影/特色算法 -----
             shuyingV1(historyData) {
                 if (!historyData || historyData.length < 3) return { killGroup:'--', predictCombos:['--','--'] };
                 const [h1,h2,h3] = historyData;
@@ -1040,7 +877,6 @@
                 const kill = Utils.judgeSizeOdd(intPart);
                 return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill) };
             },
-            // 特色
             jingpai(history) {
                 if (history.length < 3) return null;
                 const A = history[history.length-3], B = history[history.length-2], C = history[history.length-1];
@@ -1104,7 +940,6 @@
                 const size = h3 < 14 ? '小' : '大', parity = (h3 % 2 === 0) ? '双' : '单';
                 return size + parity;
             },
-            // 无极算法
             wuji(history) {
                 if (!history || history.length < 10) return { killGroup: '--', predictCombos: ['--','--'], confidence: 0 };
                 const combos = ['小单','小双','大单','大双'], recent = history.slice(-30);
@@ -1165,59 +1000,203 @@
                 const confidence = Math.round(Math.min(100, avgConf * (maxVote / 0.8)));
                 return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill), confidence: confidence };
             },
-            // ----- 特码（和值）预测 -----
+
+            // ========== 增强版特码预测（12因子） ==========
             predictSum(history) {
-                if (!history || history.length < 5) return { sum: null, confidence: 0, alts: [], trend: [] };
-                const recent = history.slice(-30);
-                const sums = recent.map(d => d.sum);
-                const lastSum = sums[sums.length - 1];
+                if (!history || history.length < 15) return { sum: null, confidence: 0, alts: [], trend: [] };
 
-                const freq = {};
-                sums.forEach(s => freq[s] = (freq[s] || 0) + 1);
-                let maxFreq = 0, freqSum = sums[0];
-                for (const [s, c] of Object.entries(freq)) {
-                    if (c > maxFreq) { maxFreq = c; freqSum = parseInt(s); }
-                }
-                const freqConf = Math.min(80, 40 + (maxFreq / sums.length) * 60);
+                const sums = history.slice(-60).map(d => d.sum);
+                const n = sums.length;
+                const lastSum = sums[n-1];
+                const lastTwo = n >= 2 ? [sums[n-2], sums[n-1]] : [lastSum];
 
-                const recent10 = sums.slice(-10);
-                const freqR = {};
-                recent10.forEach(s => freqR[s] = (freqR[s] || 0) + 1);
-                let maxR = 0, recentSum = recent10[0] || freqSum;
-                for (const [s, c] of Object.entries(freqR)) {
-                    if (c > maxR) { maxR = c; recentSum = parseInt(s); }
-                }
-                const recentConf = recent10.length ? Math.min(80, 50 + (maxR / recent10.length) * 50) : 50;
+                const predictors = {};
 
-                const trans = {};
-                for (let i = 0; i < sums.length - 1; i++) {
+                // 1. 30期频率
+                const freq30 = {};
+                sums.slice(-30).forEach(s => freq30[s] = (freq30[s] || 0) + 1);
+                let maxFreq = 0, p1 = sums[0];
+                for (const [s, c] of Object.entries(freq30)) { if (c > maxFreq) { maxFreq = c; p1 = parseInt(s); } }
+                predictors.freq30 = { sum: p1, conf: Math.min(80, 40 + (maxFreq / 30) * 60) };
+
+                // 2. 10期频率
+                const freq10 = {};
+                sums.slice(-10).forEach(s => freq10[s] = (freq10[s] || 0) + 1);
+                let maxFreq10 = 0, p2 = p1;
+                for (const [s, c] of Object.entries(freq10)) { if (c > maxFreq10) { maxFreq10 = c; p2 = parseInt(s); } }
+                predictors.freq10 = { sum: p2, conf: freq10[p2] ? Math.min(80, 50 + (freq10[p2] / 10) * 50) : 50 };
+
+                // 3. 一阶马尔可夫
+                const trans1 = {};
+                for (let i = 0; i < n-1; i++) {
                     const from = sums[i], to = sums[i+1];
-                    if (!trans[from]) trans[from] = {};
-                    trans[from][to] = (trans[from][to] || 0) + 1;
+                    if (!trans1[from]) trans1[from] = {};
+                    trans1[from][to] = (trans1[from][to] || 0) + 1;
                 }
-                let markovSum = freqSum, markovConf = 40;
-                if (trans[lastSum]) {
+                let p3 = p1, conf3 = 40;
+                if (trans1[lastSum]) {
                     let maxT = 0, totalT = 0;
-                    for (const [s, c] of Object.entries(trans[lastSum])) {
+                    for (const [s, c] of Object.entries(trans1[lastSum])) {
                         totalT += c;
-                        if (c > maxT) { maxT = c; markovSum = parseInt(s); }
+                        if (c > maxT) { maxT = c; p3 = parseInt(s); }
                     }
-                    markovConf = Math.min(80, 30 + (maxT / totalT) * 70);
+                    conf3 = Math.min(80, 30 + (maxT / totalT) * 70);
+                }
+                predictors.markov1 = { sum: p3, conf: conf3 };
+
+                // 4. 二阶马尔可夫
+                const trans2 = {};
+                for (let i = 0; i < n-2; i++) {
+                    const key = sums[i] + ',' + sums[i+1];
+                    const to = sums[i+2];
+                    if (!trans2[key]) trans2[key] = {};
+                    trans2[key][to] = (trans2[key][to] || 0) + 1;
+                }
+                const key2 = lastTwo.join(',');
+                let p4 = p3, conf4 = 40;
+                if (trans2[key2]) {
+                    let maxT = 0, totalT = 0;
+                    for (const [s, c] of Object.entries(trans2[key2])) {
+                        totalT += c;
+                        if (c > maxT) { maxT = c; p4 = parseInt(s); }
+                    }
+                    conf4 = Math.min(80, 30 + (maxT / totalT) * 70);
+                }
+                predictors.markov2 = { sum: p4, conf: conf4 };
+
+                // 5. 5期移动平均
+                const p5 = Math.round(sums.slice(-5).reduce((a,b) => a + b, 0) / 5);
+                const conf5 = Math.max(20, Math.min(70, 50 - Math.abs(p5 - lastSum) * 2));
+                predictors.ma5 = { sum: p5, conf: conf5 };
+
+                // 6. 10期移动平均
+                const p6 = Math.round(sums.slice(-10).reduce((a,b) => a + b, 0) / 10);
+                const conf6 = Math.max(20, Math.min(70, 50 - Math.abs(p6 - lastSum) * 1.5));
+                predictors.ma10 = { sum: p6, conf: conf6 };
+
+                // 7. 指数平滑 (α=0.3)
+                let p7 = p1, conf7 = 40;
+                if (n >= 2) {
+                    p7 = Math.round(sums[n-1] * 0.3 + sums[n-2] * 0.7);
+                    conf7 = Math.max(20, Math.min(70, 50 - Math.abs(p7 - lastSum) * 2));
+                }
+                predictors.exp = { sum: p7, conf: conf7 };
+
+                // 8. 线性趋势外推（最近10期）
+                let p8 = p1, conf8 = 40;
+                if (n >= 10) {
+                    const x = Array.from({length:10}, (_,i) => i);
+                    const y = sums.slice(-10);
+                    const meanX = x.reduce((a,b) => a+b, 0) / 10;
+                    const meanY = y.reduce((a,b) => a+b, 0) / 10;
+                    let num = 0, den = 0;
+                    for (let i = 0; i < 10; i++) {
+                        num += (x[i] - meanX) * (y[i] - meanY);
+                        den += (x[i] - meanX) ** 2;
+                    }
+                    const slope = den ? num / den : 0;
+                    p8 = Math.round(meanY + slope * 10);
+                    p8 = Math.max(0, Math.min(27, p8));
+                    conf8 = Math.max(20, Math.min(70, 50 - Math.abs(p8 - lastSum) * 2));
+                }
+                predictors.linear = { sum: p8, conf: conf8 };
+
+                // 9. 奇偶相似匹配
+                const oddRatio = sums.slice(-10).filter(s => s % 2 === 1).length / 10;
+                let similarOdd = [];
+                for (let i = 0; i < n - 11; i++) {
+                    const window = sums.slice(i, i+10);
+                    const ratio = window.filter(s => s % 2 === 1).length / 10;
+                    if (Math.abs(ratio - oddRatio) < 0.1) similarOdd.push(sums[i+10]);
+                }
+                let p9 = p1, conf9 = 40;
+                if (similarOdd.length) {
+                    const freq = {};
+                    similarOdd.forEach(s => freq[s] = (freq[s] || 0) + 1);
+                    let maxC = 0;
+                    for (const [s, c] of Object.entries(freq)) { if (c > maxC) { maxC = c; p9 = parseInt(s); } }
+                    conf9 = Math.min(70, 50 + (maxC / similarOdd.length) * 30);
+                }
+                predictors.odd = { sum: p9, conf: conf9 };
+
+                // 10. 大小相似匹配 (大数 ≥ 14)
+                const bigRatio = sums.slice(-10).filter(s => s >= 14).length / 10;
+                let similarBig = [];
+                for (let i = 0; i < n - 11; i++) {
+                    const window = sums.slice(i, i+10);
+                    const ratio = window.filter(s => s >= 14).length / 10;
+                    if (Math.abs(ratio - bigRatio) < 0.1) similarBig.push(sums[i+10]);
+                }
+                let p10 = p1, conf10 = 40;
+                if (similarBig.length) {
+                    const freq = {};
+                    similarBig.forEach(s => freq[s] = (freq[s] || 0) + 1);
+                    let maxC = 0;
+                    for (const [s, c] of Object.entries(freq)) { if (c > maxC) { maxC = c; p10 = parseInt(s); } }
+                    conf10 = Math.min(70, 50 + (maxC / similarBig.length) * 30);
+                }
+                predictors.big = { sum: p10, conf: conf10 };
+
+                // 11. 和值尾数频率
+                const tails = sums.slice(-30).map(s => s % 10);
+                const tailFreq = {};
+                tails.forEach(t => tailFreq[t] = (tailFreq[t] || 0) + 1);
+                let maxTail = 0, maxTailNum = 0;
+                for (const [t, c] of Object.entries(tailFreq)) { if (c > maxTail) { maxTail = c; maxTailNum = parseInt(t); } }
+                const tailCandidates = sums.slice(-30).filter(s => s % 10 === maxTailNum);
+                let p11 = p1, conf11 = 40;
+                if (tailCandidates.length) {
+                    const freq = {};
+                    tailCandidates.forEach(s => freq[s] = (freq[s] || 0) + 1);
+                    let maxC = 0;
+                    for (const [s, c] of Object.entries(freq)) { if (c > maxC) { maxC = c; p11 = parseInt(s); } }
+                    conf11 = Math.min(60, 30 + (maxC / tailCandidates.length) * 40);
+                }
+                predictors.tail = { sum: p11, conf: conf11 };
+
+                // 12. 遗漏值预测
+                const allSums = Array.from({length:28}, (_,i) => i);
+                let maxMiss = 0, p12 = p1;
+                for (const s of allSums) {
+                    let idx = n - 1;
+                    while (idx >= 0 && sums[idx] !== s) idx--;
+                    const miss = n - 1 - idx;
+                    if (miss > maxMiss) { maxMiss = miss; p12 = s; }
+                }
+                const conf12 = Math.min(60, 30 + maxMiss * 2);
+                predictors.miss = { sum: p12, conf: conf12 };
+
+                // 权重
+                const weightMap = {
+                    freq30: 0.12, freq10: 0.10, markov1: 0.12, markov2: 0.10,
+                    ma5: 0.08, ma10: 0.06, exp: 0.08, linear: 0.08,
+                    odd: 0.06, big: 0.06, tail: 0.06, miss: 0.08
+                };
+
+                // 加权投票
+                const candidates = {};
+                let totalScore = 0;
+                for (const [name, pred] of Object.entries(predictors)) {
+                    const s = pred.sum;
+                    const conf = pred.conf;
+                    const weight = weightMap[name] || 0.08;
+                    candidates[s] = (candidates[s] || 0) + conf * weight;
+                    totalScore += conf * weight;
                 }
 
-                const ma5 = Math.round(sums.slice(-5).reduce((a,b) => a + b, 0) / 5);
-                const maConf = Math.max(20, Math.min(70, 50 - Math.abs(ma5 - lastSum) * 2));
+                // 趋势修正
+                if (n >= 3 && sums[n-1] > sums[n-2] && sums[n-2] > sums[n-3]) {
+                    for (const s in candidates) {
+                        if (parseInt(s) > lastSum) candidates[s] *= 0.85;
+                    }
+                } else if (n >= 3 && sums[n-1] < sums[n-2] && sums[n-2] < sums[n-3]) {
+                    for (const s in candidates) {
+                        if (parseInt(s) < lastSum) candidates[s] *= 0.85;
+                    }
+                }
 
-                const candidates = {};
-                const addCandidate = (s, conf, weight) => { candidates[s] = (candidates[s] || 0) + conf * weight; };
-                addCandidate(freqSum, freqConf, 0.3);
-                addCandidate(recentSum, recentConf, 0.25);
-                addCandidate(markovSum, markovConf, 0.25);
-                addCandidate(ma5, maConf, 0.2);
-
-                let bestSum = Object.keys(candidates).reduce((a,b) => candidates[a] > candidates[b] ? a : b);
-                bestSum = parseInt(bestSum);
-                let bestConf = Math.min(99, Math.round(candidates[bestSum]));
+                let bestSum = parseInt(Object.keys(candidates).reduce((a,b) => candidates[a] > candidates[b] ? a : b));
+                let bestConf = totalScore ? Math.min(99, Math.round((candidates[bestSum] / totalScore) * 100)) : 50;
 
                 const alts = Object.entries(candidates)
                     .filter(([s]) => parseInt(s) !== bestSum)
@@ -1231,8 +1210,10 @@
                     odd_cnt: sums.filter(s => s % 2).length,
                     sum_tail: bestSum % 10
                 };
+
                 return { sum: bestSum, confidence: bestConf, alts, trend, feature };
             },
+
             // ----- 统一预测入口 -----
             predict(algName, history3, prevGroup, prevSum, currentNums, fullHistoryPrev, weights) {
                 let kill = null;
@@ -1284,7 +1265,7 @@
             }
         };
 
-        // ==================== 语音引擎 ====================
+        // ==================== 语音引擎（含特码播报） ====================
         class VoiceEngine {
             constructor() {
                 this.synth = window.speechSynthesis || null;
@@ -1337,6 +1318,7 @@
             }
             stop() { if (this.synth) { this.synth.cancel(); this.speaking = false; this.updateUI(); } }
             updateUI() { const btn = document.getElementById('voice-toggle'); btn?.classList.toggle('speaking', this.speaking); }
+
             announceOpenResult(data) {
                 if (!this.enabled || !data.length) return;
                 const latest = data[data.length-1];
@@ -1364,6 +1346,16 @@
                 const result = won ? '命中！恭喜！' : '未命中，再接再厉';
                 const profit = won ? `+${amount}` : `-${CONFIG.BET_AMOUNT}`;
                 this.speak(`第${period}期，投注${bet}，开奖${actual}，${result}，盈亏${profit}筹码`);
+            }
+            announceSumPrediction(data) {
+                if (!this.enabled || !data || data.length < 5) return;
+                const result = Algorithms.predictSum(data);
+                if (!result.sum) return;
+                const latest = data[data.length-1];
+                const nextPeriod = Number(latest.period) + 1;
+                const altText = result.alts.length ? `备选${result.alts.map(a => a[0]).join('和')}` : '';
+                const text = `特码预测，第${nextPeriod}期，推荐和值${result.sum}，置信度${result.confidence}%${altText ? '，' + altText : ''}`;
+                this.speak(text);
             }
         }
 
@@ -1717,12 +1709,10 @@
                 this.currentAlgorithm = 'shuying_v1';
                 this.intelligentMode = false;
                 this.algorithmStats = {};
-                this.recentAlgoPerformance = {};
                 this.missedStats = { sums: new Array(28).fill(0), combos: {} };
                 this.fetchTimer = null;
                 this.countdownRAF = null;
                 this.isFetching = false;
-                this.lastDataHash = '';
                 this.notifyEnabled = false;
                 this.virtualBalance = CONFIG.VIRTUAL_BALANCE;
                 this.initialBalance = CONFIG.VIRTUAL_BALANCE;
@@ -1754,12 +1744,10 @@
                 this.fibonacciSeq = [1,1];
                 this.riskLock = false;
                 this.i18nLang = 'zh';
-                this._dbReady = false;
                 this._searchTimer = null;
                 this.songPlayer.onLyricsUpdate = (data) => this.updateLyricsDisplay(data);
                 for (const k of Object.keys(CONFIG.ALGORITHM_NAMES)) {
                     this.algorithmStats[k] = { total:0, win:0, currentConsecutive:0, winRate:0 };
-                    this.recentAlgoPerformance[k] = { history:[], windowSize:50 };
                 }
                 if (this.isTelegram) {
                     const tg = window.Telegram.WebApp;
@@ -2409,7 +2397,11 @@
                 const nextPeriod = Number(latest.period) + 1;
                 const text = `当前最新开奖第${latest.period}期，${numsStr}等于${latest.sum}，形态${latest.combo}。下一期第${nextPeriod}期预测，${CONFIG.ALGORITHM_NAMES[this.currentAlgorithm]}算法，推荐${pred.predictCombos[0]}加${pred.predictCombos[1]}，排除${pred.killGroup}`;
                 this.voice.speak(text);
-                if (this.isTelegram && this.tgInstance && this.tgHaptic) { try { this.tgHaptic.impactOccurred('light'); } catch(_) {} }
+                // 追加特码预测播报
+                this.voice.announceSumPrediction(this.apiData);
+                if (this.isTelegram && this.tgInstance && this.tgHaptic) {
+                    try { this.tgHaptic.impactOccurred('light'); } catch(_) {}
+                }
             }
 
             // ----- 通知 -----
@@ -3148,12 +3140,9 @@
         // ==================== 启动 ====================
         const app = new QingxunApp();
         window.app = app;
-
-        // 全局错误捕获
         window.addEventListener('error', (e) => console.error('[Global]', e.message));
         window.addEventListener('unhandledrejection', (e) => console.error('[Unhandled]', e.reason));
-        console.log('[清浔] 应用启动 (含特码预测)');
-        console.log('[清浔] API地址:', CONFIG.API_URLS);
+        console.log('[清浔] 增强版特码预测已加载（12因子）');
     </script>
 </body>
 </html>
