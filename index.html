@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>清浔 · 杀组预测 Pro（增强版特码）</title>
+    <title>清浔 · 杀组预测 Pro（含双组预测）</title>
     <link rel="manifest" href="data:application/json,{%22name%22:%22清浔杀组预测%22,%22short_name%22:%22清浔%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230b0f1a%22,%22theme_color%22:%22%237c3aed%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%237c3aed'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-size='280' font-family='sans-serif' fill='white'%3E🔮%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22}]}" />
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%237c3aed'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-size='280' font-family='sans-serif' fill='white'%3E🔮%3C/text%3E%3C/svg%3E" />
     <meta name="theme-color" content="#7c3aed" />
@@ -515,6 +515,7 @@
     <div class="bg-glow"></div>
     <div class="toast-container" id="toast-container"></div>
     <div class="container" id="app-container">
+        <!-- Navbar -->
         <nav class="navbar fade-in">
             <div class="navbar-brand"><div class="navbar-icon">🔮</div><div><div class="navbar-title">清浔 · 杀组</div><span class="navbar-sub">多源融合 · 实时预测</span></div></div>
             <div class="navbar-actions">
@@ -526,6 +527,7 @@
         </nav>
         <div id="tg-env-badge" style="display:none;text-align:center;font-size:11px;color:var(--text-muted);margin:-8px 0 12px;padding:4px 14px;background:var(--accent-weak);border-radius:999px;border:1px solid var(--border);">📱 Telegram 小程序模式</div>
 
+        <!-- Hero -->
         <div class="card fade-in delay-1" id="hero-card">
             <div class="hero-meta"><span>📅 最新开奖 · 第 <strong id="cur-period">------</strong> 期</span><span class="card-badge" id="cur-combo">--</span></div>
             <div class="hero-numbers" id="latest-nums-container">
@@ -545,6 +547,7 @@
             </div>
         </div>
 
+        <!-- Prediction -->
         <div class="card fade-in delay-2" id="ai">
             <div class="card-header"><div class="card-title">🎯 本期预测</div><span class="card-badge" id="algorithm-tag">天机策</span></div>
             <div class="predict-meta" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
@@ -555,6 +558,9 @@
                 <div class="predict-item recommend"><div class="predict-item-label">🎯 双组推荐</div><div class="predict-item-value" id="predict-combos"><span id="predict-combo1">--</span> + <span id="predict-combo2">--</span></div><div class="predict-item-sub">高概率组合</div></div>
                 <div class="predict-item kill"><div class="predict-item-label">🚫 排除杀组</div><div class="predict-item-value" id="kill-group">--</div><div class="predict-item-sub">本期不会开出</div></div>
             </div>
+            <!-- 置信度显示区域（新增） -->
+            <div id="algo-confidence" style="display:none;text-align:center;padding:6px;font-size:14px;font-weight:600;color:var(--success);"></div>
+
             <div class="consensus-box" id="consensus-box" style="display:none;"><div class="label">🗳️ 算法共识（全算法投票）</div><div class="row" id="consensus-row"><span class="tag high">推荐：<span id="consensus-combo">--</span> <span class="vote" id="consensus-combo-vote"></span></span><span class="tag kill">杀组：<span id="consensus-kill">--</span> <span class="vote" id="consensus-kill-vote"></span></span></div></div>
             <div class="bet-section">
                 <div class="flex-between"><span class="bet-label">💰 模拟投注 · 每注100筹码 · 命中得190</span><span style="font-size:11px;color:var(--text-muted);">当前: <span id="current-bet" style="font-weight:700;color:var(--warning);">无</span></span></div>
@@ -566,6 +572,7 @@
             <button class="tg-main-btn" id="tg-main-btn" onclick="app.tgMainAction()">📤 分享预测</button>
         </div>
 
+        <!-- 特码预测 -->
         <div class="card fade-in delay-3 sum-pred-card" id="sum-predict-card">
             <div class="card-header"><div class="card-title">🔢 特码（和值）预测 <span style="font-size:10px;color:var(--text-muted);font-weight:400;">(12因子增强)</span></div><span class="card-badge" id="sum-predict-badge">等待数据</span></div>
             <div id="sum-predict-content" style="text-align:center;padding:10px 0;">
@@ -577,6 +584,7 @@
             </div>
         </div>
 
+        <!-- 音乐 -->
         <div class="card fade-in delay-3" id="music-card">
             <div class="card-header"><div class="card-title">🎵 音乐控制</div><span class="card-badge" id="music-status">⏹ 已停止</span></div>
             <div class="music-tabs" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
@@ -602,11 +610,13 @@
             </div>
         </div>
 
+        <!-- Algorithm Compare -->
         <div class="algo-panel fade-in delay-3" id="algo-panel">
             <div class="algo-toggle" id="algo-toggle" onclick="app.toggleAlgoCompare()"><div class="algo-toggle-left">🔀 算法同屏对比 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(含特色算法)</span></div><span class="algo-toggle-arrow">▼</span></div>
             <div class="algo-body" id="algo-body"><div class="algo-grid" id="algo-grid"></div></div>
         </div>
 
+        <!-- Controls -->
         <div class="controls fade-in delay-4">
             <div class="controls-group">
                 <span class="controls-label">🔊 语音</span>
@@ -628,11 +638,13 @@
                     <option value="tongpai">通派</option><option value="qisha">奇杀</option>
                     <option value="yisha">异杀</option><option value="shisha">势杀</option>
                     <option value="modchain">模链法</option><option value="wuji">无极算法</option>
+                    <option value="double_group">双组预测</option>
                 </select></div>
                 <button class="btn" onclick="app.exportCSV()">📥 导出</button>
             </div>
         </div>
 
+        <!-- Monitor -->
         <div class="card fade-in delay-5">
             <div class="card-header"><div class="card-title">📊 算法监视</div><span style="font-size:12px;color:var(--text-muted);">实时胜率</span></div>
             <div class="monitor-grid">
@@ -660,6 +672,7 @@
             </div>
         </div>
 
+        <!-- History -->
         <div class="card fade-in delay-5">
             <div class="card-header"><div class="card-title">📜 历史预测记录</div><span class="card-badge" id="table-algorithm-tag" style="font-size:11px;">天机策</span></div>
             <div class="history-wrap"><table class="history-table"><thead><tr><th>期数</th><th>开奖结果</th><th>双组推荐</th><th>排除杀组</th><th>预测结果</th></tr></thead><tbody id="prediction-tbody"></tbody></table></div>
@@ -706,7 +719,7 @@
 
     <script>
         // ================================================================
-        // 清浔杀组预测 Pro · 完整应用（增强版特码 12因子）
+        // 清浔杀组预测 Pro · 完整应用（含双组预测）
         // ================================================================
 
         // ==================== 配置 ====================
@@ -717,7 +730,8 @@
                 shuying_v1: '天机策', shuying_v2: '玄机策', module1: '逆形态', module2: '趋势捕手',
                 module3: '冷热探针', module4: '银河锚点', module5: '威震天机', fusion_vote: '五行之合',
                 jingpai: '京派', fengpai: '枫派', tongpai: '通派', qisha: '奇杀',
-                yisha: '异杀', shisha: '势杀', modchain: '模链法', wuji: '无极算法'
+                yisha: '异杀', shisha: '势杀', modchain: '模链法', wuji: '无极算法',
+                double_group: '双组预测'
             },
             COMBO_MAP: {
                 '小单': ['大单','小双'], '小双': ['大双','小单'],
@@ -779,7 +793,7 @@
             }
         };
 
-        // ==================== 算法引擎（含增强版特码 12因子） ====================
+        // ==================== 算法引擎（含双组预测） ====================
         const Algorithms = {
             // ----- 贝叶斯修正 -----
             _bayesianPrior(algName, stats) {
@@ -1214,6 +1228,319 @@
                 return { sum: bestSum, confidence: bestConf, alts, trend, feature };
             },
 
+            // ========== 双组预测（终极增强版） ==========
+            predictDoubleGroup(history) {
+                if (!history || history.length < 20) {
+                    return { predictCombos: ['--', '--'], killGroup: '--', confidence: 0 };
+                }
+
+                const combos = ['大单', '大双', '小单', '小双'];
+                const n = history.length;
+                const last = history[n - 1];
+                const lastCombo = last.combo;
+                const lastSum = last.sum;
+                const recent30 = history.slice(-30);
+                const recent10 = history.slice(-10);
+                const sums = history.map(d => d.sum);
+                const combosHistory = history.map(d => d.combo);
+
+                // ---------- 1. 因子定义 ----------
+                const factors = {};
+
+                // ① 近期频率 (10期)
+                const freq10 = {};
+                recent10.forEach(d => freq10[d.combo] = (freq10[d.combo] || 0) + 1);
+                factors.freq10 = (c) => (freq10[c] || 0) / 10;
+
+                // ② 中期频率 (30期)
+                const freq30 = {};
+                recent30.forEach(d => freq30[d.combo] = (freq30[d.combo] || 0) + 1);
+                factors.freq30 = (c) => (freq30[c] || 0) / 30;
+
+                // ③ 一阶马尔可夫
+                const trans1 = {};
+                for (let i = 0; i < n - 1; i++) {
+                    const from = combosHistory[i];
+                    const to = combosHistory[i + 1];
+                    if (!trans1[from]) trans1[from] = {};
+                    trans1[from][to] = (trans1[from][to] || 0) + 1;
+                }
+                factors.markov1 = (c) => {
+                    if (trans1[lastCombo]) {
+                        const total = Object.values(trans1[lastCombo]).reduce((a, b) => a + b, 0);
+                        return (trans1[lastCombo][c] || 0) / total;
+                    }
+                    return 0.25;
+                };
+
+                // ④ 二阶马尔可夫
+                const trans2 = {};
+                for (let i = 0; i < n - 2; i++) {
+                    const key = combosHistory[i] + ',' + combosHistory[i + 1];
+                    const to = combosHistory[i + 2];
+                    if (!trans2[key]) trans2[key] = {};
+                    trans2[key][to] = (trans2[key][to] || 0) + 1;
+                }
+                const lastTwoKey = (n >= 2) ? combosHistory[n - 2] + ',' + lastCombo : '';
+                factors.markov2 = (c) => {
+                    if (trans2[lastTwoKey]) {
+                        const total = Object.values(trans2[lastTwoKey]).reduce((a, b) => a + b, 0);
+                        return (trans2[lastTwoKey][c] || 0) / total;
+                    }
+                    return 0.25;
+                };
+
+                // ⑤ 和值趋势
+                const avgSum = sums.reduce((a, b) => a + b, 0) / n;
+                const recentAvg = recent10.reduce((a, b) => a + b.sum, 0) / 10;
+                factors.trend = (c) => {
+                    const isBig = c.startsWith('大');
+                    let score = 0.5;
+                    if (recentAvg > 14) {
+                        score = isBig ? 0.3 : 0.7;
+                    } else {
+                        score = isBig ? 0.7 : 0.3;
+                    }
+                    // 连续上涨/下跌修正
+                    if (n >= 3 && sums[n-1] > sums[n-2] && sums[n-2] > sums[n-3]) {
+                        score = isBig ? score * 0.8 : score * 1.2;
+                    } else if (n >= 3 && sums[n-1] < sums[n-2] && sums[n-2] < sums[n-3]) {
+                        score = isBig ? score * 1.2 : score * 0.8;
+                    }
+                    return Math.min(1, Math.max(0, score));
+                };
+
+                // ⑥ 遗漏值
+                const miss = {};
+                combos.forEach(c => {
+                    let idx = n - 1;
+                    while (idx >= 0 && combosHistory[idx] !== c) idx--;
+                    miss[c] = n - 1 - idx;
+                });
+                const maxMiss = Math.max(...Object.values(miss));
+                factors.miss = (c) => (miss[c] / maxMiss);
+
+                // ⑦ 奇偶相似匹配
+                const oddRatio = recent10.filter(d => d.sum % 2 === 1).length / 10;
+                let similarOdd = [];
+                for (let i = 0; i < n - 11; i++) {
+                    const window = history.slice(i, i + 10);
+                    const ratio = window.filter(d => d.sum % 2 === 1).length / 10;
+                    if (Math.abs(ratio - oddRatio) < 0.1) {
+                        similarOdd.push(history[i + 10].combo);
+                    }
+                }
+                factors.odd = (c) => {
+                    if (similarOdd.length === 0) return 0.25;
+                    const cnt = similarOdd.filter(s => s === c).length;
+                    return cnt / similarOdd.length;
+                };
+
+                // ⑧ 大小相似匹配
+                const bigRatio = recent10.filter(d => d.sum >= 14).length / 10;
+                let similarBig = [];
+                for (let i = 0; i < n - 11; i++) {
+                    const window = history.slice(i, i + 10);
+                    const ratio = window.filter(d => d.sum >= 14).length / 10;
+                    if (Math.abs(ratio - bigRatio) < 0.1) {
+                        similarBig.push(history[i + 10].combo);
+                    }
+                }
+                factors.big = (c) => {
+                    if (similarBig.length === 0) return 0.25;
+                    const cnt = similarBig.filter(s => s === c).length;
+                    return cnt / similarBig.length;
+                };
+
+                // ---------- 2. 原始得分 ----------
+                const rawScores = {};
+                combos.forEach(c => {
+                    rawScores[c] = {
+                        freq10: factors.freq10(c),
+                        freq30: factors.freq30(c),
+                        markov1: factors.markov1(c),
+                        markov2: factors.markov2(c),
+                        trend: factors.trend(c),
+                        miss: factors.miss(c),
+                        odd: factors.odd(c),
+                        big: factors.big(c)
+                    };
+                });
+
+                // ---------- 3. 动态权重（基于最近20期回测） ----------
+                const factorNames = ['freq10', 'freq30', 'markov1', 'markov2', 'trend', 'miss', 'odd', 'big'];
+                const factorWeights = {};
+                const recentTest = history.slice(-20);
+                if (recentTest.length >= 5) {
+                    factorNames.forEach(fName => {
+                        let hit = 0, total = 0;
+                        for (let i = 0; i < recentTest.length - 1; i++) {
+                            const hist = recentTest.slice(0, i + 1);
+                            const pred = this._predictByFactor(fName, hist);
+                            if (pred && pred === recentTest[i + 1].combo) hit++;
+                            total++;
+                        }
+                        const rate = total > 0 ? hit / total : 0.25;
+                        factorWeights[fName] = 0.3 + 0.7 * rate;
+                    });
+                } else {
+                    factorNames.forEach(f => factorWeights[f] = 1);
+                }
+
+                // ---------- 4. 加权得分 ----------
+                const finalScores = {};
+                combos.forEach(c => {
+                    let score = 0;
+                    for (const fName of factorNames) {
+                        score += rawScores[c][fName] * factorWeights[fName];
+                    }
+                    finalScores[c] = score;
+                });
+
+                // ---------- 5. 排序 & 置信度 ----------
+                const sorted = combos.slice().sort((a, b) => finalScores[b] - finalScores[a]);
+                const top1 = sorted[0];
+                const top2 = sorted[1];
+                const kill = sorted[sorted.length - 1];
+
+                const maxScore = finalScores[top1];
+                const secondScore = finalScores[top2];
+                const diff = maxScore - secondScore;
+
+                let consensus = 0;
+                for (const fName of factorNames) {
+                    let bestC = top1;
+                    let bestVal = -Infinity;
+                    for (const c of combos) {
+                        if (rawScores[c][fName] > bestVal) {
+                            bestVal = rawScores[c][fName];
+                            bestC = c;
+                        }
+                    }
+                    if (bestC === top1) consensus++;
+                }
+                const consensusRate = consensus / factorNames.length;
+                const confidence = Math.round((0.5 * Math.min(1, diff / 0.3) + 0.5 * consensusRate) * 100);
+                const finalConfidence = Math.min(99, confidence);
+
+                return {
+                    predictCombos: [top1, top2],
+                    killGroup: kill,
+                    confidence: finalConfidence,
+                    rawScores: finalScores
+                };
+            },
+
+            // 辅助：单因子预测（用于动态权重计算）
+            _predictByFactor(factorName, hist) {
+                if (hist.length < 2) return null;
+                const combos = ['大单', '大双', '小单', '小双'];
+                const lastCombo = hist[hist.length - 1].combo;
+                const scores = {};
+                const n = hist.length;
+                const sums = hist.map(d => d.sum);
+                const recent10 = hist.slice(-10);
+                const recent30 = hist.slice(-30);
+
+                combos.forEach(c => {
+                    switch(factorName) {
+                        case 'freq10': {
+                            const cnt = recent10.filter(d => d.combo === c).length;
+                            scores[c] = cnt / 10;
+                            break;
+                        }
+                        case 'freq30': {
+                            const cnt = recent30.filter(d => d.combo === c).length;
+                            scores[c] = cnt / 30;
+                            break;
+                        }
+                        case 'markov1': {
+                            const trans = {};
+                            for (let i = 0; i < n - 1; i++) {
+                                const from = hist[i].combo;
+                                const to = hist[i+1].combo;
+                                if (!trans[from]) trans[from] = {};
+                                trans[from][to] = (trans[from][to] || 0) + 1;
+                            }
+                            if (trans[lastCombo]) {
+                                const total = Object.values(trans[lastCombo]).reduce((a,b)=>a+b,0);
+                                scores[c] = (trans[lastCombo][c] || 0) / total;
+                            } else scores[c] = 0.25;
+                            break;
+                        }
+                        case 'markov2': {
+                            const trans = {};
+                            for (let i = 0; i < n - 2; i++) {
+                                const key = hist[i].combo + ',' + hist[i+1].combo;
+                                const to = hist[i+2].combo;
+                                if (!trans[key]) trans[key] = {};
+                                trans[key][to] = (trans[key][to] || 0) + 1;
+                            }
+                            const key = (n >= 2) ? hist[n-2].combo + ',' + lastCombo : '';
+                            if (trans[key]) {
+                                const total = Object.values(trans[key]).reduce((a,b)=>a+b,0);
+                                scores[c] = (trans[key][c] || 0) / total;
+                            } else scores[c] = 0.25;
+                            break;
+                        }
+                        case 'trend': {
+                            const avg = sums.reduce((a,b)=>a+b,0) / n;
+                            const recentAvg = sums.slice(-10).reduce((a,b)=>a+b,0) / 10;
+                            let score = 0.5;
+                            if (recentAvg > 14) score = c.startsWith('大') ? 0.3 : 0.7;
+                            else score = c.startsWith('大') ? 0.7 : 0.3;
+                            if (n >= 3 && sums[n-1] > sums[n-2] && sums[n-2] > sums[n-3]) {
+                                score = c.startsWith('大') ? score * 0.8 : score * 1.2;
+                            } else if (n >= 3 && sums[n-1] < sums[n-2] && sums[n-2] < sums[n-3]) {
+                                score = c.startsWith('大') ? score * 1.2 : score * 0.8;
+                            }
+                            scores[c] = Math.min(1, Math.max(0, score));
+                            break;
+                        }
+                        case 'miss': {
+                            let idx = n - 1;
+                            while (idx >= 0 && hist[idx].combo !== c) idx--;
+                            const missVal = n - 1 - idx;
+                            const maxMiss = Math.max(...combos.map(cc => {
+                                let ii = n - 1;
+                                while (ii >= 0 && hist[ii].combo !== cc) ii--;
+                                return n - 1 - ii;
+                            }));
+                            scores[c] = missVal / (maxMiss || 1);
+                            break;
+                        }
+                        case 'odd': {
+                            const oddRatio = recent10.filter(d => d.sum % 2 === 1).length / 10;
+                            let similar = [];
+                            for (let i = 0; i < n - 11; i++) {
+                                const window = hist.slice(i, i+10);
+                                const ratio = window.filter(d => d.sum % 2 === 1).length / 10;
+                                if (Math.abs(ratio - oddRatio) < 0.1) similar.push(hist[i+10].combo);
+                            }
+                            if (similar.length === 0) scores[c] = 0.25;
+                            else scores[c] = similar.filter(s => s === c).length / similar.length;
+                            break;
+                        }
+                        case 'big': {
+                            const bigRatio = recent10.filter(d => d.sum >= 14).length / 10;
+                            let similar = [];
+                            for (let i = 0; i < n - 11; i++) {
+                                const window = hist.slice(i, i+10);
+                                const ratio = window.filter(d => d.sum >= 14).length / 10;
+                                if (Math.abs(ratio - bigRatio) < 0.1) similar.push(hist[i+10].combo);
+                            }
+                            if (similar.length === 0) scores[c] = 0.25;
+                            else scores[c] = similar.filter(s => s === c).length / similar.length;
+                            break;
+                        }
+                        default: scores[c] = 0.25;
+                    }
+                });
+                let best = combos[0], bestScore = -1;
+                combos.forEach(c => { if (scores[c] > bestScore) { bestScore = scores[c]; best = c; } });
+                return best;
+            },
+
             // ----- 统一预测入口 -----
             predict(algName, history3, prevGroup, prevSum, currentNums, fullHistoryPrev, weights) {
                 let kill = null;
@@ -1233,7 +1560,18 @@
                     case 'yisha': kill = this.yisha(fullHistoryPrev); break;
                     case 'shisha': kill = this.shisha(fullHistoryPrev); break;
                     case 'modchain': kill = this.modchain(fullHistoryPrev); break;
-                    case 'wuji': { const result = this.wuji(fullHistoryPrev); return { killGroup: result.killGroup, predictCombos: result.predictCombos }; }
+                    case 'wuji': {
+                        const result = this.wuji(fullHistoryPrev);
+                        return { killGroup: result.killGroup, predictCombos: result.predictCombos };
+                    }
+                    case 'double_group': {
+                        const result = this.predictDoubleGroup(fullHistoryPrev);
+                        return {
+                            killGroup: result.killGroup,
+                            predictCombos: result.predictCombos,
+                            confidence: result.confidence
+                        };
+                    }
                     default: return this.shuyingV1(history3);
                 }
                 if (!kill) return { killGroup:'--', predictCombos:['--','--'] };
@@ -1265,7 +1603,7 @@
             }
         };
 
-        // ==================== 语音引擎（含特码播报） ====================
+        // ==================== 语音引擎 ====================
         class VoiceEngine {
             constructor() {
                 this.synth = window.speechSynthesis || null;
@@ -1318,7 +1656,6 @@
             }
             stop() { if (this.synth) { this.synth.cancel(); this.speaking = false; this.updateUI(); } }
             updateUI() { const btn = document.getElementById('voice-toggle'); btn?.classList.toggle('speaking', this.speaking); }
-
             announceOpenResult(data) {
                 if (!this.enabled || !data.length) return;
                 const latest = data[data.length-1];
@@ -2179,11 +2516,17 @@
                 const nextPeriod = Number(this.apiData[this.apiData.length-1].period) + 1;
 
                 let pred;
-                if (this.currentAlgorithm === 'fusion_vote') {
+                let confidence = null;
+                if (this.currentAlgorithm === 'double_group') {
+                    const dgResult = Algorithms.predictDoubleGroup(fullPrev);
+                    pred = { killGroup: dgResult.killGroup, predictCombos: dgResult.predictCombos };
+                    confidence = dgResult.confidence;
+                } else if (this.currentAlgorithm === 'fusion_vote') {
                     pred = { killGroup: Algorithms.fusionVoteBayesian(fullPrev, prev.combo, prev.sum, current.nums, this.algorithmStats, this.fusionWeights), predictCombos: ['--','--'] };
                     pred.predictCombos = Utils.getPredictFromKill(pred.killGroup);
                 } else {
                     pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
+                    if (pred.confidence !== undefined) confidence = pred.confidence;
                 }
                 this.dom.aiNextPeriod.textContent = '预测期数：' + nextPeriod;
                 this.dom.predictCombo1.textContent = pred.predictCombos[0];
@@ -2191,6 +2534,15 @@
                 this.dom.killGroup.textContent = pred.killGroup;
                 this.dom.algorithmTag.textContent = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
                 this.dom.tableAlgoTag.textContent = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
+
+                const confEl = document.getElementById('algo-confidence');
+                if (confidence !== null) {
+                    confEl.style.display = 'block';
+                    confEl.textContent = `置信度：${confidence}%` + (confidence >= 90 ? ' 🔥 高可信' : confidence >= 70 ? ' ✨ 中可信' : ' ❄️ 低可信');
+                    confEl.style.color = confidence >= 90 ? 'var(--success)' : confidence >= 70 ? 'var(--warning)' : 'var(--danger)';
+                } else {
+                    confEl.style.display = 'none';
+                }
 
                 const allPreds = Algorithms.getAllPredictions(history3, prev.combo, prev.sum, current.nums, fullPrev);
                 const consensus = Algorithms.getConsensus(allPreds);
@@ -2216,7 +2568,6 @@
                 this.updateBacktestAlgLabel();
             }
 
-            // ----- 特码预测渲染 -----
             renderSumPrediction() {
                 if (!this.apiData || this.apiData.length < 5) {
                     this.dom.sumPredictBadge.textContent = '数据不足';
@@ -2329,7 +2680,6 @@
                 this.dom.algoGrid.innerHTML = html;
             }
 
-            // ----- 倒计时 -----
             setupCountdown() {
                 if (this.countdownRAF) cancelAnimationFrame(this.countdownRAF);
                 const latest = this.apiData[this.apiData.length-1];
@@ -2371,7 +2721,6 @@
                 this.countdownRAF = requestAnimationFrame(update);
             }
 
-            // ----- 语音 -----
             toggleVoice() {
                 this.voice.enabled = !this.voice.enabled;
                 const btn = this.dom.voiceToggle;
@@ -2397,14 +2746,12 @@
                 const nextPeriod = Number(latest.period) + 1;
                 const text = `当前最新开奖第${latest.period}期，${numsStr}等于${latest.sum}，形态${latest.combo}。下一期第${nextPeriod}期预测，${CONFIG.ALGORITHM_NAMES[this.currentAlgorithm]}算法，推荐${pred.predictCombos[0]}加${pred.predictCombos[1]}，排除${pred.killGroup}`;
                 this.voice.speak(text);
-                // 追加特码预测播报
                 this.voice.announceSumPrediction(this.apiData);
                 if (this.isTelegram && this.tgInstance && this.tgHaptic) {
                     try { this.tgHaptic.impactOccurred('light'); } catch(_) {}
                 }
             }
 
-            // ----- 通知 -----
             toggleNotification() {
                 if (this.notifyEnabled) {
                     this.notifyEnabled = false;
@@ -2422,7 +2769,6 @@
             }
             updateNotifyBtn() { this.dom.notifyBtn.classList.toggle('active', this.notifyEnabled); }
 
-            // ----- 导出 -----
             exportCSV() {
                 if (!this.apiData.length) return;
                 const rows = [['期数','号码','和值','形态','推荐1','推荐2','杀组','结果']];
@@ -2440,7 +2786,6 @@
                 this.showToast('CSV导出成功', 'success');
             }
 
-            // ----- UI 状态 -----
             setStatus(status) {
                 const el = this.dom.statusIndicator;
                 const apiEl = this.dom.apiStatus;
@@ -2468,7 +2813,6 @@
                 setTimeout(() => { toast.classList.add('out'); setTimeout(() => toast.remove(), 300); }, 5000);
             }
 
-            // ----- 持久化 -----
             savePreferences() {
                 try {
                     const prefs = {
@@ -2504,7 +2848,6 @@
                 } catch(_) {}
             }
 
-            // ----- 音乐 -----
             _buildMusicPanel() {
                 const list = this.dom.musicStyleList;
                 if (!list) return;
@@ -2685,7 +3028,6 @@
                 } catch (e) { this.showToast('获取播放链接失败', 'error'); }
             }
 
-            // ----- 其他 -----
             toggleAutoAnnounce() {
                 this.autoAnnounce = !this.autoAnnounce;
                 this.updateAutoAnnounceUI(); this.savePreferences();
@@ -2770,7 +3112,6 @@
                 display.style.display = 'block';
             }
 
-            // ----- 回测 -----
             updateBacktestAlgLabel() {
                 if (this.dom.backtestAlgLabel) this.dom.backtestAlgLabel.textContent = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm] || '天机策';
             }
@@ -2843,7 +3184,6 @@
                 `;
             }
 
-            // ----- 交互 -----
             changeAlgorithm() {
                 this.currentAlgorithm = this.dom.algorithmSelect.value;
                 this.render();
@@ -2901,7 +3241,6 @@
                 } catch(_) {}
             }
 
-            // ----- 智能跟单 -----
             getBestAlgorithm() {
                 let bestAlg = 'shuying_v1';
                 let bestScore = -1;
@@ -2918,11 +3257,8 @@
                 if (!stats || stats.total === 0) return '0.0';
                 return (stats.win / stats.total * 100).toFixed(1);
             }
-            autoBackfill() {
-                // 简单补录，略
-            }
+            autoBackfill() {}
 
-            // ----- Telegram -----
             tgMainAction() {
                 if (!this.isTelegram || !this.tgInstance) return;
                 if (this.tgHaptic) { try { this.tgHaptic.impactOccurred('medium'); } catch(_) {} }
@@ -2948,7 +3284,6 @@
             }
             closeTelegram() { if (this.isTelegram && this.tgInstance) this.tgInstance.close(); else { if (window.history.length > 1) window.history.back(); else window.close(); } }
 
-            // ----- 新UI -----
             toggleNewUI() {
                 const view = document.getElementById('newui-view');
                 if (view.classList.contains('active')) { view.classList.remove('active'); document.body.style.overflow = ''; }
@@ -3142,7 +3477,7 @@
         window.app = app;
         window.addEventListener('error', (e) => console.error('[Global]', e.message));
         window.addEventListener('unhandledrejection', (e) => console.error('[Unhandled]', e.reason));
-        console.log('[清浔] 增强版特码预测已加载（12因子）');
+        console.log('[清浔] 增强版双组预测已集成');
     </script>
 </body>
 </html>
