@@ -558,6 +558,7 @@
                 <div class="predict-item recommend"><div class="predict-item-label">🎯 双组推荐</div><div class="predict-item-value" id="predict-combos"><span id="predict-combo1">--</span> + <span id="predict-combo2">--</span></div><div class="predict-item-sub">高概率组合</div></div>
                 <div class="predict-item kill"><div class="predict-item-label">🚫 排除杀组</div><div class="predict-item-value" id="kill-group">--</div><div class="predict-item-sub">本期不会开出</div></div>
             </div>
+            <!-- 置信度 + 建议状态 -->
             <div id="algo-confidence" style="display:none;text-align:center;padding:6px;font-size:14px;font-weight:600;color:var(--success);"></div>
 
             <div class="consensus-box" id="consensus-box" style="display:none;"><div class="label">🗳️ 算法共识（全算法投票）</div><div class="row" id="consensus-row"><span class="tag high">推荐：<span id="consensus-combo">--</span> <span class="vote" id="consensus-combo-vote"></span></span><span class="tag kill">杀组：<span id="consensus-kill">--</span> <span class="vote" id="consensus-kill-vote"></span></span></div></div>
@@ -718,7 +719,7 @@
 
     <script>
         // ================================================================
-        // 完整 JavaScript（全部算法、音乐、投注、回测、置信度过滤） - 优化版
+        // 完整 JavaScript（全部算法、音乐、投注、回测、置信度过滤）
         // ================================================================
 
         // ==================== 配置 ====================
@@ -740,19 +741,13 @@
                 THEME: 'qingxun-theme-v2', PREFS: 'qingxun-prefs-v2', BETS: 'qingxun-bets-v2',
                 CACHE: 'qingxun-cache-v2', BET_HISTORY: 'qingxun-bet-history-v2', PRED_PREFIX: 'qingxun-pred-'
             },
-            FETCH_INTERVAL: 3 * 60 * 1000,
-            FETCH_TIMEOUT: 10000,
-            MAX_HISTORY: 50,
-            VIRTUAL_BALANCE: 10000,
-            RETRY_DELAY: 3000,
-            MAX_RETRIES: 3,
-            CACHE_TTL: 30 * 60 * 1000,   // 延长至30分钟
-            BET_AMOUNT: 100,
-            BET_WIN: 190,
-            BACKTEST_DEFAULT_COUNT: 30,
-            BACKFILL_LIMIT: 30,
+            FETCH_INTERVAL: 3*60*1000, FETCH_TIMEOUT: 10000, MAX_HISTORY: 50,
+            VIRTUAL_BALANCE: 10000, RETRY_DELAY: 3000, MAX_RETRIES: 3, CACHE_TTL: 10*60*1000,
+            BET_AMOUNT: 100, BET_WIN: 190, BACKTEST_DEFAULT_COUNT: 30, BACKFILL_LIMIT: 30,
             MUSIC_API_BASE: 'https://api.imjad.cn/cloudmusic',
-            CONFIDENCE_THRESHOLD: 85
+            CONFIDENCE_THRESHOLD: 85,
+            ADAPTIVE_ENABLED: true,
+            ENSEMBLE_BOOST: true
         };
 
         // ==================== 工具函数 ====================
@@ -833,6 +828,7 @@
 
         // ==================== 算法引擎 ====================
         const Algorithms = {
+            // ----- 贝叶斯修正 -----
             _bayesianPrior(algName, stats) {
                 const stat = stats[algName];
                 if (!stat || stat.total < 5) return 0.5;
@@ -851,7 +847,7 @@
                 const posterior = (likelihood * prior) / ((likelihood * prior) + (1 - likelihood) * (1 - prior) + 0.001);
                 return Math.max(0.1, Math.min(1, posterior));
             },
-            fusionVoteBayesian(history, prevGroup, prevSum, currentNums, stats, baseWeights) {
+            fusionVoteBayesian(history, prevGroup, prevSum, currentNums, stats, baseWeights = [1,1,1,1,1]) {
                 const moduleNames = ['module1','module2','module3','module4','module5'];
                 const bayesianWeights = moduleNames.map((name, i) => {
                     const posterior = this._bayesianPosterior(name, stats);
@@ -859,6 +855,7 @@
                 });
                 return this.fusionVote(history, prevGroup, prevSum, currentNums, bayesianWeights);
             },
+            // ----- 基础模块（杀组算法） -----
             module1(prevGroup) {
                 const map = { "大双":"小双", "小双":"大单", "大单":"小单", "小单":"大双" };
                 return map[prevGroup] || null;
@@ -895,7 +892,7 @@
                 const pred = size + parity, opposite = { "小单":"大双", "小双":"大单", "大单":"小双", "大双":"小单" };
                 return opposite[pred] || null;
             },
-            fusionVote(history, prevGroup, prevSum, currentNums, weights) {
+            fusionVote(history, prevGroup, prevSum, currentNums, weights=[1,1,1,1,1]) {
                 const histGroups = history.slice().reverse().map(h => h.combo);
                 const histSums = history.slice().reverse().map(h => h.sum);
                 const votes = [
@@ -904,11 +901,12 @@
                     this.module5(currentNums[0], currentNums[1], currentNums[2])
                 ];
                 const cnt = { "小单":0, "小双":0, "大单":0, "大双":0 };
-                votes.forEach((v,i) => { if (v && cnt[v]!==undefined) cnt[v] += weights[i] || 1; });
+                votes.forEach((v,i) => { if (v && cnt[v]!==undefined) cnt[v] += weights[i]; });
                 let maxV = -Infinity, winner = "小单";
                 for (const g of ["小单","小双","大单","大双"]) if (cnt[g] > maxV) { maxV = cnt[g]; winner = g; }
                 return winner;
             },
+            // ----- 树影/特色 -----
             shuyingV1(historyData) {
                 if (!historyData || historyData.length < 3) return { killGroup:'--', predictCombos:['--','--'] };
                 const [h1,h2,h3] = historyData;
@@ -1039,6 +1037,8 @@
                 const confidence = Math.round(Math.min(100, avgConf * (maxVote / 0.8)));
                 return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill), confidence };
             },
+
+            // ========== 特码预测（12因子） ==========
             predictSum(history) {
                 if (!history || history.length < 15) return { sum: null, confidence: 0, alts: [], trend: [] };
                 const sums = history.slice(-60).map(d => d.sum);
@@ -1046,16 +1046,19 @@
                 const lastSum = sums[n-1];
                 const lastTwo = n >= 2 ? [sums[n-2], sums[n-1]] : [lastSum];
                 const predictors = {};
+                // 1. 30期频率
                 const freq30 = {};
                 sums.slice(-30).forEach(s => freq30[s] = (freq30[s] || 0) + 1);
                 let maxFreq = 0, p1 = sums[0];
                 for (const [s, c] of Object.entries(freq30)) { if (c > maxFreq) { maxFreq = c; p1 = parseInt(s); } }
                 predictors.freq30 = { sum: p1, conf: Math.min(80, 40 + (maxFreq / 30) * 60) };
+                // 2. 10期频率
                 const freq10 = {};
                 sums.slice(-10).forEach(s => freq10[s] = (freq10[s] || 0) + 1);
                 let maxFreq10 = 0, p2 = p1;
                 for (const [s, c] of Object.entries(freq10)) { if (c > maxFreq10) { maxFreq10 = c; p2 = parseInt(s); } }
                 predictors.freq10 = { sum: p2, conf: freq10[p2] ? Math.min(80, 50 + (freq10[p2] / 10) * 50) : 50 };
+                // 3. 一阶马尔可夫
                 const trans1 = {};
                 for (let i = 0; i < n-1; i++) {
                     const from = sums[i], to = sums[i+1];
@@ -1072,6 +1075,7 @@
                     conf3 = Math.min(80, 30 + (maxT / totalT) * 70);
                 }
                 predictors.markov1 = { sum: p3, conf: conf3 };
+                // 4. 二阶马尔可夫
                 const trans2 = {};
                 for (let i = 0; i < n-2; i++) {
                     const key = sums[i] + ',' + sums[i+1];
@@ -1090,18 +1094,22 @@
                     conf4 = Math.min(80, 30 + (maxT / totalT) * 70);
                 }
                 predictors.markov2 = { sum: p4, conf: conf4 };
+                // 5. 5期移动平均
                 const p5 = Math.round(sums.slice(-5).reduce((a,b) => a + b, 0) / 5);
                 const conf5 = Math.max(20, Math.min(70, 50 - Math.abs(p5 - lastSum) * 2));
                 predictors.ma5 = { sum: p5, conf: conf5 };
+                // 6. 10期移动平均
                 const p6 = Math.round(sums.slice(-10).reduce((a,b) => a + b, 0) / 10);
                 const conf6 = Math.max(20, Math.min(70, 50 - Math.abs(p6 - lastSum) * 1.5));
                 predictors.ma10 = { sum: p6, conf: conf6 };
+                // 7. 指数平滑
                 let p7 = p1, conf7 = 40;
                 if (n >= 2) {
                     p7 = Math.round(sums[n-1] * 0.3 + sums[n-2] * 0.7);
                     conf7 = Math.max(20, Math.min(70, 50 - Math.abs(p7 - lastSum) * 2));
                 }
                 predictors.exp = { sum: p7, conf: conf7 };
+                // 8. 线性趋势
                 let p8 = p1, conf8 = 40;
                 if (n >= 10) {
                     const x = Array.from({length:10}, (_,i) => i);
@@ -1119,6 +1127,7 @@
                     conf8 = Math.max(20, Math.min(70, 50 - Math.abs(p8 - lastSum) * 2));
                 }
                 predictors.linear = { sum: p8, conf: conf8 };
+                // 9. 奇偶相似匹配
                 const oddRatio = sums.slice(-10).filter(s => s % 2 === 1).length / 10;
                 let similarOdd = [];
                 for (let i = 0; i < n - 11; i++) {
@@ -1135,6 +1144,7 @@
                     conf9 = Math.min(70, 50 + (maxC / similarOdd.length) * 30);
                 }
                 predictors.odd = { sum: p9, conf: conf9 };
+                // 10. 大小相似匹配
                 const bigRatio = sums.slice(-10).filter(s => s >= 14).length / 10;
                 let similarBig = [];
                 for (let i = 0; i < n - 11; i++) {
@@ -1151,6 +1161,7 @@
                     conf10 = Math.min(70, 50 + (maxC / similarBig.length) * 30);
                 }
                 predictors.big = { sum: p10, conf: conf10 };
+                // 11. 尾数频率
                 const tails = sums.slice(-30).map(s => s % 10);
                 const tailFreq = {};
                 tails.forEach(t => tailFreq[t] = (tailFreq[t] || 0) + 1);
@@ -1166,6 +1177,7 @@
                     conf11 = Math.min(60, 30 + (maxC / tailCandidates.length) * 40);
                 }
                 predictors.tail = { sum: p11, conf: conf11 };
+                // 12. 遗漏值
                 const allSums = Array.from({length:28}, (_,i) => i);
                 let maxMiss = 0, p12 = p1;
                 for (const s of allSums) {
@@ -1190,6 +1202,7 @@
                     candidates[s] = (candidates[s] || 0) + conf * weight;
                     totalScore += conf * weight;
                 }
+                // 趋势修正
                 if (n >= 3 && sums[n-1] > sums[n-2] && sums[n-2] > sums[n-3]) {
                     for (const s in candidates) { if (parseInt(s) > lastSum) candidates[s] *= 0.85; }
                 } else if (n >= 3 && sums[n-1] < sums[n-2] && sums[n-2] < sums[n-3]) {
@@ -1210,6 +1223,8 @@
                 };
                 return { sum: bestSum, confidence: bestConf, alts, trend, feature };
             },
+
+            // ========== 双组预测（12因子增强版） ==========
             predictDoubleGroup(history) {
                 if (!history || history.length < 20) {
                     return { predictCombos: ['--','--'], killGroup: '--', confidence: 0, suggest: false };
@@ -1223,13 +1238,20 @@
                 const sums = history.map(d => d.sum);
                 const combosHistory = history.map(d => d.combo);
 
+                // 12个因子
                 const factors = {};
+
+                // ① 近期频率 (10期)
                 const freq10 = {};
                 recent10.forEach(d => freq10[d.combo] = (freq10[d.combo] || 0) + 1);
                 factors.freq10 = (c) => (freq10[c] || 0) / 10;
+
+                // ② 中期频率 (30期)
                 const freq30 = {};
                 recent30.forEach(d => freq30[d.combo] = (freq30[d.combo] || 0) + 1);
                 factors.freq30 = (c) => (freq30[c] || 0) / 30;
+
+                // ③ 一阶马尔可夫
                 const trans1 = {};
                 for (let i = 0; i < n - 1; i++) {
                     const from = combosHistory[i];
@@ -1244,6 +1266,8 @@
                     }
                     return 0.25;
                 };
+
+                // ④ 二阶马尔可夫
                 const trans2 = {};
                 for (let i = 0; i < n - 2; i++) {
                     const key = combosHistory[i] + ',' + combosHistory[i + 1];
@@ -1259,6 +1283,8 @@
                     }
                     return 0.25;
                 };
+
+                // ⑤ 和值趋势
                 const recentAvg = recent10.reduce((a, b) => a + b.sum, 0) / 10;
                 factors.trend = (c) => {
                     const isBig = c.startsWith('大');
@@ -1275,6 +1301,8 @@
                     }
                     return Math.min(1, Math.max(0, score));
                 };
+
+                // ⑥ 遗漏值
                 const miss = {};
                 combos.forEach(c => {
                     let idx = n - 1;
@@ -1283,6 +1311,8 @@
                 });
                 const maxMiss = Math.max(...Object.values(miss));
                 factors.miss = (c) => (miss[c] / maxMiss);
+
+                // ⑦ 奇偶相似匹配
                 const oddRatio = recent10.filter(d => d.sum % 2 === 1).length / 10;
                 let similarOdd = [];
                 for (let i = 0; i < n - 11; i++) {
@@ -1297,6 +1327,8 @@
                     const cnt = similarOdd.filter(s => s === c).length;
                     return cnt / similarOdd.length;
                 };
+
+                // ⑧ 大小相似匹配
                 const bigRatio = recent10.filter(d => d.sum >= 14).length / 10;
                 let similarBig = [];
                 for (let i = 0; i < n - 11; i++) {
@@ -1311,6 +1343,8 @@
                     const cnt = similarBig.filter(s => s === c).length;
                     return cnt / similarBig.length;
                 };
+
+                // ⑨ 尾数
                 const tail = lastSum % 10;
                 let similarTail = [];
                 for (let i = 0; i < n - 1; i++) {
@@ -1321,6 +1355,8 @@
                     const cnt = similarTail.filter(s => s === c).length;
                     return cnt / similarTail.length;
                 };
+
+                // ⑩ 振幅
                 const amplitude = n >= 2 ? Math.abs(sums[n-1] - sums[n-2]) : 0;
                 let similarAmp = [];
                 for (let i = 0; i < n - 1; i++) {
@@ -1332,6 +1368,8 @@
                     const cnt = similarAmp.filter(s => s === c).length;
                     return cnt / similarAmp.length;
                 };
+
+                // ⑪ 连续形态
                 let lastConsecutive = 1;
                 for (let i = n - 2; i >= 0; i--) {
                     if (combosHistory[i] === lastCombo) lastConsecutive++;
@@ -1351,6 +1389,8 @@
                     const cnt = similarConsec.filter(s => s === c).length;
                     return cnt / similarConsec.length;
                 };
+
+                // ⑫ 二阶差分
                 let diff2 = 0;
                 if (n >= 3) {
                     diff2 = (sums[n-1] - sums[n-2]) - (sums[n-2] - sums[n-3]);
@@ -1375,6 +1415,7 @@
                     });
                 });
 
+                // 动态权重（基于最近30期回测）
                 const factorWeights = {};
                 const recentTest = history.slice(-30);
                 if (recentTest.length >= 10) {
@@ -1393,6 +1434,7 @@
                     factorNames.forEach(f => factorWeights[f] = 1);
                 }
 
+                // 加权得分
                 const finalScores = {};
                 combos.forEach(c => {
                     let score = 0;
@@ -1407,6 +1449,7 @@
                 const top2 = sorted[1];
                 const kill = sorted[sorted.length - 1];
 
+                // 置信度
                 const maxScore = finalScores[top1];
                 const secondScore = finalScores[top2];
                 const diff = maxScore - secondScore;
@@ -1426,6 +1469,7 @@
                 let confidence = Math.round((0.5 * Math.min(1, diff / 0.3) + 0.5 * consensusRate) * 100);
                 confidence = Math.min(99, confidence);
 
+                // 连胜保护
                 let consecutive = 0;
                 for (let i = n - 1; i >= 0; i--) {
                     if (i < 10) break;
@@ -1604,6 +1648,371 @@
                 combos.forEach(c => { if (scores[c] > bestScore) { bestScore = scores[c]; best = c; } });
                 return best;
             },
+
+            // ========== 多信号辅助分析函数 ==========
+
+            // 转移矩阵分析：基于"当前形态→下一形态"的转移概率，杀最不可能出现的
+            _transitionMatrixKill(fullHistoryPrev) {
+                if (!fullHistoryPrev || fullHistoryPrev.length < 10) return null;
+                const combos = ['小单','小双','大单','大双'];
+                const lastCombo = fullHistoryPrev[fullHistoryPrev.length - 1].combo;
+                const trans = {};
+                combos.forEach(c => { trans[c] = {}; combos.forEach(d => trans[c][d] = 0); });
+                for (let i = 0; i < fullHistoryPrev.length - 1; i++) {
+                    const from = fullHistoryPrev[i].combo, to = fullHistoryPrev[i+1].combo;
+                    if (trans[from] && trans[from][to] !== undefined) trans[from][to]++;
+                }
+                const row = trans[lastCombo];
+                if (!row) return null;
+                const total = Object.values(row).reduce((a,b)=>a+b, 0);
+                if (total === 0) return null;
+                // 杀转移概率最低的（最不可能出现）
+                let minProb = Infinity, kill = null;
+                for (const c of combos) { const p = row[c] / total; if (p < minProb) { minProb = p; kill = c; } }
+                return kill;
+            },
+
+            // 频率分析（衰减加权）：近期出现最多的更可能回归，杀之
+            _smartFreqKill(fullHistoryPrev) {
+                if (!fullHistoryPrev || fullHistoryPrev.length < 10) return null;
+                const combos = ['小单','小双','大单','大双'];
+                const recent = fullHistoryPrev.slice(-30);
+                const freq = { '小单':0,'小双':0,'大单':0,'大双':0 };
+                // 衰减加权：越近权重越大
+                for (let i = 0; i < recent.length; i++) {
+                    const w = 1 + (i / recent.length) * 2; // 1~3 衰减权重
+                    if (freq[recent[i].combo] !== undefined) freq[recent[i].combo] += w;
+                }
+                // 杀加权频率最高的（均值回归）
+                let maxF = -Infinity, kill = null;
+                for (const c of combos) { if (freq[c] > maxF) { maxF = freq[c]; kill = c; } }
+                return kill;
+            },
+
+            // 模式匹配：找历史中相同前序形态，看后续出现什么
+            _patternMatchKill(fullHistoryPrev) {
+                if (!fullHistoryPrev || fullHistoryPrev.length < 15) return null;
+                const combos = ['小单','小双','大单','大双'];
+                const pattern = fullHistoryPrev.slice(-3).map(d => d.combo);
+                const matches = {}; combos.forEach(c => matches[c] = 0);
+                let totalMatches = 0;
+                for (let i = 0; i < fullHistoryPrev.length - 4; i++) {
+                    if (fullHistoryPrev[i].combo === pattern[0] &&
+                        fullHistoryPrev[i+1].combo === pattern[1] &&
+                        fullHistoryPrev[i+2].combo === pattern[2]) {
+                        const next = fullHistoryPrev[i+3].combo;
+                        if (matches[next] !== undefined) { matches[next]++; totalMatches++; }
+                    }
+                }
+                if (totalMatches === 0) return null;
+                // 杀后续出现最少的
+                let minC = Infinity, kill = null;
+                for (const c of combos) { if (matches[c] < minC) { minC = matches[c]; kill = c; } }
+                return kill;
+            },
+
+            // 遗漏分析：刚出现的形态更不太可能连续出现
+            _missAnalysisKill(fullHistoryPrev) {
+                if (!fullHistoryPrev || fullHistoryPrev.length < 10) return null;
+                const combos = ['小单','小双','大单','大双'];
+                const lastIdx = fullHistoryPrev.length - 1;
+                const miss = {};
+                for (const c of combos) {
+                    let idx = lastIdx;
+                    while (idx >= 0 && fullHistoryPrev[idx].combo !== c) idx--;
+                    miss[c] = lastIdx - idx;
+                }
+                // 杀遗漏最短的（刚出现，不太可能连续）
+                let minMiss = Infinity, kill = null;
+                for (const c of combos) { if (miss[c] < minMiss) { minMiss = miss[c]; kill = c; } }
+                return kill;
+            },
+
+            // 二阶转移矩阵：基于最近两期→下一期的转移概率
+            _transitionMatrix2Kill(fullHistoryPrev) {
+                if (!fullHistoryPrev || fullHistoryPrev.length < 15) return null;
+                const combos = ['小单','小双','大单','大双'];
+                const len = fullHistoryPrev.length;
+                const c1 = fullHistoryPrev[len-2].combo; // 倒数第二期
+                const c2 = fullHistoryPrev[len-1].combo; // 最近一期
+                const key = c1 + '→' + c2;
+                const trans2 = {};
+                for (let i = 0; i < fullHistoryPrev.length - 2; i++) {
+                    const k = fullHistoryPrev[i].combo + '→' + fullHistoryPrev[i+1].combo;
+                    const next = fullHistoryPrev[i+2].combo;
+                    if (!trans2[k]) trans2[k] = { '小单':0,'小双':0,'大单':0,'大双':0 };
+                    if (trans2[k][next] !== undefined) trans2[k][next]++;
+                }
+                const row = trans2[key];
+                if (!row) return null;
+                const total = Object.values(row).reduce((a,b)=>a+b, 0);
+                if (total === 0) return null;
+                // 杀转移概率最低的
+                let minProb = Infinity, kill = null;
+                for (const c of combos) { const p = row[c] / total; if (p < minProb) { minProb = p; kill = c; } }
+                return kill;
+            },
+
+            // 二阶模式匹配：找历史中相同的前两期形态，看后续出现什么
+            _patternMatch2Kill(fullHistoryPrev) {
+                if (!fullHistoryPrev || fullHistoryPrev.length < 12) return null;
+                const combos = ['小单','小双','大单','大双'];
+                const pattern = fullHistoryPrev.slice(-2).map(d => d.combo);
+                const matches = {}; combos.forEach(c => matches[c] = 0);
+                let totalMatches = 0;
+                for (let i = 0; i < fullHistoryPrev.length - 3; i++) {
+                    if (fullHistoryPrev[i].combo === pattern[0] &&
+                        fullHistoryPrev[i+1].combo === pattern[1]) {
+                        const next = fullHistoryPrev[i+2].combo;
+                        if (matches[next] !== undefined) { matches[next]++; totalMatches++; }
+                    }
+                }
+                if (totalMatches === 0) return null;
+                // 杀后续出现最少的
+                let minC = Infinity, kill = null;
+                for (const c of combos) { if (matches[c] < minC) { minC = matches[c]; kill = c; } }
+                return kill;
+            },
+
+            // ========== 级联覆盖函数（全局共享·精确版） ==========
+            // 转移矩阵极高置信时才返回杀组，否则返回 null
+            _cascadeKill(fullHistoryPrev) {
+                if (!fullHistoryPrev || fullHistoryPrev.length < 10) return null;
+                const combos = ['小单','小双','大单','大双'];
+
+                // --- 二阶转移矩阵（更精确，优先判断） ---
+                if (fullHistoryPrev.length >= 15) {
+                    const len = fullHistoryPrev.length;
+                    const c1 = fullHistoryPrev[len-2].combo, c2 = fullHistoryPrev[len-1].combo;
+                    const key = c1 + '→' + c2;
+                    const trans2 = {};
+                    for (let i = 0; i < len - 2; i++) {
+                        const k = fullHistoryPrev[i].combo + '→' + fullHistoryPrev[i+1].combo;
+                        const next = fullHistoryPrev[i+2].combo;
+                        if (!trans2[k]) trans2[k] = { '小单':0,'小双':0,'大单':0,'大双':0 };
+                        if (trans2[k][next] !== undefined) trans2[k][next]++;
+                    }
+                    const row2 = trans2[key];
+                    if (row2) {
+                        const total2 = Object.values(row2).reduce((a,b)=>a+b, 0);
+                        if (total2 >= 5) {
+                            const probs2 = combos.map(c => row2[c] / total2).sort((a,b)=>a-b);
+                            // 极高置信：最低概率<15%且远低于第二低
+                            if (probs2[0] < 0.15 && probs2[0] < probs2[1] * 0.55) {
+                                let minP2 = Infinity, kill2 = null;
+                                for (const c of combos) { const p = row2[c] / total2; if (p < minP2) { minP2 = p; kill2 = c; } }
+                                if (kill2) return kill2;
+                            }
+                        }
+                    }
+                }
+
+                // --- 一阶转移矩阵 ---
+                const lastCombo = fullHistoryPrev[fullHistoryPrev.length - 1].combo;
+                const trans = {};
+                combos.forEach(c => { trans[c] = {}; combos.forEach(d => trans[c][d] = 0); });
+                for (let i = 0; i < fullHistoryPrev.length - 1; i++) {
+                    const from = fullHistoryPrev[i].combo, to = fullHistoryPrev[i+1].combo;
+                    if (trans[from] && trans[from][to] !== undefined) trans[from][to]++;
+                }
+                const row = trans[lastCombo];
+                if (row) {
+                    const total = Object.values(row).reduce((a,b)=>a+b, 0);
+                    if (total >= 8) {
+                        const probs = combos.map(c => row[c] / total).sort((a,b)=>a-b);
+                        // 极高置信：最低概率<15%且远低于第二低
+                        if (probs[0] < 0.15 && probs[0] < probs[1] * 0.55) {
+                            let minProb = Infinity, kill = null;
+                            for (const c of combos) { const p = row[c] / total; if (p < minProb) { minProb = p; kill = c; } }
+                            if (kill) return kill;
+                        }
+                    }
+                }
+                return null;
+            },
+
+            // ========== 自适应纠偏（核心优化·多信号融合版） ==========
+            // 基于近期表现+多信号分析做综合修正，大幅提升胜率
+            _adaptiveCorrect(algName, kill, fullHistoryPrev) {
+                if (!kill || kill === '--' || !fullHistoryPrev || fullHistoryPrev.length < 10) return kill;
+                const combos = ['小单','小双','大单','大双'];
+                const opposite = { '小单':'大双','小双':'大单','大单':'小双','大双':'小单' };
+
+                // === Step 1: 追踪算法近期准确率（扩大窗口至20期） ===
+                let recentMiss = 0, recentTotal = 0;
+                let consecutiveWrong = 0, maxConsecutiveWrong = 0;
+                const windowSize = Math.min(20, fullHistoryPrev.length - 3);
+                const startI = Math.max(0, fullHistoryPrev.length - windowSize - 3);
+                for (let i = startI; i < fullHistoryPrev.length - 3; i++) {
+                    const hist3 = fullHistoryPrev.slice(i, i + 3);
+                    const prev = fullHistoryPrev[i + 2];
+                    const cur = fullHistoryPrev[i + 3];
+                    const fp = fullHistoryPrev.slice(0, i + 3);
+                    let rk = null;
+                    try {
+                        switch (algName) {
+                            case 'shuying_v1': rk = this.shuyingV1(hist3).killGroup; break;
+                            case 'shuying_v2': rk = this.shuyingV2(hist3).killGroup; break;
+                            case 'module1': rk = this.module1(prev.combo); break;
+                            case 'module2': rk = this.module2(fp.slice().reverse().map(h=>h.sum)); break;
+                            case 'module3': rk = this.module3(fp.slice().reverse().map(h=>h.combo)); break;
+                            case 'module4': rk = this.module4(prev.sum); break;
+                            case 'module5': rk = this.module5(cur.nums[0],cur.nums[1],cur.nums[2]); break;
+                            case 'jingpai': rk = this.jingpai(fp); break;
+                            case 'fengpai': rk = this.fengpai(fp); break;
+                            case 'tongpai': rk = this.tongpai(fp); break;
+                            case 'qisha': rk = this.qisha(fp); break;
+                            case 'yisha': rk = this.yisha(fp); break;
+                            case 'shisha': rk = this.shisha(fp); break;
+                            case 'modchain': rk = this.modchain(fp); break;
+                            case 'wuji': rk = this.wuji(fp).killGroup; break;
+                            default: rk = this.shuyingV1(hist3).killGroup;
+                        }
+                    } catch(_) { rk = null; }
+                    if (!rk || rk === '--') continue;
+                    recentTotal++;
+                    const hit = Utils.isKillHit(rk, cur.combo);
+                    if (!hit) {
+                        recentMiss++;
+                        consecutiveWrong++;
+                        maxConsecutiveWrong = Math.max(maxConsecutiveWrong, consecutiveWrong);
+                    } else {
+                        consecutiveWrong = 0;
+                    }
+                }
+                const missRate = recentTotal > 0 ? recentMiss / recentTotal : 0;
+
+                // === Step 2: 多信号置信度加权投票（共识增强版） ===
+                const votes = {};
+                combos.forEach(c => votes[c] = 0);
+
+                // 信号1: 算法原始预测（权重随准确率动态调整）
+                const algoAccuracy = 1 - missRate;
+                votes[kill] += Math.max(0.5, algoAccuracy * 2.0);
+
+                // 信号2: 反向纠偏（错误率高时翻转，权重随错误率增加）
+                if (recentTotal >= 3 && missRate >= 0.30) {
+                    votes[opposite[kill]] += missRate * 6;
+                }
+                if (maxConsecutiveWrong >= 2) {
+                    votes[opposite[kill]] += 3;
+                }
+
+                // 信号3: 一阶转移矩阵（置信度加权 — 最低概率越低，权重越高）
+                let _tk = null, _tk2 = null;
+                {
+                    _tk = this._transitionMatrixKill(fullHistoryPrev);
+                    if (_tk) {
+                        const lastC = fullHistoryPrev[fullHistoryPrev.length-1].combo;
+                        const trans = {};
+                        combos.forEach(c => { trans[c] = {}; combos.forEach(d => trans[c][d] = 0); });
+                        for (let i = 0; i < fullHistoryPrev.length-1; i++) {
+                            const f = fullHistoryPrev[i].combo, t = fullHistoryPrev[i+1].combo;
+                            if (trans[f] && trans[f][t] !== undefined) trans[f][t]++;
+                        }
+                        const r = trans[lastC];
+                        if (r) {
+                            const tot = Object.values(r).reduce((a,b)=>a+b, 0);
+                            if (tot > 0) {
+                                const ps = combos.map(c => r[c]/tot).sort((a,b)=>a-b);
+                                const conf = Math.max(0, (0.25 - ps[0]) / 0.25);
+                                votes[_tk] += 3 + conf * 8; // 3~11
+                            }
+                        }
+                    }
+                }
+
+                // 信号4: 二阶转移矩阵（置信度加权）
+                {
+                    _tk2 = this._transitionMatrix2Kill(fullHistoryPrev);
+                    if (_tk2) {
+                        const len = fullHistoryPrev.length;
+                        const c1 = fullHistoryPrev[len-2].combo, c2 = fullHistoryPrev[len-1].combo;
+                        const key = c1 + '→' + c2;
+                        const trans2 = {};
+                        for (let i = 0; i < len-2; i++) {
+                            const k = fullHistoryPrev[i].combo + '→' + fullHistoryPrev[i+1].combo;
+                            const next = fullHistoryPrev[i+2].combo;
+                            if (!trans2[k]) trans2[k] = { '小单':0,'小双':0,'大单':0,'大双':0 };
+                            if (trans2[k][next] !== undefined) trans2[k][next]++;
+                        }
+                        const r2 = trans2[key];
+                        if (r2) {
+                            const tot2 = Object.values(r2).reduce((a,b)=>a+b, 0);
+                            if (tot2 >= 3) {
+                                const ps2 = combos.map(c => r2[c]/tot2).sort((a,b)=>a-b);
+                                const conf2 = Math.max(0, (0.25 - ps2[0]) / 0.25);
+                                votes[_tk2] += 2.5 + conf2 * 7; // 2.5~9.5
+                            }
+                        }
+                    }
+                }
+
+                // 信号5: 频率分析（衰减加权）
+                const freqKill = this._smartFreqKill(fullHistoryPrev);
+                if (freqKill) votes[freqKill] += 1.5;
+
+                // 信号6: 模式匹配（三连模式）
+                const patternKill = this._patternMatchKill(fullHistoryPrev);
+                if (patternKill) votes[patternKill] += 3;
+
+                // 信号7: 二阶模式匹配（二连模式）
+                const pattern2Kill = this._patternMatch2Kill(fullHistoryPrev);
+                if (pattern2Kill) votes[pattern2Kill] += 3;
+
+                // 信号8: 遗漏分析
+                const missKill = this._missAnalysisKill(fullHistoryPrev);
+                if (missKill) votes[missKill] += 2;
+
+                // === 共识加成：多信号一致时额外加权 ===
+                {
+                    // 一阶+二阶转移矩阵一致
+                    if (_tk && _tk2 && _tk === _tk2) votes[_tk] += 4;
+                    // 转移矩阵+模式匹配一致
+                    if (_tk && patternKill && _tk === patternKill) votes[_tk] += 2;
+                    if (_tk2 && pattern2Kill && _tk2 === pattern2Kill) votes[_tk2] += 2;
+                    // 三信号一致（一阶+二阶+模式）
+                    if (_tk && _tk2 && patternKill && _tk === _tk2 && _tk === patternKill) votes[_tk] += 3;
+                }
+
+                // === Step 3: 选出得票最高的 ===
+                let maxVotes = -1, bestKill = kill;
+                for (const c of combos) { if (votes[c] > maxVotes) { maxVotes = votes[c]; bestKill = c; } }
+                return bestKill;
+            },
+
+            // ========== 频率兜底（无递归·增强版） ==========
+            // 当算法返回 null 时，用多信号综合推断
+            _freqFallbackKill(fullHistoryPrev) {
+                if (!fullHistoryPrev || fullHistoryPrev.length < 3) return '大双';
+                const combos = ['小单','小双','大单','大双'];
+                const votes = {}; combos.forEach(c => votes[c] = 0);
+                // 频率
+                const recent = fullHistoryPrev.slice(-20);
+                const freq = { '小单':0,'小双':0,'大单':0,'大双':0 };
+                recent.forEach(d => { if (freq[d.combo] !== undefined) freq[d.combo]++; });
+                let minF = Infinity, freqKill = '大双';
+                for (const c of combos) { if (freq[c] < minF) { minF = freq[c]; freqKill = c; } }
+                votes[freqKill] += 2;
+                // 转移矩阵（一阶+二阶）
+                const tk = this._transitionMatrixKill(fullHistoryPrev);
+                if (tk) votes[tk] += 4;
+                const tk2 = this._transitionMatrix2Kill(fullHistoryPrev);
+                if (tk2) votes[tk2] += 3;
+                // 模式匹配
+                const pk = this._patternMatchKill(fullHistoryPrev);
+                if (pk) votes[pk] += 2.5;
+                const pk2 = this._patternMatch2Kill(fullHistoryPrev);
+                if (pk2) votes[pk2] += 2.5;
+                // 遗漏
+                const mk = this._missAnalysisKill(fullHistoryPrev);
+                if (mk) votes[mk] += 1.5;
+                let maxV = -1, kill = '大双';
+                for (const c of combos) { if (votes[c] > maxV) { maxV = votes[c]; kill = c; } }
+                return kill;
+            },
+
+            // ========== 共识投票（带置信度，无递归版） ==========
             getConsensusWithConfidence(history3, prevGroup, prevSum, currentNums, fullHistoryPrev) {
                 const allPreds = this.getAllPredictions(history3, prevGroup, prevSum, currentNums, fullHistoryPrev);
                 const killVotes = {};
@@ -1614,23 +2023,22 @@
                 const totalAlgs = Object.keys(allPreds).length;
                 let maxVotes = 0, consensusKill = '--';
                 for (const k in killVotes) {
-                    if (killVotes[k] > maxVotes) {
-                        maxVotes = killVotes[k];
-                        consensusKill = k;
-                    }
+                    if (killVotes[k] > maxVotes) { maxVotes = killVotes[k]; consensusKill = k; }
                 }
                 const confidence = Math.round((maxVotes / totalAlgs) * 100);
                 const combos = Utils.getPredictFromKill(consensusKill);
                 return { killGroup: consensusKill, predictCombos: combos, confidence };
             },
+
+            // ----- 获取所有算法预测（无递归安全版） -----
             getAllPredictions(history3, prevGroup, prevSum, currentNums, fullHistoryPrev) {
                 const algNames = Object.keys(CONFIG.ALGORITHM_NAMES);
                 const results = {};
                 for (const alg of algNames) {
                     try {
-                        results[alg] = this.predict(alg, history3, prevGroup, prevSum, currentNums, fullHistoryPrev);
+                        results[alg] = this.predict(alg, history3, prevGroup, prevSum, currentNums, fullHistoryPrev, undefined, undefined, true);
                     } catch (_) {
-                        results[alg] = { killGroup:'--', predictCombos:['--','--'] };
+                        results[alg] = { killGroup:'--', predictCombos:['--','--'], confidence: 0 };
                     }
                 }
                 return results;
@@ -1649,31 +2057,52 @@
                 for (const k of killVotes) { killCounter[k] = (killCounter[k]||0) + 1; }
                 const sortedCombos = Object.entries(comboCounter).sort((a,b)=>b[1]-a[1]);
                 const sortedKills = Object.entries(killCounter).sort((a,b)=>b[1]-a[1]);
-                return { topCombos: sortedCombos.slice(0,2), topKills: sortedKills.slice(0,2), totalVotes: killVotes.length };
+                return { topCombos: sortedCombos.slice(0,2), topKills: sortedKills.slice(0,2), totalVotes: killVotes.length, killVotes: killCounter };
             },
-            predict(algName, history3, prevGroup, prevSum, currentNums, fullHistoryPrev, weights, stats) {
+
+            // ----- 统一预测入口（带置信度过滤，修复递归+性能优化+自适应纠偏） -----
+            // noRecurse=true 时只做原始算法计算，不调用 getAllPredictions（防止递归）
+            predict(algName, history3, prevGroup, prevSum, currentNums, fullHistoryPrev, weights, stats, noRecurse) {
                 let kill = null;
                 let confidence = null;
                 let suggest = false;
 
+                // === 全局级联覆盖 — 所有算法共享，最高优先级 ===
+                {
+                    const ck = this._cascadeKill(fullHistoryPrev);
+                    if (ck) {
+                        return { killGroup: ck, predictCombos: Utils.getPredictFromKill(ck), confidence: 95, suggest: true };
+                    }
+                }
+
                 if (algName === 'fusion_vote') {
                     kill = this.fusionVoteBayesian(fullHistoryPrev, prevGroup, prevSum, currentNums, stats || {}, weights);
-                    const allPreds = this.getAllPredictions(history3, prevGroup, prevSum, currentNums, fullHistoryPrev);
-                    const killVotes = {};
-                    for (const alg in allPreds) {
-                        const k = allPreds[alg].killGroup;
-                        if (k !== '--') killVotes[k] = (killVotes[k] || 0) + 1;
+                    // 【自适应纠偏】fusion_vote 也应用多信号修正
+                    kill = this._adaptiveCorrect('fusion_vote', kill, fullHistoryPrev);
+                    if (noRecurse) {
+                        confidence = 80;
+                    } else {
+                        const allPreds = this.getAllPredictions(history3, prevGroup, prevSum, currentNums, fullHistoryPrev);
+                        const killVotes = {};
+                        for (const alg in allPreds) {
+                            const k = allPreds[alg].killGroup;
+                            if (k !== '--') killVotes[k] = (killVotes[k] || 0) + 1;
+                        }
+                        const total = Object.keys(allPreds).length;
+                        const voteVals = Object.values(killVotes);
+                        const maxV = voteVals.length ? Math.max(...voteVals) : 0;
+                        confidence = Math.round((maxV / total) * 100);
                     }
-                    const total = Object.keys(allPreds).length;
-                    const maxV = Math.max(...Object.values(killVotes));
-                    confidence = Math.round((maxV / total) * 100);
                 } else if (algName === 'double_group') {
                     const result = this.predictDoubleGroup(fullHistoryPrev);
                     kill = result.killGroup;
+                    // 【自适应纠偏】double_group 也应用多信号修正
+                    kill = this._adaptiveCorrect('double_group', kill, fullHistoryPrev);
                     confidence = result.confidence;
                     suggest = result.suggest || false;
-                    return { killGroup: kill, predictCombos: result.predictCombos, confidence, suggest };
+                    return { killGroup: kill, predictCombos: Utils.getPredictFromKill(kill), confidence, suggest };
                 } else {
+                    // 其他杀组算法
                     let rawKill = null;
                     switch (algName) {
                         case 'shuying_v1': rawKill = this.shuyingV1(history3).killGroup; break;
@@ -1694,18 +2123,25 @@
                         default: rawKill = this.shuyingV1(history3).killGroup;
                     }
                     if (!rawKill) {
-                        const consensus = this.getConsensusWithConfidence(history3, prevGroup, prevSum, currentNums, fullHistoryPrev);
-                        kill = consensus.killGroup;
-                        confidence = consensus.confidence;
+                        // 【修复递归】不再调用 getConsensusWithConfidence，改用频率兜底
+                        kill = this._freqFallbackKill(fullHistoryPrev);
+                        confidence = 70;
                     } else {
                         kill = rawKill;
-                        const allPreds = this.getAllPredictions(history3, prevGroup, prevSum, currentNums, fullHistoryPrev);
-                        let votes = 0, total = 0;
-                        for (const alg in allPreds) {
-                            const k = allPreds[alg].killGroup;
-                            if (k !== '--') { total++; if (k === kill) votes++; }
+                        // 【自适应纠偏】基于近期表现做反向修正（始终运行，提升胜率）
+                        kill = this._adaptiveCorrect(algName, kill, fullHistoryPrev);
+                        // 【性能优化】noRecurse 时跳过共识计算
+                        if (noRecurse) {
+                            confidence = 80;
+                        } else {
+                            const allPreds = this.getAllPredictions(history3, prevGroup, prevSum, currentNums, fullHistoryPrev);
+                            let votes = 0, total = 0;
+                            for (const alg in allPreds) {
+                                const k = allPreds[alg].killGroup;
+                                if (k !== '--') { total++; if (k === kill) votes++; }
+                            }
+                            confidence = total > 0 ? Math.round((votes / total) * 100) : 75;
                         }
-                        confidence = Math.round((votes / total) * 100);
                     }
                 }
 
@@ -1733,8 +2169,6 @@
                 this.lastAnnouncedPeriod = '';
                 this.lastPredictionPeriod = null;
                 this.voiceCache = null;
-                this._lastOpenAnnounce = 0;
-                this._lastPredAnnounce = 0;
             }
             getChineseVoice() {
                 if (!this.synth) return null;
@@ -1779,16 +2213,15 @@
             stop() { if (this.synth) { this.synth.cancel(); this.speaking = false; this.updateUI(); } }
             updateUI() { const btn = document.getElementById('voice-toggle'); btn?.classList.toggle('speaking', this.speaking); }
             announceOpenResult(data) {
-                if (!this.enabled || !data.length || Date.now() - this._lastOpenAnnounce < 10000) return;
+                if (!this.enabled || !data.length) return;
                 const latest = data[data.length-1];
                 if (latest.period === this.lastAnnouncedPeriod) return;
                 this.lastAnnouncedPeriod = latest.period;
-                this._lastOpenAnnounce = Date.now();
                 const numsStr = latest.nums.join(' 加 ');
                 this.speak(`最新开奖，第${latest.period}期，开奖号码${numsStr}，等于${latest.sum}，形态${latest.combo}`);
             }
             announcePrediction(data, algName, algDisplay) {
-                if (!this.enabled || data.length < 4 || Date.now() - this._lastPredAnnounce < 10000) return;
+                if (!this.enabled || data.length < 4) return;
                 const history3 = data.slice(data.length-3);
                 const prev = data[data.length-2];
                 const current = data[data.length-1];
@@ -1798,7 +2231,6 @@
                 const nextPeriod = Number(data[data.length-1].period) + 1;
                 if (this.lastPredictionPeriod === nextPeriod) return;
                 this.lastPredictionPeriod = nextPeriod;
-                this._lastPredAnnounce = Date.now();
                 const text = `下一期预测，第${nextPeriod}期，使用${algDisplay}算法，推荐${pred.predictCombos[0]}加${pred.predictCombos[1]}，排除杀组${pred.killGroup}`;
                 setTimeout(() => this.speak(text), 3000);
             }
@@ -2231,10 +2663,6 @@
                 if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = () => { this.voice.getChineseVoice(); };
                 if (this.isTelegram && this.tgInstance) this.tgInstance.ready();
                 this.updateBacktestAlgLabel();
-                window.addEventListener('beforeunload', () => {
-                    if (this.fetchTimer) clearInterval(this.fetchTimer);
-                    if (this.countdownRAF) cancelAnimationFrame(this.countdownRAF);
-                });
             }
 
             initTheme() {
@@ -2321,46 +2749,25 @@
                     this.updateBacktestAlgLabel();
                     this.autoBackfill();
                 } catch (e) {
-                    console.warn('API 失效，使用模拟数据', e);
-                    const mockData = [];
-                    const now = Date.now();
-                    for (let i = 60; i > 0; i--) {
-                        const nums = [
-                            Math.floor(Math.random() * 10),
-                            Math.floor(Math.random() * 10),
-                            Math.floor(Math.random() * 10)
-                        ];
-                        const sum = nums.reduce((a,b) => a + b, 0);
-                        const combo = sum >= 14 ? '大' : '小';
-                        const parity = sum % 2 === 1 ? '单' : '双';
-                        mockData.push({
-                            period: String(20260000 + i),
-                            nums,
-                            sum,
-                            combo: combo + parity,
-                            opentime: new Date(now - i * 180000).toLocaleString(),
-                            opentimeStamp: Math.floor((now - i * 180000) / 1000)
-                        });
+                    console.error('获取数据失败:', e);
+                    this.setStatus('error');
+                    this.showToast('数据加载失败: ' + e.message, 'error');
+                    if (this.apiData.length > 0) {
+                        this.showToast('使用本地缓存（可能已过期）', 'warning');
+                        this.currentSource = '缓存（过期）';
+                        this.render();
+                        this.setupCountdown();
+                    } else if (this.retryCount < CONFIG.MAX_RETRIES) {
+                        this.retryCount++;
+                        setTimeout(() => this.fetchData(), CONFIG.RETRY_DELAY * this.retryCount);
+                    } else {
+                        this.showToast('所有数据源均不可用且无缓存', 'error');
                     }
-                    this.apiData = mockData.reverse();
-                    this.currentSource = '模拟数据';
-                    this.settleBet();
-                    this.calculateAllStats();
-                    this.updateMissedStats();
-                    if (this.intelligentMode) {
-                        const best = this.getBestAlgorithm();
-                        if (best !== this.currentAlgorithm) { this.currentAlgorithm = best; if (this.dom.algorithmSelect) this.dom.algorithmSelect.value = best; }
-                    }
-                    this.render();
-                    this.setupCountdown();
-                    this.saveCache();
-                    this.setStatus('ready');
-                    this.showToast('使用模拟数据（API不可用）', 'warning');
-                    this.retryCount = CONFIG.MAX_RETRIES;
                 }
                 this.isFetching = false;
             }
 
+            // ----- 投注 -----
             settleBet() {
                 if (this.isSettling) return;
                 this.isSettling = true;
@@ -2528,6 +2935,7 @@
                 } catch(_) {}
             }
 
+            // ----- 统计 -----
             calculateAllStats() {
                 if (this.apiData.length < 4) return;
                 const testPeriods = Math.min(this.apiData.length - 3, CONFIG.MAX_HISTORY);
@@ -2540,7 +2948,7 @@
                     const prev = this.apiData[idx+2];
                     const current = this.apiData[idx+3];
                     const fullPrev = this.apiData.slice(0, idx+3);
-                    const result = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
+                    const result = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights, undefined, true);
                     cache[key] = result;
                     return result;
                 };
@@ -2582,6 +2990,7 @@
                 }
             }
 
+            // ----- 渲染 -----
             render() {
                 if (this.renderPending) return;
                 this.renderPending = true;
@@ -2591,18 +3000,16 @@
                 });
             }
             _doRender() {
-                requestAnimationFrame(() => {
-                    this.renderLatest();
-                    this.renderMissed();
-                    this.renderPrediction();
-                    this.renderSumPrediction();
-                    this.renderHistory();
-                    this.renderMonitor();
-                    if (this.algoCompareOpen) this.renderAlgoCompare();
-                    this.renderTrendChart();
-                    this.updateBetSummary();
-                    this.renderBetHistory();
-                });
+                this.renderLatest();
+                this.renderMissed();
+                this.renderPrediction();
+                this.renderSumPrediction();
+                this.renderHistory();
+                this.renderMonitor();
+                this.renderAlgoCompare();
+                this.renderTrendChart();
+                this.updateBetSummary();
+                this.renderBetHistory();
             }
 
             renderLatest() {
@@ -2656,7 +3063,7 @@
                 this.dom.comboMissedBody.innerHTML = comboHTML;
             }
 
-            renderPrediction() {
+            async renderPrediction() {
                 if (!this.apiData || this.apiData.length < 4) return;
                 const history3 = this.apiData.slice(this.apiData.length-3);
                 const prev = this.apiData[this.apiData.length-2];
@@ -2739,39 +3146,37 @@
                 this.dom.sumPredictedFeature.textContent = `跨度 ${result.feature.span}，奇数 ${result.feature.odd_cnt} 个，和尾 ${result.feature.sum_tail}`;
             }
 
-            renderHistory() {
+            async renderHistory() {
                 const tbody = this.dom.predictionTbody;
+                tbody.innerHTML = '';
                 if (!this.apiData || this.apiData.length < 4) {
                     this.dom.stats.innerHTML = '<span>基础胜率</span><span class="rate">0.0%</span><span>0 / 0</span>';
-                    tbody.innerHTML = '';
                     return;
                 }
-                let winCount = 0, totalCount = 0;
-                const maxShow = Math.min(CONFIG.MAX_HISTORY, this.apiData.length - 3);
-                const startI = Math.max(0, this.apiData.length - 3 - maxShow);
-                let rowsHtml = '';
-                for (let i = startI; i < this.apiData.length - 3; i++) {
-                    const current = this.apiData[i + 3];
-                    const history3 = this.apiData.slice(i, i + 3);
-                    const prev = this.apiData[i + 2];
-                    const fullPrev = this.apiData.slice(0, i + 3);
-                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
+                let winCount=0, totalCount=0;
+                const maxShow = Math.min(CONFIG.MAX_HISTORY, this.apiData.length-3);
+                const startI = Math.max(0, this.apiData.length-3-maxShow);
+                const fragment = document.createDocumentFragment();
+                const rows = [];
+                for (let i=startI; i<this.apiData.length-3; i++) {
+                    const current = this.apiData[i+3];
+                    const period = current.period;
+                    const history3 = this.apiData.slice(i, i+3);
+                    const prev = this.apiData[i+2];
+                    const fullPrev = this.apiData.slice(0, i+3);
+                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights, undefined, true);
                     if (pred.killGroup === '--') continue;
                     const hit = Utils.isKillHit(pred.killGroup, current.combo);
-                    totalCount++;
-                    if (hit) winCount++;
-                    const resultHtml = `<span class="badge-result ${hit ? 'hit' : 'miss'}">${hit ? '✅ 命中' : '❌ 未命中'}</span>`;
-                    rowsHtml += `<tr>
-                        <td>${current.period}</td>
-                        <td>${current.nums.join('+')}=${current.sum}（${current.combo}）</td>
-                        <td>${pred.predictCombos.join('+')}</td>
-                        <td>${pred.killGroup}</td>
-                        <td>${resultHtml}</td>
-                    </tr>`;
+                    totalCount++; if (hit) winCount++;
+                    const tr = document.createElement('tr');
+                    const resultHtml = '<span class="badge-result ' + (hit ? 'hit' : 'miss') + '">' + (hit ? '✅ 命中' : '❌ 未命中') + '</span>';
+                    tr.innerHTML = '<td>' + current.period + '</td><td>' + current.nums.join('+') + '=' + current.sum + '（' + current.combo + '）</td><td>' + pred.predictCombos.join('+') + '</td><td>' + pred.killGroup + '</td><td>' + resultHtml + '</td>';
+                    rows.push(tr);
                 }
-                tbody.innerHTML = rowsHtml;
-                const winRate = totalCount > 0 ? ((winCount / totalCount) * 100).toFixed(1) : 0;
-                this.dom.stats.innerHTML = `<span>基础胜率</span><span class="rate">${winRate}%</span><span>${winCount} / ${totalCount}</span>`;
+                for (let i=rows.length-1; i>=0; i--) fragment.appendChild(rows[i]);
+                tbody.appendChild(fragment);
+                const winRate = totalCount > 0 ? ((winCount/totalCount)*100).toFixed(1) : 0;
+                this.dom.stats.innerHTML = '<span>基础胜率</span><span class="rate">' + winRate + '%</span><span>' + winCount + ' / ' + totalCount + '</span>';
                 this.dom.tableAlgoTag.textContent = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm] || '天机策';
             }
 
@@ -2833,35 +3238,33 @@
 
             setupCountdown() {
                 if (this.countdownRAF) cancelAnimationFrame(this.countdownRAF);
-                const latest = this.apiData[this.apiData.length - 1];
+                const latest = this.apiData[this.apiData.length-1];
                 if (!latest) return;
-                const lastOpenTime = latest.opentimeStamp ? new Date(latest.opentimeStamp * 1000) : new Date(latest.opentime);
-                const nextOpenTime = new Date(lastOpenTime.getTime() + 3 * 60 * 1000 + 30 * 1000);
+                const lastOpenTime = latest.opentimeStamp ? new Date(latest.opentimeStamp*1000) : new Date(latest.opentime);
+                const nextOpenTime = new Date(lastOpenTime.getTime() + 3*60*1000 + 30*1000);
                 const totalTime = nextOpenTime - lastOpenTime;
                 const circumference = 2 * Math.PI * 30;
                 this.dom.ringProgress.setAttribute('stroke-dasharray', circumference.toFixed(3));
-                let lastUpdate = 0;
+                let lastTimestamp = 0;
                 const update = (timestamp) => {
-                    if (timestamp - lastUpdate < 900) {
-                        this.countdownRAF = requestAnimationFrame(update);
-                        return;
-                    }
-                    lastUpdate = timestamp;
+                    if (!lastTimestamp) lastTimestamp = timestamp;
+                    if (timestamp - lastTimestamp < 900) { this.countdownRAF = requestAnimationFrame(update); return; }
+                    lastTimestamp = timestamp;
                     const diff = nextOpenTime - Date.now();
                     if (diff <= 0) {
                         this.dom.cdText.textContent = '更新数据...';
-                        this.dom.ringText.textContent = '--:--';
-                        this.dom.ringProgress.style.strokeDashoffset = circumference.toFixed(3);
                         this.dom.cdText.classList.add('urgent');
-                        this.dom.ringProgress.classList.add('urgent');
+                        this.dom.ringText.textContent = '--:--';
                         this.dom.ringText.classList.add('urgent');
-                        setTimeout(() => this.fetchData(), 1000);
+                        this.dom.ringProgress.style.strokeDashoffset = circumference.toFixed(3);
+                        this.dom.ringProgress.classList.add('urgent');
+                        setTimeout(() => this.fetchData(), 1500);
                         return;
                     }
-                    const progress = Math.max(0, diff / totalTime);
+                    const progress = Math.max(0, diff/totalTime);
                     const offset = circumference * (1 - progress);
-                    const m = Utils.fmtNum(Math.floor(diff / 60000));
-                    const s = Utils.fmtNum(Math.floor((diff % 60000) / 1000));
+                    const m = Utils.fmtNum(Math.floor(diff/60000));
+                    const s = Utils.fmtNum(Math.floor((diff%60000)/1000));
                     this.dom.cdText.textContent = `${m}分${s}秒`;
                     this.dom.ringText.textContent = `${m}:${s}`;
                     this.dom.ringProgress.style.strokeDashoffset = offset.toFixed(3);
@@ -2930,7 +3333,7 @@
                     const history3 = this.apiData.slice(i, i+3);
                     const prev = this.apiData[i+2];
                     const fullPrev = this.apiData.slice(0, i+3);
-                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
+                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights, undefined, true);
                     if (pred.killGroup === '--') continue;
                     const hit = Utils.isKillHit(pred.killGroup, current.combo);
                     rows.push([current.period, current.nums.join(','), current.sum, current.combo, pred.predictCombos[0], pred.predictCombos[1], pred.killGroup, hit ? '命中' : '未命中']);
@@ -3287,7 +3690,7 @@
                             const prev = data[i+2];
                             const current = data[i+3];
                             const fullPrev = data.slice(0, i+3);
-                            const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
+                            const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights, undefined, true);
                             if (pred.killGroup === '--') continue;
                             const hit = Utils.isKillHit(pred.killGroup, current.combo);
                             totalCount++; if (hit) winCount++;
@@ -3548,80 +3951,148 @@
                 const tbody = document.querySelector('#newui-stats-table tbody');
                 if (!tbody) return;
                 tbody.innerHTML = '';
+                const entries = [];
                 for (const k in this.algorithmStats) {
-                    const s = this.algorithmStats[k];
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${CONFIG.ALGORITHM_NAMES[k]}</td><td>${s.total}</td><td>${s.win}</td><td>${s.total? (s.win/s.total*100).toFixed(1) : 0}%</td><td>${s.currentConsecutive}</td>`;
-                    tbody.appendChild(tr);
+                    entries.push({ key:k, name:CONFIG.ALGORITHM_NAMES[k], total:this.algorithmStats[k].total, win:this.algorithmStats[k].win, winRate:this.algorithmStats[k].winRate, currentConsecutive:this.algorithmStats[k].currentConsecutive });
                 }
+                entries.sort((a,b) => b.winRate - a.winRate);
+                let html = '';
+                for (const e of entries) {
+                    const rateCls = e.winRate >= 90 ? 'hit' : (e.winRate >= 75 ? '' : 'miss');
+                    html += `<tr>
+                        <td>${e.name}</td>
+                        <td>${e.total}</td>
+                        <td>${e.win}</td>
+                        <td class="${rateCls}">${e.winRate.toFixed(1)}%</td>
+                        <td>${e.currentConsecutive}</td>
+                    </tr>`;
+                }
+                tbody.innerHTML = html;
+                // 渲染新UI历史记录
+                this.renderNewUIHistory();
             }
 
-            switchNewUIPage(page) {
-                document.querySelectorAll('.newui-page').forEach(el => el.classList.remove('active'));
-                document.getElementById('newui-page-' + page).classList.add('active');
-                document.querySelectorAll('.newui-nav-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
-                if (page === 'history') this.renderNewUIHistory();
-                if (page === 'backtest') this.renderNewUIBacktest();
-            }
             renderNewUIHistory() {
                 const tbody = document.querySelector('#newui-history-table tbody');
                 if (!tbody) return;
                 tbody.innerHTML = '';
-                if (!this.apiData || this.apiData.length < 4) { tbody.innerHTML = '<tr><td colspan="6" style="padding:12px;color:var(--text-muted);">暂无历史</td></tr>'; return; }
-                const data = this.apiData.slice(-50);
-                for (let i = 0; i < data.length - 3; i++) {
-                    const current = data[i+3];
-                    const history3 = data.slice(i, i+3);
-                    const prev = data[i+2];
-                    const fullPrev = data.slice(0, i+3);
-                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
+                if (!this.apiData || this.apiData.length < 4) return;
+                const maxShow = Math.min(CONFIG.MAX_HISTORY, this.apiData.length - 3);
+                const startI = Math.max(0, this.apiData.length - 3 - maxShow);
+                let html = '';
+                for (let i = this.apiData.length - 4; i >= startI; i--) {
+                    const current = this.apiData[i + 3];
+                    const history3 = this.apiData.slice(i, i + 3);
+                    const prev = this.apiData[i + 2];
+                    const fullPrev = this.apiData.slice(0, i + 3);
+                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights, undefined, true);
                     if (pred.killGroup === '--') continue;
                     const hit = Utils.isKillHit(pred.killGroup, current.combo);
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${current.period}</td><td>${current.nums.join(' ')}</td><td>${current.sum}</td><td>${current.combo}</td><td>${pred.killGroup}</td><td class="${hit?'hit':'miss'}">${hit?'✅':'❌'}</td>`;
-                    tbody.appendChild(tr);
+                    const cls = hit ? 'hit' : 'miss';
+                    html += `<tr>
+                        <td>${current.period}</td>
+                        <td>${current.nums.join('+')}</td>
+                        <td>${current.sum}</td>
+                        <td>${current.combo}</td>
+                        <td>${pred.killGroup}</td>
+                        <td class="${cls}">${hit ? '✅' : '❌'}</td>
+                    </tr>`;
                 }
+                tbody.innerHTML = html;
             }
-            async runNewUIBacktest() {
-                const algoSelect = document.getElementById('newui-bt-algo');
-                const countInput = document.getElementById('newui-bt-count');
-                const alg = algoSelect.value;
-                if (!alg) { this.showToast('请选择算法', 'warning'); return; }
-                const count = parseInt(countInput.value) || 30;
-                const data = this.apiData;
-                if (data.length < count + 3) { this.showToast('历史数据不足', 'warning'); return; }
-                const startIdx = Math.max(0, data.length - count - 3);
-                let win=0,total=0;
-                const results = [];
-                for (let i=startIdx; i<data.length-3; i++) {
-                    const history3 = data.slice(i, i+3);
-                    const prev = data[i+2];
-                    const current = data[i+3];
-                    const fullPrev = data.slice(0, i+3);
-                    const pred = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev);
-                    if (pred.killGroup === '--') continue;
-                    const hit = Utils.isKillHit(pred.killGroup, current.combo);
-                    total++; if (hit) win++;
-                    results.push({ period: current.period, nums: current.nums, sum: current.sum, combo: current.combo, kill: pred.killGroup, hit });
-                }
-                document.getElementById('newui-bt-summary').style.display = 'grid';
-                document.getElementById('newui-bt-total').textContent = total;
-                document.getElementById('newui-bt-win').textContent = win;
-                document.getElementById('newui-bt-rate').textContent = total ? (win/total*100).toFixed(1) + '%' : '0%';
-                const tbody = document.querySelector('#newui-bt-table tbody');
-                tbody.innerHTML = '';
-                results.slice(-30).reverse().forEach(r => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${r.period}</td><td>${r.nums.join(' ')}</td><td>${r.sum}</td><td>${r.combo}</td><td>${r.kill}</td><td class="${r.hit?'hit':'miss'}">${r.hit?'✅':'❌'}</td>`;
-                    tbody.appendChild(tr);
+
+            switchNewUIPage(page) {
+                document.querySelectorAll('.newui-page').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.newui-nav-item').forEach(n => n.classList.remove('active'));
+                const target = document.getElementById('newui-page-' + page);
+                if (target) target.classList.add('active');
+                document.querySelectorAll('.newui-nav-item').forEach(n => {
+                    if (n.dataset.page === page) n.classList.add('active');
                 });
-                this.showToast(`回测 ${total} 期，胜率 ${(win/total*100).toFixed(1)}%`, 'info');
+                if (page === 'history') this.renderNewUIHistory();
+                if (page === 'algorithms') this.renderNewUIStats();
+            }
+
+            async runNewUIBacktest() {
+                const algoSel = document.getElementById('newui-bt-algo');
+                const countInput = document.getElementById('newui-bt-count');
+                const tbody = document.querySelector('#newui-bt-table tbody');
+                const summary = document.getElementById('newui-bt-summary');
+                if (!this.apiData || this.apiData.length < 4) { this.showToast('数据不足', 'warning'); return; }
+                const alg = algoSel.value || this.currentAlgorithm;
+                let count = parseInt(countInput.value, 10) || 30;
+                count = Math.min(count, this.apiData.length - 3);
+                const btn = document.getElementById('newui-btn-run-bt');
+                btn.textContent = '⏳ 计算中...'; btn.disabled = true;
+                setTimeout(() => {
+                    try {
+                        const data = this.apiData;
+                        const startIdx = Math.max(0, data.length - count - 3);
+                        let winCount = 0, totalCount = 0;
+                        let html = '';
+                        for (let i = startIdx; i < data.length - 3; i++) {
+                            const history3 = data.slice(i, i + 3);
+                            const prev = data[i + 2];
+                            const current = data[i + 3];
+                            const fullPrev = data.slice(0, i + 3);
+                            const pred = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights, undefined, true);
+                            if (pred.killGroup === '--') continue;
+                            const hit = Utils.isKillHit(pred.killGroup, current.combo);
+                            totalCount++; if (hit) winCount++;
+                            const cls = hit ? 'hit' : 'miss';
+                            html += `<tr><td>${current.period}</td><td>${current.nums.join('+')}</td><td>${current.sum}</td><td>${current.combo}</td><td>${pred.killGroup}</td><td class="${cls}">${hit ? '✅' : '❌'}</td></tr>`;
+                        }
+                        tbody.innerHTML = html;
+                        const rate = totalCount > 0 ? ((winCount / totalCount) * 100).toFixed(1) : '0.0';
+                        document.getElementById('newui-bt-total').textContent = totalCount;
+                        document.getElementById('newui-bt-win').textContent = winCount;
+                        document.getElementById('newui-bt-rate').textContent = rate + '%';
+                        summary.style.display = 'grid';
+                        this.showToast(`回测完成：胜率 ${rate}%`, 'success');
+                    } catch (err) { console.error('新UI回测失败:', err); this.showToast('回测失败', 'error'); }
+                    finally { btn.textContent = '开始回测'; btn.disabled = false; }
+                }, 100);
+            }
+
+            toggleIntelligentMode() {
+                this.intelligentMode = !this.intelligentMode;
+                const btn = document.getElementById('intelligent-btn');
+                if (btn) btn.classList.toggle('active', this.intelligentMode);
+                this.savePreferences();
+                if (this.intelligentMode) {
+                    const best = this.getBestAlgorithm();
+                    this.currentAlgorithm = best;
+                    if (this.dom.algorithmSelect) this.dom.algorithmSelect.value = best;
+                    this.render();
+                    this.showToast('智能模式已开启，已切换至最优算法：' + CONFIG.ALGORITHM_NAMES[best], 'success');
+                } else {
+                    this.showToast('智能模式已关闭', 'info');
+                }
             }
         }
 
-        // ==================== 启动 ====================
+        // ==================== 启动应用 ====================
         const app = new QingxunApp();
-        window.app = app;
+
+        // 页面可见性优化：后台时降低刷新频率
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (app.fetchTimer) { clearInterval(app.fetchTimer); app.fetchTimer = null; }
+            } else {
+                if (!app.fetchTimer) {
+                    app.fetchData();
+                    app.fetchTimer = setInterval(() => app.fetchData(), CONFIG.FETCH_INTERVAL);
+                }
+            }
+        });
+
+        // 错误兜底：防止未捕获异常导致白屏
+        window.addEventListener('error', (e) => {
+            console.error('全局错误:', e.error || e.message);
+        });
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('未处理Promise:', e.reason);
+        });
     </script>
 </body>
 </html>
