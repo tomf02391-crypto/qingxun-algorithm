@@ -1834,9 +1834,23 @@
             // ========== 自适应纠偏（核心优化·多信号融合版） ==========
             // 基于近期表现+多信号分析做综合修正，大幅提升胜率
             _adaptiveCorrect(algName, kill, fullHistoryPrev) {
-                if (!kill || kill === '--' || !fullHistoryPrev || fullHistoryPrev.length < 10) return kill;
+                if (!kill || kill === '--' || !fullHistoryPrev || fullHistoryPrev.length < 5) return kill;
                 const combos = ['小单','小双','大单','大双'];
                 const opposite = { '小单':'大双','小双':'大单','大单':'小双','大双':'小单' };
+
+                // === Step 0: 近期冷热快速检测（短历史兜底） ===
+                // 当历史太短无法追踪算法准确率时，用冷热分析直接判断
+                if (fullHistoryPrev.length < 10) {
+                    const recent = fullHistoryPrev.slice(-5);
+                    const freq = {};
+                    combos.forEach(c => freq[c] = 0);
+                    recent.forEach(d => { if (freq[d.combo] !== undefined) freq[d.combo]++; });
+                    // 找出现最多的，杀它（均值回归）
+                    let maxF = -1, hotKill = null;
+                    for (const c of combos) { if (freq[c] > maxF) { maxF = freq[c]; hotKill = c; } }
+                    if (hotKill && maxF >= 2) return hotKill;
+                    return kill; // 数据不足时返回原始
+                }
 
                 // === Step 1: 追踪算法近期准确率（扩大窗口至20期） ===
                 let recentMiss = 0, recentTotal = 0;
@@ -1882,26 +1896,72 @@
                 }
                 const missRate = recentTotal > 0 ? recentMiss / recentTotal : 0;
 
-                // === Step 2: 多信号置信度加权投票（共识增强版） ===
+                // === Step 2: 多信号置信度加权投票（共识增强v2版） ===
                 const votes = {};
                 combos.forEach(c => votes[c] = 0);
 
                 // 信号1: 算法原始预测（权重随准确率动态调整）
                 const algoAccuracy = 1 - missRate;
-                votes[kill] += Math.max(0.5, algoAccuracy * 2.0);
+                votes[kill] += Math.max(0.3, algoAccuracy * 1.5);
 
-                // 信号2: 反向纠偏（错误率高时翻转，权重随错误率增加）
-                if (recentTotal >= 3 && missRate >= 0.30) {
-                    votes[opposite[kill]] += missRate * 6;
-                }
-                if (maxConsecutiveWrong >= 2) {
-                    votes[opposite[kill]] += 3;
-                }
-
-                // 信号3: 一阶转移矩阵（置信度加权 — 最低概率越低，权重越高）
-                let _tk = null, _tk2 = null;
+                // 预计算转移矩阵信号（供后续多个信号使用）
+                let _tk = null, _tk2 = null, _tk3 = null;
+                _tk = this._transitionMatrixKill(fullHistoryPrev);
+                _tk2 = this._transitionMatrix2Kill(fullHistoryPrev);
                 {
-                    _tk = this._transitionMatrixKill(fullHistoryPrev);
+                    if (fullHistoryPrev.length >= 15) {
+                        const len = fullHistoryPrev.length;
+                        const c1 = fullHistoryPrev[len-3].combo, c2 = fullHistoryPrev[len-2].combo, c3 = fullHistoryPrev[len-1].combo;
+                        const key = c1 + '→' + c2 + '→' + c3;
+                        const trans3 = {};
+                        for (let i = 0; i < len-3; i++) {
+                            const k = fullHistoryPrev[i].combo + '→' + fullHistoryPrev[i+1].combo + '→' + fullHistoryPrev[i+2].combo;
+                            const next = fullHistoryPrev[i+3].combo;
+                            if (!trans3[k]) trans3[k] = { '小单':0,'小双':0,'大单':0,'大双':0 };
+                            if (trans3[k][next] !== undefined) trans3[k][next]++;
+                        }
+                        const r3 = trans3[key];
+                        if (r3) {
+                            const tot3 = Object.values(r3).reduce((a,b)=>a+b, 0);
+                            if (tot3 >= 2) {
+                                const minCombo = combos.reduce((a,c) => r3[c] < r3[a] ? c : a, combos[0]);
+                                if (r3[minCombo] <= tot3 / 4) _tk3 = minCombo;
+                            }
+                        }
+                    }
+                }
+
+                // 信号2: 反向纠偏（降低触发阈值，更早纠偏）
+                if (recentTotal >= 2 && missRate >= 0.20) {
+                    // 保护：如果原始预测与转移矩阵一致，降低翻转强度
+                    let rawConfirmsTM = 0;
+                    if (_tk && _tk === kill) rawConfirmsTM++;
+                    if (_tk2 && _tk2 === kill) rawConfirmsTM++;
+                    const flipWeight = rawConfirmsTM >= 1 ? missRate * 3 : missRate * 8;
+                    votes[opposite[kill]] += flipWeight;
+                }
+                // 连续错误≥1时开始加权翻转（同样受保护）
+                if (consecutiveWrong >= 1) {
+                    let rawConfirmsTM2 = 0;
+                    if (_tk && _tk === kill) rawConfirmsTM2++;
+                    if (_tk2 && _tk2 === kill) rawConfirmsTM2++;
+                    const cwWeight = rawConfirmsTM2 >= 1 ? consecutiveWrong * 1 : consecutiveWrong * 3;
+                    votes[opposite[kill]] += cwWeight;
+                }
+
+                // 信号2.5: 交叉否决 — 算法预测与多信号矛盾时额外降权
+                {
+                    let contradictSignals = 0;
+                    if (_tk && _tk !== kill) contradictSignals++;
+                    if (_tk2 && _tk2 !== kill) contradictSignals++;
+                    if (_tk3 && _tk3 !== kill) contradictSignals++;
+                    if (contradictSignals >= 2) {
+                        votes[kill] -= 2;
+                    }
+                }
+
+                // 信号3: 一阶转移矩阵（置信度加权 — 使用预计算的_tk）
+                {
                     if (_tk) {
                         const lastC = fullHistoryPrev[fullHistoryPrev.length-1].combo;
                         const trans = {};
@@ -1916,15 +1976,14 @@
                             if (tot > 0) {
                                 const ps = combos.map(c => r[c]/tot).sort((a,b)=>a-b);
                                 const conf = Math.max(0, (0.25 - ps[0]) / 0.25);
-                                votes[_tk] += 3 + conf * 8; // 3~11
+                                votes[_tk] += 3 + conf * 10; // 3~13
                             }
                         }
                     }
                 }
 
-                // 信号4: 二阶转移矩阵（置信度加权）
+                // 信号4: 二阶转移矩阵（置信度加权 — 使用预计算的_tk2）
                 {
-                    _tk2 = this._transitionMatrix2Kill(fullHistoryPrev);
                     if (_tk2) {
                         const len = fullHistoryPrev.length;
                         const c1 = fullHistoryPrev[len-2].combo, c2 = fullHistoryPrev[len-1].combo;
@@ -1942,7 +2001,32 @@
                             if (tot2 >= 3) {
                                 const ps2 = combos.map(c => r2[c]/tot2).sort((a,b)=>a-b);
                                 const conf2 = Math.max(0, (0.25 - ps2[0]) / 0.25);
-                                votes[_tk2] += 2.5 + conf2 * 7; // 2.5~9.5
+                                votes[_tk2] += 2.5 + conf2 * 9; // 2.5~11.5
+                            }
+                        }
+                    }
+                }
+
+                // 信号4.5: 三阶转移矩阵（置信度加权 — 使用预计算的_tk3）
+                {
+                    if (_tk3 && fullHistoryPrev.length >= 15) {
+                        const len = fullHistoryPrev.length;
+                        const c1 = fullHistoryPrev[len-3].combo, c2 = fullHistoryPrev[len-2].combo, c3 = fullHistoryPrev[len-1].combo;
+                        const key = c1 + '→' + c2 + '→' + c3;
+                        const trans3 = {};
+                        for (let i = 0; i < len-3; i++) {
+                            const k = fullHistoryPrev[i].combo + '→' + fullHistoryPrev[i+1].combo + '→' + fullHistoryPrev[i+2].combo;
+                            const next = fullHistoryPrev[i+3].combo;
+                            if (!trans3[k]) trans3[k] = { '小单':0,'小双':0,'大单':0,'大双':0 };
+                            if (trans3[k][next] !== undefined) trans3[k][next]++;
+                        }
+                        const r3 = trans3[key];
+                        if (r3) {
+                            const tot3 = Object.values(r3).reduce((a,b)=>a+b, 0);
+                            if (tot3 >= 2) {
+                                const ps3 = combos.map(c => r3[c]/tot3).sort((a,b)=>a-b);
+                                const conf3 = Math.max(0, (0.25 - ps3[0]) / 0.25);
+                                votes[_tk3] += 2 + conf3 * 8; // 2~10
                             }
                         }
                     }
@@ -1950,29 +2034,76 @@
 
                 // 信号5: 频率分析（衰减加权）
                 const freqKill = this._smartFreqKill(fullHistoryPrev);
-                if (freqKill) votes[freqKill] += 1.5;
+                if (freqKill) votes[freqKill] += 2;
 
                 // 信号6: 模式匹配（三连模式）
                 const patternKill = this._patternMatchKill(fullHistoryPrev);
-                if (patternKill) votes[patternKill] += 3;
+                if (patternKill) votes[patternKill] += 3.5;
 
                 // 信号7: 二阶模式匹配（二连模式）
                 const pattern2Kill = this._patternMatch2Kill(fullHistoryPrev);
-                if (pattern2Kill) votes[pattern2Kill] += 3;
+                if (pattern2Kill) votes[pattern2Kill] += 3.5;
 
                 // 信号8: 遗漏分析
                 const missKill = this._missAnalysisKill(fullHistoryPrev);
-                if (missKill) votes[missKill] += 2;
+                if (missKill) votes[missKill] += 3;
 
-                // === 共识加成：多信号一致时额外加权 ===
+                // 信号9: 最近一期重复检测（连续两期相同→第三期极不太可能相同）
                 {
-                    // 一阶+二阶转移矩阵一致
-                    if (_tk && _tk2 && _tk === _tk2) votes[_tk] += 4;
+                    if (fullHistoryPrev.length >= 2) {
+                        const len = fullHistoryPrev.length;
+                        const last = fullHistoryPrev[len-1].combo;
+                        const prev = fullHistoryPrev[len-2].combo;
+                        if (last === prev) {
+                            votes[last] += 4; // 强杀
+                        }
+                    }
+                }
+
+                // 信号10: 近期连续同大小区间杀（连续3+期同大/同小→反转）
+                {
+                    const last3 = fullHistoryPrev.slice(-3).map(d => d.combo);
+                    if (last3.length === 3) {
+                        const allBig = last3.every(c => c.startsWith('大'));
+                        const allSmall = last3.every(c => c.startsWith('小'));
+                        if (allBig) {
+                            // 连续3大，杀"大"类中出现最少的
+                            const bigCombos = last3.filter(c => c.startsWith('大'));
+                            const bigCnt = {};
+                            bigCombos.forEach(c => bigCnt[c] = (bigCnt[c]||0) + 1);
+                            let minC = Infinity, killBig = '大双';
+                            for (const c of ['大单','大双']) { if ((bigCnt[c]||0) < minC) { minC = (bigCnt[c]||0); killBig = c; } }
+                            votes[killBig] += 2;
+                        } else if (allSmall) {
+                            const smallCombos = last3.filter(c => c.startsWith('小'));
+                            const smallCnt = {};
+                            smallCombos.forEach(c => smallCnt[c] = (smallCnt[c]||0) + 1);
+                            let minC = Infinity, killSmall = '小双';
+                            for (const c of ['小单','小双']) { if ((smallCnt[c]||0) < minC) { minC = (smallCnt[c]||0); killSmall = c; } }
+                            votes[killSmall] += 2;
+                        }
+                    }
+                }
+
+                // === 共识加成v2：多信号一致时额外加权（覆盖更全面） ===
+                {
+                    // 一阶+二阶一致
+                    if (_tk && _tk2 && _tk === _tk2) votes[_tk] += 5;
+                    // 一阶+三阶一致
+                    if (_tk && _tk3 && _tk === _tk3) votes[_tk] += 3;
+                    // 二阶+三阶一致
+                    if (_tk2 && _tk3 && _tk2 === _tk3) votes[_tk2] += 3;
+                    // 三阶全一致
+                    if (_tk && _tk2 && _tk3 && _tk === _tk2 && _tk === _tk3) votes[_tk] += 4;
                     // 转移矩阵+模式匹配一致
-                    if (_tk && patternKill && _tk === patternKill) votes[_tk] += 2;
-                    if (_tk2 && pattern2Kill && _tk2 === pattern2Kill) votes[_tk2] += 2;
-                    // 三信号一致（一阶+二阶+模式）
-                    if (_tk && _tk2 && patternKill && _tk === _tk2 && _tk === patternKill) votes[_tk] += 3;
+                    if (_tk && patternKill && _tk === patternKill) votes[_tk] += 3;
+                    if (_tk2 && pattern2Kill && _tk2 === pattern2Kill) votes[_tk2] += 3;
+                    // 转移矩阵+遗漏分析一致
+                    if (_tk && missKill && _tk === missKill) votes[_tk] += 2;
+                    if (_tk2 && missKill && _tk2 === missKill) votes[_tk2] += 2;
+                    // 模式+遗漏一致
+                    if (patternKill && missKill && patternKill === missKill) votes[patternKill] += 1.5;
+                    if (pattern2Kill && missKill && pattern2Kill === missKill) votes[pattern2Kill] += 1.5;
                 }
 
                 // === Step 3: 选出得票最高的 ===
