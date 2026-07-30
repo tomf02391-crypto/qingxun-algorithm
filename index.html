@@ -1164,7 +1164,17 @@
 
         // ==================== 配置 ====================
         const CONFIG = {
-            API_URLS: ['https://super.pc28998.com/history/JND28'],
+            // 原始API带防盗链(CORS 403)，需通过CORS代理访问；多源轮询，第一个成功即用
+            _RAW_API: 'https://super.pc28998.com/history/JND28',
+            get API_URLS() {
+                const raw = this._RAW_API;
+                return [
+                    'https://proxy.cors.sh/' + raw,               // 最快最稳（Cloudflare, ~2s, CORS: *）
+                    'https://api.allorigins.win/raw?url=' + encodeURIComponent(raw),  // 备用1
+                    'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(raw),  // 备用2
+                    raw,  // 直连作为最后备选（部分环境可用）
+                ];
+            },
             FIELD_MAP: { period: 'expect', opencode: 'opencode', opentime: 'opentime_text', opentimeStamp: 'opentime' },
             ALGORITHM_NAMES: {
                 shuying_v1: '天机策', shuying_v2: '玄机策', module1: '逆形态', module2: '趋势捕手',
@@ -1180,7 +1190,8 @@
             },
             STORAGE_KEYS: {
                 THEME: 'qingxun-theme-v2', PREFS: 'qingxun-prefs-v2', BETS: 'qingxun-bets-v2',
-                CACHE: 'qingxun-cache-v2', BET_HISTORY: 'qingxun-bet-history-v2', PRED_PREFIX: 'qingxun-pred-'
+                CACHE: 'qingxun-cache-v2', BET_HISTORY: 'qingxun-bet-history-v2', PRED_PREFIX: 'qingxun-pred-',
+                PRED_CACHE: 'qingxun-pred-cache-v2'  // 历史预测记录持久化缓存（防止刷新后重算导致结果变化）
             },
             FETCH_INTERVAL: 3*60*1000, FETCH_TIMEOUT: 10000, MAX_HISTORY: 50,
             VIRTUAL_BALANCE: 10000, RETRY_DELAY: 3000, MAX_RETRIES: 3, CACHE_TTL: 10*60*1000,
@@ -4215,7 +4226,8 @@
                     betAmountInput: this.$('bet-amount-input')
                 };
                 this.apiData = [];
-                this.historyRecords = {};  // 历史预测记录缓存：{ period: { alg: { killGroup, predictCombos, hit, period, nums, sum, combo } } }
+                this.historyRecords = {};  // 历史预测记录缓存：{ alg: { period: { killGroup, predictCombos, hit, period, nums, sum, combo } } }
+                this._loadHistoryRecords();  // 从 localStorage 恢复持久化预测记录（防止刷新后重算导致结果变化）
                 this.currentAlgorithm = 'shuying_v1';
                 this.intelligentMode = false;
                 this.algorithmStats = {};
@@ -4386,17 +4398,51 @@
                 } catch(_) {}
             }
 
+            // ===== 历史预测记录持久化：一旦某期某算法的预测被计算，永久缓存，刷新后不重算 =====
+            _loadHistoryRecords() {
+                try {
+                    const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.PRED_CACHE);
+                    if (raw) {
+                        const saved = JSON.parse(raw);
+                        if (saved && typeof saved === 'object') {
+                            this.historyRecords = saved;
+                        }
+                    }
+                } catch(_) {}
+            }
+            _saveHistoryRecords() {
+                try {
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.PRED_CACHE, JSON.stringify(this.historyRecords));
+                } catch(_) {
+                    // localStorage 满了，清理最旧的算法缓存保留最近5个
+                    try {
+                        const algs = Object.keys(this.historyRecords);
+                        if (algs.length > 5) {
+                            for (let i = 0; i < algs.length - 5; i++) delete this.historyRecords[algs[i]];
+                            localStorage.setItem(CONFIG.STORAGE_KEYS.PRED_CACHE, JSON.stringify(this.historyRecords));
+                        }
+                    } catch(_) {}
+                }
+            }
+
             async fetchData(isAutoRetry = false) {
                 if (this.isFetching) return;
                 this.isFetching = true;
                 if (!isAutoRetry) this.setStatus('loading');
                 try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), CONFIG.FETCH_TIMEOUT);
-                    const resp = await fetch(CONFIG.API_URLS[0], { signal: controller.signal });
-                    clearTimeout(timeoutId);
-                    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-                    const data = await resp.json();
+                    // ===== 多源并行：所有源同时请求，最快成功者即用（Promise.any） =====
+                    const urls = CONFIG.API_URLS;
+                    const fetchOne = async (url) => {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), CONFIG.FETCH_TIMEOUT);
+                        const resp = await fetch(url, { signal: controller.signal });
+                        clearTimeout(timeoutId);
+                        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                        const d = await resp.json();
+                        if (!d || !Array.isArray(d.data) || d.data.length === 0) throw new Error('数据为空');
+                        return d;
+                    };
+                    const data = await Promise.any(urls.map(fetchOne));
                     let list = data.data || [];
                     if (!Array.isArray(list) || list.length === 0) throw new Error('数据为空');
                     const formatted = list
@@ -4413,7 +4459,7 @@
                     if (formatted.length < 4) throw new Error('有效数据不足4期');
 
                     // ===== 智能期号检测 =====
-                    const newLatestPeriod = String(formatted[0].expect);
+                    const newLatestPeriod = String(formatted[0].period);  // formatted元素字段是period不是expect
                     const isPeriodAdvanced = this.lastFetchedPeriod && newLatestPeriod !== this.lastFetchedPeriod;
 
                     if (this.lastFetchedPeriod && !isPeriodAdvanced && isAutoRetry) {
@@ -4479,17 +4525,12 @@
                     this.autoBackfill();
                 } catch (e) {
                     console.error('获取数据失败:', e);
-                    this.setStatus('error');
                     this._updateSyncStatus('error', '同步失败');
-                    this.showToast('数据加载失败: ' + e.message, 'error');
                     if (this.apiData.length > 0) {
-                        this.showToast('使用本地缓存（可能已过期）', 'warning');
+                        // 有缓存数据，继续使用（后台轮询会自动重试获取真实数据）
                         this.currentSource = '缓存（过期）';
                         this.render();
                         this.setupCountdown();
-                    } else if (this.retryCount < CONFIG.MAX_RETRIES) {
-                        this.retryCount++;
-                        setTimeout(() => this.fetchData(), CONFIG.RETRY_DELAY * this.retryCount);
                     } else if (CONFIG.MOCK_DATA_ENABLED) {
                         // ===== 移植自 Python _generate_mock_data：API全不可用时的兜底 =====
                         this.showToast('API不可用，启用模拟数据模式', 'warning');
@@ -5041,6 +5082,7 @@
                         killGroup: result.killGroup, predictCombos: result.predictCombos,
                         hit: hit, period: period, nums: current.nums, sum: current.sum, combo: current.combo
                     };
+                    this._predCacheDirty = true;  // 标记有新缓存，稍后持久化
                     return result;
                 };
                 for (const alg of Object.keys(CONFIG.ALGORITHM_NAMES)) {
@@ -5098,6 +5140,8 @@
                 if (this.apiData.length >= CONFIG.MARKOV_MIN_DATA) {
                     this.markovPredictor.train(this.apiData);
                 }
+                // ===== 持久化预测缓存（防止刷新后历史记录变化） =====
+                if (this._predCacheDirty) { this._predCacheDirty = false; this._saveHistoryRecords(); }
             }
             _updateAdaptiveWeights() {
                 // 基于各算法近期命中率动态调整融合权重
@@ -5549,7 +5593,7 @@
                     const current = this.apiData[i+3];
                     const period = current.period;
 
-                    // 如果该期记录已缓存，直接使用；否则计算一次并缓存
+                    // 如果该期记录已缓存，直接使用；否则计算一次并缓存（持久化，刷新后不重算）
                     if (!this.historyRecords[alg][period]) {
                         const history3 = this.apiData.slice(i, i+3);
                         const prev = this.apiData[i+2];
@@ -5565,6 +5609,7 @@
                             sum: current.sum,
                             combo: current.combo
                         };
+                        this._predCacheDirty = true;
                     }
 
                     const rec = this.historyRecords[alg][period];
@@ -5580,6 +5625,7 @@
                 const winRate = totalCount > 0 ? ((winCount/totalCount)*100).toFixed(1) : 0;
                 this.dom.stats.innerHTML = '<span>基础胜率</span><span class="rate">' + winRate + '%</span><span>' + winCount + ' / ' + totalCount + '</span>';
                 this.dom.tableAlgoTag.textContent = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm] || '天机策';
+                if (this._predCacheDirty) { this._predCacheDirty = false; this._saveHistoryRecords(); }
             }
 
             renderMonitor() {
@@ -5667,6 +5713,7 @@
                                 killGroup: pred.killGroup, predictCombos: pred.predictCombos,
                                 hit: hit, period: period, nums: current.nums, sum: current.sum, combo: current.combo
                             };
+                            this._predCacheDirty = true;
                         }
                         const rec = this.historyRecords[alg][period];
                         if (rec.killGroup && rec.killGroup !== '--') {
