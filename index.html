@@ -4232,7 +4232,7 @@
                     if (formatted.length < 4) throw new Error('有效数据不足4期');
 
                     // ===== 智能期号检测 =====
-                    const newLatestPeriod = String(formatted[0].expect);
+                    const newLatestPeriod = String(formatted[0].period);
                     const isPeriodAdvanced = this.lastFetchedPeriod && newLatestPeriod !== this.lastFetchedPeriod;
 
                     if (this.lastFetchedPeriod && !isPeriodAdvanced && isAutoRetry) {
