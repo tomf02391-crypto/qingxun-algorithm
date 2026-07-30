@@ -722,11 +722,78 @@
         .lang-btn { padding:2px 8px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg-glass); font-size:10px; font-weight:600; cursor:pointer; color:var(--text-muted); transition:var(--transition); }
         .lang-btn.active { background:var(--accent); color:#18181b; border-color:transparent; }
 
+        /* ===== 长龙状态面板（移植自 Python dragon_status） ===== */
+        .dragon-status-panel { display:none; flex-wrap:wrap; gap:6px; margin-top:10px; padding:8px 12px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.12); border-radius:var(--radius-sm); }
+        .dragon-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:700; background:rgba(245,158,11,0.10); border:1px solid rgba(245,158,11,0.2); color:var(--warning); }
+        .dragon-chip.alert { background:rgba(239,68,68,0.12); border-color:var(--danger); color:var(--danger); animation:dragon-pulse 1.5s ease-in-out infinite; }
+        @keyframes dragon-pulse { 0%,100% { box-shadow:0 0 0 0 rgba(239,68,68,0.3); } 50% { box-shadow:0 0 0 8px rgba(239,68,68,0); } }
+        .dragon-subscribe-btn { font-size:11px; padding:4px 10px; }
+        .dragon-subscribe-btn.active { background:var(--danger); color:#fff; border-color:var(--danger); }
+
 </style>
 </head>
 <body>
     <div class="bg-glow"></div>
     <div class="toast-container" id="toast-container"></div>
+    <!-- Telegram 机器人播报设置面板 -->
+    <div id="telegram-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;width:90%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h3 style="margin:0;font-size:16px;font-weight:700;">📤 Telegram 机器人播报</h3>
+                <span style="cursor:pointer;font-size:20px;color:var(--text-muted);" onclick="document.getElementById('telegram-modal').style.display='none'">×</span>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Bot Token</label>
+                <input type="text" id="tg-token-input" placeholder="如: 8697550086:AAH..." style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:13px;outline:none;" />
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">发送目标类型</label>
+                <select id="tg-target-type" onchange="app.updateTelegramTargetHint()" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:13px;outline:none;">
+                    <option value="private">私聊（发给个人）</option>
+                    <option value="group">群组</option>
+                    <option value="channel">频道</option>
+                </select>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Chat ID <span id="tg-chatid-hint" style="opacity:0.6;">（通过 @userinfobot 获取个人ID）</span></label>
+                <input type="text" id="tg-chatid-input" placeholder="如: 123456789" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:13px;outline:none;" />
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">播报使用的算法</label>
+                <select id="tg-algorithm-select" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:13px;outline:none;">
+                    <option value="">跟随当前页面算法</option>
+                    <option value="shuying_v1">天机策</option>
+                    <option value="shuying_v2">玄机策</option>
+                    <option value="module1">逆形态</option>
+                    <option value="module2">趋势捕手</option>
+                    <option value="module3">冷热探针</option>
+                    <option value="module4">银河锚点</option>
+                    <option value="module5">威震天机</option>
+                    <option value="fusion_vote">五行之合</option>
+                    <option value="jingpai">京派</option>
+                    <option value="fengpai">枫派</option>
+                    <option value="tongpai">通派</option>
+                    <option value="qisha">奇杀</option>
+                    <option value="yisha">异杀</option>
+                    <option value="shisha">势杀</option>
+                    <option value="modchain">模链法</option>
+                    <option value="wuji">无极算法</option>
+                </select>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:16px;">
+                <button class="btn btn-primary" style="flex:1;" onclick="app.saveTelegramSettings()">💾 保存设置</button>
+                <button class="btn" style="flex:1;" onclick="app.testTelegramBot()">🧪 测试发送</button>
+            </div>
+            <div id="tg-test-result" style="margin-top:12px;font-size:12px;display:none;"></div>
+            <div style="margin-top:12px;font-size:11px;color:var(--text-muted);line-height:1.5;" id="tg-help-text">
+                💡 设置说明：<br>
+                • Bot Token 从 @BotFather 创建机器人获取<br>
+                • 私聊 Chat ID 从 @userinfobot 获取<br>
+                • 保存后点击"📤 TG播报"按钮开启自动推送<br>
+                • 每期开奖后将自动发送预测消息到 Telegram
+            </div>
+        </div>
+    </div>
     <div class="container" id="app-container">
         <!-- Navbar -->
         <nav class="navbar fade-in">
@@ -772,6 +839,8 @@
                     <div class="ring-text" id="ring-text">--:--</div>
                 </div>
             </div>
+            <!-- 长龙状态面板（移植自 Python dragon_status） -->
+            <div class="dragon-status-panel" id="dragon-status-panel"></div>
         </div>
 
         <!-- Prediction -->
@@ -926,7 +995,7 @@
                     <div class="music-source-chip" data-source="kugou" onclick="app.selectMusicSource('kugou')"><span class="src-dot kugou"></span>酷狗</div>
                 </div>
                 <!-- API 地址 -->
-                <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center;"><span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">API：</span><input type="text" id="music-api-base" value="https://api.imjad.cn/cloudmusic" placeholder="网易云API地址" style="flex:1;padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:12px;outline:none;"></div>
+                <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center;"><span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">API：</span><input type="text" id="music-api-base" value="https://api.7boe.top" placeholder="网易云API地址" style="flex:1;padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:12px;outline:none;"></div>
                 <!-- 搜索框 -->
                 <div class="search-box" style="display:flex;gap:8px;margin-bottom:10px;"><input type="text" id="music-search-input" placeholder="输入歌名或歌手..." autocomplete="off" style="flex:1;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:16px;outline:none;" onkeydown="if(event.key==='Enter')app.searchOnlineMusic()" /><button class="btn btn-primary" id="music-search-btn" onclick="app.searchOnlineMusic()">🔍 搜索</button></div>
                 <!-- 搜索统计 -->
@@ -964,6 +1033,8 @@
                 <button class="btn btn-primary" onclick="app.manualAnnounce()">📢 播报</button>
                 <button class="btn" id="notify-btn" onclick="app.toggleNotification()">🔔 推送</button>
                 <button class="btn" id="auto-announce-btn" onclick="app.toggleAutoAnnounce()"><span id="auto-announce-icon">🔕</span><span id="auto-announce-label">自动播报关</span></button>
+                <button class="btn dragon-subscribe-btn" id="dragon-sub-btn" onclick="app.toggleDragonSubscribe()" title="长龙提醒（连续≥4期同一形态时通知）">🐉 长龙</button>
+                <button class="btn" id="telegram-btn" onclick="app.toggleTelegramPush()" title="Telegram机器人播报设置">📤 TG播报</button>
             </div>
             <div class="controls-group">
                 <span class="controls-label">🧠 算法</span>
@@ -1115,9 +1186,19 @@
             VIRTUAL_BALANCE: 10000, RETRY_DELAY: 3000, MAX_RETRIES: 3, CACHE_TTL: 10*60*1000,
             DRAW_INTERVAL: 3*60*1000 + 30*1000, NEW_PERIOD_RETRY_DELAY: 5000, NEW_PERIOD_MAX_RETRIES: 6,
             BET_AMOUNT: 100, BET_WIN: 190, BACKTEST_DEFAULT_COUNT: 30, BACKFILL_LIMIT: 30,
-            MUSIC_API_BASE: 'https://api.imjad.cn/cloudmusic',
+            // ===== 从 Python bot 移植的系统功能配置 =====
+            BACKGROUND_POLL_INTERVAL: 24*1000,   // 后台轮询间隔（秒级，与 Python FETCH_INTERVAL=24 一致）
+            DRAGON_ALERT_THRESHOLD: 4,            // 长龙提醒阈值（连续≥4期同一形态）
+            MOCK_DATA_ENABLED: true,              // API全不可用时启用模拟数据兜底
+            MOCK_DATA_COUNT: 20,                  // 模拟数据条数
+            MUSIC_API_BASE: 'https://api.7boe.top',
             // Meting API (支持CORS, 用于网易云播放地址获取)
             METING_API: 'https://api.injahow.cn/meting/',
+            // ===== Telegram Bot 配置（移植自 Python bot 的 TOKEN 和 send_message_safe） =====
+            TELEGRAM_API_BASE: 'https://api.telegram.org',
+            TELEGRAM_BOT_TOKEN: '8697550086:AAHPOZdAV6qcBVy9_TtlDzHD-89Cmdkj8b4',  // 与 Python bot 的 TOKEN 一致
+            TELEGRAM_CHAT_ID: '',  // 用户需自行设置 chat_id（通过 @userinfobot 获取）
+            TELEGRAM_MAX_MSG_LEN: 4000,  // 与 Python send_message_safe 的截断长度一致
             MUSIC_SOURCES: {
                 netease: { name: '网易云', display: '网易云音乐', color: '#e60026', enabled: true },
                 kuwo: { name: '酷我', display: '酷我音乐', color: '#f5a623', enabled: true },
@@ -2553,7 +2634,6 @@
                     const equalShare = totalBudget / suggestions.length;
                     return withKelly.map(s => {
                         let amount = Math.floor(equalShare / 10) * 10;
-                        amount = Math.min(amount, s.max);
                         return { ...s, suggestedAmount: Math.max(10, amount) };
                     });
                 }
@@ -2562,7 +2642,6 @@
                 return withKelly.map(s => {
                     const ratio = s.kellyBet / totalKelly;
                     let amount = Math.max(10, Math.floor(totalBudget * ratio));
-                    amount = Math.min(amount, s.max);
                     amount = Math.floor(amount / 10) * 10;
                     return { ...s, suggestedAmount: Math.max(10, amount) };
                 });
@@ -3097,37 +3176,124 @@
 
         /**
          * 网易云音乐源
-         * 搜索: 无可用CORS/JSONP接口, 暂不支持
-         * 播放: 通过Meting API (支持CORS, 302重定向到MP3)
+         * 搜索: 通过公共API (api.7boe.top) 获取，支持CORS
+         * 播放: 通过Meting API (支持CORS, 302重定向到MP3) 或 api.7boe.top/song/url
          */
         class NetEaseMusicSource extends BaseMusicSource {
             constructor(apiBase) { super(); this.name = 'netease'; this.display = '网易云音乐'; this.apiBase = (apiBase || CONFIG.MUSIC_API_BASE).replace(/\/$/, ''); }
 
             async search(keyword, limit = 10) {
-                // 网易云搜索API不支持CORS也不支持JSONP, 暂时返回空
-                return { source: this.name, songs: [], error: '网易云搜索暂不可用(需CORS代理)' };
+                // 方案1: 使用公共 NetEaseCloudMusicApi 实例 (api.7boe.top)，支持CORS
+                try {
+                    const searchUrl = `${this.apiBase}/search?keywords=${encodeURIComponent(keyword)}&limit=${limit}`;
+                    const resp = await fetch(searchUrl, { method: 'GET', signal: AbortSignal.timeout(10000) });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const songs = (data.result?.songs || []).map(s => {
+                            let quality = '128';
+                            if (s.sq) quality = 'flac';
+                            else if (s.h) quality = '320';
+                            const artists = (s.artists || s.ar || []).map(a => a.name).join(', ');
+                            const album = s.album?.name || s.al?.name || '';
+                            const coverUrl = s.album?.picUrl || s.al?.picUrl || '';
+                            return new MusicSong({
+                                title: s.name || '',
+                                artist: artists || '未知',
+                                album: album,
+                                duration: Math.floor((s.duration || s.dt || 0) / 1000),
+                                songId: String(s.id || ''),
+                                source: 'netease',
+                                coverUrl: coverUrl,
+                                quality
+                            });
+                        }).filter(s => s.songId && s.title);
+                        if (songs.length > 0) {
+                            return { source: this.name, songs };
+                        }
+                    }
+                } catch (e) { /* 降级到方案2 */ }
+
+                // 方案2: 使用 cloudsearch 接口（返回更详细信息）
+                try {
+                    const cloudUrl = `${this.apiBase}/cloudsearch?keywords=${encodeURIComponent(keyword)}&limit=${limit}`;
+                    const resp = await fetch(cloudUrl, { method: 'GET', signal: AbortSignal.timeout(10000) });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const songs = (data.result?.songs || []).map(s => {
+                            let quality = '128';
+                            if (s.sq) quality = 'flac';
+                            else if (s.h) quality = '320';
+                            const artists = (s.ar || []).map(a => a.name).join(', ');
+                            const album = s.al?.name || '';
+                            const coverUrl = s.al?.picUrl || '';
+                            return new MusicSong({
+                                title: s.name || '',
+                                artist: artists || '未知',
+                                album: album,
+                                duration: Math.floor((s.dt || 0) / 1000),
+                                songId: String(s.id || ''),
+                                source: 'netease',
+                                coverUrl: coverUrl,
+                                quality
+                            });
+                        }).filter(s => s.songId && s.title);
+                        return { source: this.name, songs };
+                    }
+                } catch (e) { /* 降级到方案3 */ }
+
+                // 方案3: 通过CORS代理调用官方API
+                try {
+                    const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(`https://music.163.com/api/search/get?s=${encodeURIComponent(keyword)}&type=1&limit=${limit}`)}`;
+                    const resp = await fetch(proxyUrl, { method: 'GET', signal: AbortSignal.timeout(10000) });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const songs = (data.result?.songs || []).map(s => {
+                            const artists = (s.artists || []).map(a => a.name).join(', ');
+                            return new MusicSong({
+                                title: s.name || '',
+                                artist: artists || '未知',
+                                album: s.album?.name || '',
+                                duration: Math.floor((s.duration || 0) / 1000),
+                                songId: String(s.id || ''),
+                                source: 'netease',
+                                coverUrl: s.album?.picUrl || '',
+                                quality: '128'
+                            });
+                        }).filter(s => s.songId && s.title);
+                        return { source: this.name, songs };
+                    }
+                } catch (e) { /* 所有方案均失败 */ }
+
+                return { source: this.name, songs: [], error: '网易云搜索请求失败，请检查API地址或网络' };
             }
 
             async getPlayUrl(song) {
-                // 方案1: Meting API (支持CORS, 返回302重定向到MP3)
+                // 方案1: 通过 api.7boe.top 获取播放地址
+                try {
+                    const url = `${this.apiBase}/song/url?id=${song.songId}`;
+                    const resp = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(10000) });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data.data && data.data[0] && data.data[0].url) {
+                            return data.data[0].url;
+                        }
+                    }
+                } catch (e) { /* 降级 */ }
+
+                // 方案2: Meting API (支持CORS, 返回302重定向到MP3)
                 try {
                     const metingUrl = `${CONFIG.METING_API}?server=netease&type=url&id=${song.songId}`;
                     const resp = await JsonpUtil.corsGet(metingUrl);
-                    // Meting API返回302时fetch会自动跟随重定向, 最终响应是MP3文件
-                    // 如果返回的是重定向URL, 直接使用
                     const finalUrl = resp.url || resp.redirected ? resp.url : null;
                     if (finalUrl && finalUrl.includes('.mp3')) return finalUrl;
-                    // 尝试从响应中提取URL
                     const text = await resp.text();
                     if (text.startsWith('http')) return text.trim();
                     try {
                         const data = JSON.parse(text);
                         if (data.url) return data.url;
                     } catch(_) {}
-                    // 直接使用Meting URL作为音频源(浏览器会自动跟随302)
                     return metingUrl;
                 } catch (e) {
-                    // 降级: 直接返回Meting URL, 让<audio>元素处理302重定向
                     return `${CONFIG.METING_API}?server=netease&type=url&id=${song.songId}`;
                 }
             }
@@ -4049,6 +4215,7 @@
                     betAmountInput: this.$('bet-amount-input')
                 };
                 this.apiData = [];
+                this.historyRecords = {};  // 历史预测记录缓存：{ period: { alg: { killGroup, predictCombos, hit, period, nums, sum, combo } } }
                 this.currentAlgorithm = 'shuying_v1';
                 this.intelligentMode = false;
                 this.algorithmStats = {};
@@ -4085,6 +4252,19 @@
                 this.isSettling = false;
                 this.isTelegram = !!(window.Telegram && window.Telegram.WebApp);
                 this.autoAnnounce = false;
+                // ===== 从 Python bot 移植的系统状态 =====
+                this.backgroundPollTimer = null;      // 后台轮询定时器（24秒间隔，不依赖倒计时）
+                this.lastDragonNotified = {};          // 长龙提醒去重：{ combo: lastCount }
+                this.broadcastedPeriods = new Set();   // 已播报期号集合（防重复播报）
+                this.dragonSubscribed = false;         // 长龙提醒订阅开关
+                this.lastBroadcastPeriod = null;       // 上次完整播报的期号
+                // ===== Telegram 机器人播报状态（移植自 Python bot 的 send_message_safe） =====
+                this.telegramEnabled = false;           // Telegram推送开关
+                this.telegramBotToken = '';             // Bot Token（从设置面板输入）
+                this.telegramChatId = '';               // 目标 Chat ID（个人/群组/频道）
+                this.telegramTargetType = 'private';    // 发送目标类型：private/group/channel
+                this.telegramAlgorithm = '';            // 播报算法（空=跟随页面当前算法）
+                this.lastTelegramPeriod = null;         // 上次Telegram播报期号（防重复）
                 this.musicEnabled = false;
                 this.musicStyle = 'chill';
                 this.musicMode = 'melody';
@@ -4157,6 +4337,7 @@
                 if (abcBtn) { abcBtn.classList.toggle('active', this.abcMode); abcBtn.textContent = this.abcMode ? 'ABC模式 ON' : 'ABC模式'; }
                 this.fetchData();
                 this.setupVisibilityHandler();
+                this.startBackgroundPolling();  // 启动24秒后台轮询（移植自 Python periodic_check）
                 if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = () => { this.voice.getChineseVoice(); };
                 if (this.isTelegram && this.tgInstance) this.tgInstance.ready();
                 this.updateBacktestAlgLabel();
@@ -4232,7 +4413,7 @@
                     if (formatted.length < 4) throw new Error('有效数据不足4期');
 
                     // ===== 智能期号检测 =====
-                    const newLatestPeriod = String(formatted[0].period);
+                    const newLatestPeriod = String(formatted[0].expect);
                     const isPeriodAdvanced = this.lastFetchedPeriod && newLatestPeriod !== this.lastFetchedPeriod;
 
                     if (this.lastFetchedPeriod && !isPeriodAdvanced && isAutoRetry) {
@@ -4269,14 +4450,28 @@
                     this.saveCache();
                     if (isPeriodAdvanced) {
                         this._updateSyncStatus('synced', `已同步 ${newLatestPeriod.slice(-4)}期`);
-                        if (this.autoAnnounce && this.voice.enabled) {
-                            this.voice.announceOpenResult(this.apiData);
-                            this.voice.announcePrediction(this.apiData, this.currentAlgorithm, CONFIG.ALGORITHM_NAMES[this.currentAlgorithm], this.fusionWeights);
+                        // ===== 移植自 Python check_and_broadcast：新期自动播报 =====
+                        // 语音播报需要 autoAnnounce + voice.enabled；Telegram 播报独立触发
+                        if ((this.autoAnnounce && this.voice.enabled) || (this.telegramEnabled && this.telegramBotToken)) {
+                            this.announceFullBroadcast(this.apiData);
+                        }
+                        // ===== 移植自 Python check_dragon_and_notify：长龙检测 =====
+                        this.checkDragonAlert();
+                        // 推送通知（如果已授权）
+                        if (this.notifyEnabled && 'Notification' in window && Notification.permission === 'granted') {
+                            const latest = this.apiData[this.apiData.length-1];
+                            const numsStr = latest.nums.join(',');
+                            new Notification(`第${latest.period.slice(-4)}期开奖`, {
+                                body: `${numsStr} = ${latest.sum} ${latest.combo}`,
+                                icon: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22%3E%3Crect width=%22512%22 height=%22512%22 rx=%2280%22 fill=%22%237c3aed%22/%3E%3Ctext x=%22256%22 y=%22340%22 text-anchor=%22middle%22 font-size=%22280%22 fill=%22white%22%3E🔮%3C/text%3E%3C/svg%3E'
+                            });
                         }
                         this.showToast(`新期已更新: ${newLatestPeriod.slice(-6)}`, 'success');
                         if (this.isTelegram && this.tgInstance) { try { this.tgInstance.HapticFeedback?.impactOccurred('light'); } catch(_) {} }
                     } else {
                         this._updateSyncStatus('synced', '数据已加载');
+                        // 首次加载或非新期时也检查长龙状态（仅更新UI，不重复提醒）
+                        this.renderDragonStatus();
                     }
                     this.setStatus('ready');
                     this.retryCount = 0;
@@ -4295,6 +4490,18 @@
                     } else if (this.retryCount < CONFIG.MAX_RETRIES) {
                         this.retryCount++;
                         setTimeout(() => this.fetchData(), CONFIG.RETRY_DELAY * this.retryCount);
+                    } else if (CONFIG.MOCK_DATA_ENABLED) {
+                        // ===== 移植自 Python _generate_mock_data：API全不可用时的兜底 =====
+                        this.showToast('API不可用，启用模拟数据模式', 'warning');
+                        const mockData = this.generateMockData();
+                        this.apiData = mockData;
+                        this.currentSource = '模拟数据';
+                        this.lastFetchedPeriod = mockData[mockData.length-1].period;
+                        this.calculateAllStats();
+                        this.render();
+                        this.setupCountdown();
+                        this.setStatus('ready');
+                        this.retryCount = 0;
                     } else {
                         this.showToast('所有数据源均不可用且无缓存', 'error');
                     }
@@ -4319,9 +4526,10 @@
                 document.addEventListener('visibilitychange', () => {
                     if (document.hidden) {
                         this.isVisible = false;
-                        // 页面隐藏时暂停倒计时和智能重试
+                        // 页面隐藏时暂停倒计时和智能重试（但保留后台轮询）
                         if (this.countdownRAF) { cancelAnimationFrame(this.countdownRAF); this.countdownRAF = null; }
                         if (this.smartFetchTimer) { clearTimeout(this.smartFetchTimer); this.smartFetchTimer = null; }
+                        // 后台轮询持续运行，确保隐藏页面时也能自动播报
                     } else {
                         this.isVisible = true;
                         // 页面恢复时立即拉取一次数据并重启倒计时
@@ -4471,15 +4679,8 @@
                 const betAmount = amount || parseInt(this.dom.betAmountInput?.value || '100', 10);
                 if (betAmount < 1) { this.showToast('下注金额无效', 'warning'); return; }
                 const ruleset = CONFIG.BET_RULESETS[this.currentRuleset];
-                // 检查上限
-                let maxBet = 1000;
-                if (isNumber) {
-                    maxBet = ruleset.abc?.['数字']?.max || ruleset.bets?.['数字']?.max || 25;
-                } else if (isABC) {
-                    maxBet = ruleset.abc?.[betType]?.max || 1000;
-                } else {
-                    maxBet = ruleset.bets?.[betType]?.max || 1000;
-                }
+                // 检查上限（已取消投注上限限制）
+                let maxBet = Infinity;
                 // 查找已有同类型下注, 加注
                 const existing = this.activeBets.find(b =>
                     b.betType === betType && b.isABC === !!isABC && b.isNumber === !!isNumber &&
@@ -4487,13 +4688,11 @@
                 );
                 if (existing) {
                     const newTotal = existing.amount + betAmount;
-                    if (newTotal > maxBet) { this.showToast(`${betType} 上限${maxBet}`, 'warning'); return; }
                     if (this.virtualBalance < betAmount) { this.showToast('资金不足', 'error'); return; }
                     existing.amount = newTotal;
                     this.virtualBalance -= betAmount;
                     this.showToast(`加注 ${betType} +${betAmount} (共${newTotal})`, 'success');
                 } else {
-                    if (betAmount > maxBet) { this.showToast(`${betType} 上限${maxBet}`, 'warning'); return; }
                     if (this.virtualBalance < betAmount) { this.showToast('资金不足', 'error'); return; }
                     this.activeBets.push({ betType, amount: betAmount, isABC: !!isABC, isNumber: !!isNumber, numberValue: numberValue || null });
                     this.virtualBalance -= betAmount;
@@ -4825,16 +5024,23 @@
                 if (this.apiData.length < 4) return;
                 const testPeriods = Math.min(this.apiData.length - 3, CONFIG.MAX_HISTORY);
                 const startI = Math.max(0, this.apiData.length - 3 - testPeriods);
-                const cache = {};
+                // 使用 historyRecords 缓存，每个算法每期只计算一次
                 const getPred = (alg, idx) => {
-                    const key = `${alg}|${idx}`;
-                    if (cache[key]) return cache[key];
+                    const current = this.apiData[idx+3];
+                    const period = current.period;
+                    if (!this.historyRecords[alg]) this.historyRecords[alg] = {};
+                    if (this.historyRecords[alg][period]) {
+                        return { killGroup: this.historyRecords[alg][period].killGroup, predictCombos: this.historyRecords[alg][period].predictCombos };
+                    }
                     const history3 = this.apiData.slice(idx, idx+3);
                     const prev = this.apiData[idx+2];
-                    const current = this.apiData[idx+3];
                     const fullPrev = this.apiData.slice(0, idx+3);
                     const result = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
-                    cache[key] = result;
+                    const hit = Utils.isKillHit(result.killGroup, current.combo);
+                    this.historyRecords[alg][period] = {
+                        killGroup: result.killGroup, predictCombos: result.predictCombos,
+                        hit: hit, period: period, nums: current.nums, sum: current.sum, combo: current.combo
+                    };
                     return result;
                 };
                 for (const alg of Object.keys(CONFIG.ALGORITHM_NAMES)) {
@@ -4945,6 +5151,7 @@
                 this.renderTrendChart();
                 this.updateBetSummary();
                 this.renderBetHistory();
+                this.renderDragonStatus();  // 长龙状态面板渲染
                 // 实时更新NewUI股票走势图
                 if (document.getElementById('newui-view')?.classList.contains('active')) {
                     this.renderNewUIStockChart();
@@ -5327,24 +5534,45 @@
                     this.dom.stats.innerHTML = '<span>基础胜率</span><span class="rate">0.0%</span><span>0 / 0</span>';
                     return;
                 }
-                let winCount=0, totalCount=0;
+
+                // 为当前算法计算/缓存历史预测记录（每期只计算一次，不重复计算）
+                const alg = this.currentAlgorithm;
+                if (!this.historyRecords[alg]) this.historyRecords[alg] = {};
+
                 const maxShow = Math.min(CONFIG.MAX_HISTORY, this.apiData.length-3);
                 const startI = Math.max(0, this.apiData.length-3-maxShow);
+                let winCount=0, totalCount=0;
                 const fragment = document.createDocumentFragment();
                 const rows = [];
+
                 for (let i=startI; i<this.apiData.length-3; i++) {
                     const current = this.apiData[i+3];
                     const period = current.period;
-                    const history3 = this.apiData.slice(i, i+3);
-                    const prev = this.apiData[i+2];
-                    const fullPrev = this.apiData.slice(0, i+3);
-                    const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
-                    if (pred.killGroup === '--') continue;
-                    const hit = Utils.isKillHit(pred.killGroup, current.combo);
-                    totalCount++; if (hit) winCount++;
+
+                    // 如果该期记录已缓存，直接使用；否则计算一次并缓存
+                    if (!this.historyRecords[alg][period]) {
+                        const history3 = this.apiData.slice(i, i+3);
+                        const prev = this.apiData[i+2];
+                        const fullPrev = this.apiData.slice(0, i+3);
+                        const pred = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
+                        const hit = Utils.isKillHit(pred.killGroup, current.combo);
+                        this.historyRecords[alg][period] = {
+                            killGroup: pred.killGroup,
+                            predictCombos: pred.predictCombos,
+                            hit: hit,
+                            period: period,
+                            nums: current.nums,
+                            sum: current.sum,
+                            combo: current.combo
+                        };
+                    }
+
+                    const rec = this.historyRecords[alg][period];
+                    if (rec.killGroup === '--') continue;
+                    totalCount++; if (rec.hit) winCount++;
+                    const resultHtml = '<span class="badge-result ' + (rec.hit ? 'hit' : 'miss') + '">' + (rec.hit ? '✅ 命中' : '❌ 未命中') + '</span>';
                     const tr = document.createElement('tr');
-                    const resultHtml = '<span class="badge-result ' + (hit ? 'hit' : 'miss') + '">' + (hit ? '✅ 命中' : '❌ 未命中') + '</span>';
-                    tr.innerHTML = '<td>' + current.period + '</td><td>' + current.nums.join('+') + '=' + current.sum + '（' + current.combo + '）</td><td>' + pred.predictCombos.join('+') + '</td><td>' + pred.killGroup + '</td><td>' + resultHtml + '</td>';
+                    tr.innerHTML = '<td>' + rec.period + '</td><td>' + rec.nums.join('+') + '=' + rec.sum + '（' + rec.combo + '）</td><td>' + rec.predictCombos.join('+') + '</td><td>' + rec.killGroup + '</td><td>' + resultHtml + '</td>';
                     rows.push(tr);
                 }
                 for (let i=rows.length-1; i>=0; i--) fragment.appendChild(rows[i]);
@@ -5417,24 +5645,34 @@
                 const ma10 = this._calcMA(sums, Math.min(10, sums.length));
                 const ma20 = this._calcMA(sums, Math.min(20, sums.length));
 
-                // 成交量：预测命中=绿, 未中=红 (使用当前算法对每期回溯)
+                // 成交量：预测命中=绿, 未中=红 (使用缓存的预测记录，不重复计算)
                 const volumes = new Array(data.length).fill(0);
                 const volColors = new Array(data.length).fill('rgba(90,90,110,0.3)');
                 const hitStatus = new Array(data.length).fill(null);
 
                 const alg = this.currentAlgorithm;
+                if (!this.historyRecords[alg]) this.historyRecords[alg] = {};
                 for (let i = 3; i < data.length; i++) {
-                    const history3 = data.slice(Math.max(0, i - 3), i);
-                    const prev = data[i - 1];
                     const current = data[i];
-                    const fullPrev = data.slice(0, i);
+                    const period = current.period;
                     try {
-                        const pred = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
-                        if (pred && pred.killGroup && pred.killGroup !== '--') {
+                        // 优先使用缓存记录
+                        if (!this.historyRecords[alg][period]) {
+                            const history3 = data.slice(Math.max(0, i - 3), i);
+                            const prev = data[i - 1];
+                            const fullPrev = data.slice(0, i);
+                            const pred = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
                             const hit = Utils.isKillHit(pred.killGroup, current.combo);
-                            volumes[i] = hit ? 1 : 0.8;
-                            volColors[i] = hit ? 'rgba(52,211,153,0.6)' : 'rgba(239,68,68,0.5)';
-                            hitStatus[i] = { hit, killGroup: pred.killGroup, predictCombos: pred.predictCombos };
+                            this.historyRecords[alg][period] = {
+                                killGroup: pred.killGroup, predictCombos: pred.predictCombos,
+                                hit: hit, period: period, nums: current.nums, sum: current.sum, combo: current.combo
+                            };
+                        }
+                        const rec = this.historyRecords[alg][period];
+                        if (rec.killGroup && rec.killGroup !== '--') {
+                            volumes[i] = rec.hit ? 1 : 0.8;
+                            volColors[i] = rec.hit ? 'rgba(52,211,153,0.6)' : 'rgba(239,68,68,0.5)';
+                            hitStatus[i] = { hit: rec.hit, killGroup: rec.killGroup, predictCombos: rec.predictCombos };
                         }
                     } catch(_) {}
                 }
@@ -5831,6 +6069,19 @@
                 }
                 this.voice.speak(text);
                 this.voice.announceSumPrediction(this.apiData);
+                // 手动播报时也播报长龙状态（移植自 Python dragon 命令）
+                const dragonStatus = this.getDragonStatus();
+                setTimeout(() => {
+                    for (const [combo, count] of Object.entries(dragonStatus)) {
+                        if (count >= 2) {
+                            const dragonText = count >= CONFIG.DRAGON_ALERT_THRESHOLD
+                                ? `注意，${combo}已连续出现${count}期，形成长龙！`
+                                : `${combo}已连续出现${count}期。`;
+                            this.voice.speak(dragonText);
+                            break;
+                        }
+                    }
+                }, 3000);
                 this.showToast('📢 正在播报', 'info');
                 if (this.isTelegram && this.tgInstance && this.tgHaptic) {
                     try { this.tgHaptic.impactOccurred('light'); } catch(_) {}
@@ -5911,7 +6162,13 @@
                         musicVolume: parseFloat(this.dom.musicVolumeSlider?.value || 0.30),
                         musicStyle: this.musicStyle, musicMode: this.musicMode,
                         intelligentMode: this.intelligentMode, betStrategy: this.betStrategy, i18nLang: this.i18nLang,
-                        currentRuleset: this.currentRuleset, abcMode: this.abcMode
+                        currentRuleset: this.currentRuleset, abcMode: this.abcMode,
+                        dragonSubscribed: this.dragonSubscribed,
+                        telegramEnabled: this.telegramEnabled,
+                        telegramBotToken: this.telegramBotToken,
+                        telegramChatId: this.telegramChatId,
+                        telegramTargetType: this.telegramTargetType,
+                        telegramAlgorithm: this.telegramAlgorithm
                     };
                     localStorage.setItem(CONFIG.STORAGE_KEYS.PREFS, JSON.stringify(prefs));
                 } catch(_) {}
@@ -5934,6 +6191,12 @@
                     if (typeof prefs.voiceRate === 'number') { this.voice.rate = prefs.voiceRate; if (this.dom.voiceSpeed) this.dom.voiceSpeed.value = prefs.voiceRate; if (this.dom.speedVal) this.dom.speedVal.textContent = prefs.voiceRate.toFixed(1) + 'x'; }
                     if (typeof prefs.notifyEnabled === 'boolean') { this.notifyEnabled = prefs.notifyEnabled; if (this.notifyEnabled && 'Notification' in window && Notification.permission === 'granted') this.updateNotifyBtn(); else this.notifyEnabled = false; }
                     if (typeof prefs.autoAnnounce === 'boolean') { this.autoAnnounce = prefs.autoAnnounce; this.updateAutoAnnounceUI(); }
+                    if (typeof prefs.dragonSubscribed === 'boolean') { this.dragonSubscribed = prefs.dragonSubscribed; const dsBtn = document.getElementById('dragon-sub-btn'); if (dsBtn) dsBtn.classList.toggle('active', this.dragonSubscribed); }
+                    if (typeof prefs.telegramEnabled === 'boolean') { this.telegramEnabled = prefs.telegramEnabled; const tgBtn = document.getElementById('telegram-btn'); if (tgBtn) tgBtn.classList.toggle('active', this.telegramEnabled); }
+                    if (prefs.telegramBotToken) { this.telegramBotToken = prefs.telegramBotToken; const ti = document.getElementById('tg-token-input'); if (ti) ti.value = prefs.telegramBotToken; }
+                    if (prefs.telegramChatId) { this.telegramChatId = prefs.telegramChatId; const ci = document.getElementById('tg-chatid-input'); if (ci) ci.value = prefs.telegramChatId; }
+                    if (prefs.telegramTargetType) { this.telegramTargetType = prefs.telegramTargetType; const tt = document.getElementById('tg-target-type'); if (tt) tt.value = prefs.telegramTargetType; }
+                    if (prefs.telegramAlgorithm !== undefined) { this.telegramAlgorithm = prefs.telegramAlgorithm; const ta = document.getElementById('tg-algorithm-select'); if (ta) ta.value = prefs.telegramAlgorithm; }
                     if (prefs.theme) { document.documentElement.setAttribute('data-theme', prefs.theme); this.updateThemeIcon(prefs.theme); }
                     if (typeof prefs.musicEnabled === 'boolean') this.musicEnabled = prefs.musicEnabled;
                     if (typeof prefs.musicVolume === 'number' && this.dom.musicVolumeSlider) this.dom.musicVolumeSlider.value = Math.min(1, Math.max(0, prefs.musicVolume));
@@ -6301,6 +6564,413 @@
                     this.dom.autoAnnounceLabel.textContent = this.autoAnnounce ? '自动播报开' : '自动播报关';
                 }
             }
+
+            // ================================================================
+            // ===== 从 Python bot 移植的系统功能（核心） =====
+            // ================================================================
+
+            // ===== 后台轮询：24秒间隔持续拉取数据（移植自 Python periodic_check） =====
+            startBackgroundPolling() {
+                this.stopBackgroundPolling();
+                this.backgroundPollTimer = setInterval(() => {
+                    // 无论页面是否可见，持续轮询API
+                    // 如果正在获取则跳过，避免并发请求
+                    if (!this.isFetching) {
+                        this.fetchData();
+                    }
+                }, CONFIG.BACKGROUND_POLL_INTERVAL);
+            }
+            stopBackgroundPolling() {
+                if (this.backgroundPollTimer) {
+                    clearInterval(this.backgroundPollTimer);
+                    this.backgroundPollTimer = null;
+                }
+            }
+
+            // ===== 模拟数据生成（移植自 Python _generate_mock_data） =====
+            generateMockData() {
+                const now = Math.floor(Date.now() / 1000);
+                const data = [];
+                for (let i = 0; i < CONFIG.MOCK_DATA_COUNT; i++) {
+                    const n1 = Math.floor(Math.random() * 10);
+                    const n2 = Math.floor(Math.random() * 10);
+                    const n3 = Math.floor(Math.random() * 10);
+                    const sum = n1 + n2 + n3;
+                    const ts = now - i * 180;
+                    const d = new Date(ts * 1000);
+                    const opentime = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+                    data.push({
+                        period: String(1000000 + i),
+                        nums: [n1, n2, n3],
+                        sum: sum,
+                        combo: Utils.judgeSizeOdd(sum),
+                        opentime: opentime,
+                        opentimeStamp: ts
+                    });
+                }
+                return data.reverse();
+            }
+
+            // ===== 长龙检测与播报（移植自 Python check_dragon_and_notify） =====
+            getDragonStatus() {
+                if (!this.apiData || this.apiData.length < 1) return {};
+                const combos = [...this.apiData].reverse().map(h => h.combo);
+                const status = {};
+                for (const combo of ['大单','大双','小单','小双']) {
+                    let cnt = 0;
+                    for (const c of combos) {
+                        if (c === combo) cnt++;
+                        else break;
+                    }
+                    status[combo] = cnt;
+                }
+                return status;
+            }
+            checkDragonAlert() {
+                if (!this.apiData || this.apiData.length < 5) return;
+                const status = this.getDragonStatus();
+                for (const [combo, count] of Object.entries(status)) {
+                    if (count >= CONFIG.DRAGON_ALERT_THRESHOLD) {
+                        const lastCount = this.lastDragonNotified[combo] || 0;
+                        // 只有当长龙期数增加时才提醒（去重），且需订阅长龙提醒
+                        if (count > lastCount && this.dragonSubscribed) {
+                            const alertText = `长龙提醒：${combo}已连续出现${count}期！`;
+                            this.showToast(`🐉 ${alertText}`, 'warning');
+                            // 语音播报（如果开启自动播报）
+                            if (this.autoAnnounce && this.voice.enabled) {
+                                this.voice.speak(alertText);
+                            }
+                            // 推送通知
+                            if (this.notifyEnabled && 'Notification' in window && Notification.permission === 'granted') {
+                                new Notification('🐉 长龙提醒', { body: alertText });
+                            }
+                            // Telegram 推送长龙提醒
+                            if (this.telegramEnabled && this.telegramBotToken && this.telegramChatId) {
+                                this.sendTelegramMessage(`🐉 长龙提醒\n\n${alertText}\n\n⚠️ 仅供参考，理性对待`);
+                            }
+                        }
+                        this.lastDragonNotified[combo] = count;
+                    } else {
+                        // 长龙结束后清除记录
+                        if (combo in this.lastDragonNotified) {
+                            delete this.lastDragonNotified[combo];
+                        }
+                    }
+                }
+                // 更新长龙状态UI（无论是否订阅都显示）
+                this.renderDragonStatus();
+            }
+            renderDragonStatus() {
+                const el = document.getElementById('dragon-status-panel');
+                if (!el) return;
+                const status = this.getDragonStatus();
+                let hasDragon = false;
+                let html = '';
+                for (const [combo, count] of Object.entries(status)) {
+                    if (count >= 2) {
+                        hasDragon = true;
+                        const isAlert = count >= CONFIG.DRAGON_ALERT_THRESHOLD;
+                        html += `<span class="dragon-chip${isAlert ? ' alert' : ''}">${combo} ×${count}</span>`;
+                    }
+                }
+                if (hasDragon) {
+                    el.innerHTML = html;
+                    el.style.display = 'flex';
+                } else {
+                    el.style.display = 'none';
+                }
+            }
+
+            // ===== 完整播报（移植自 Python build_message_for_recipient） =====
+            // 新期出现时，播报：开奖结果 + 杀组预测 + 置信度 + 共识 + 特码预测 + 长龙
+            announceFullBroadcast(data) {
+                if (!data || data.length < 4) return;
+                const latest = data[data.length-1];
+                // 防止同一期重复播报
+                if (this.lastBroadcastPeriod === latest.period) return;
+                this.lastBroadcastPeriod = latest.period;
+
+                const history3 = data.slice(data.length-3);
+                const prev = data[data.length-2];
+                const current = data[data.length-1];
+                const fullPrev = data.slice(0, data.length-1);
+                const pred = Algorithms.predict(this.currentAlgorithm, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
+                const nextPeriod = Number(latest.period) + 1;
+                const algName = CONFIG.ALGORITHM_NAMES[this.currentAlgorithm];
+                const numsStr = latest.nums.join(' 加 ');
+
+                // ===== Telegram 机器人播报（移植自 Python check_and_broadcast） =====
+                if (this.telegramEnabled && this.telegramBotToken && this.telegramChatId) {
+                    if (this.lastTelegramPeriod !== latest.period) {
+                        this.lastTelegramPeriod = latest.period;
+                        // Telegram 可使用独立算法（如未设置则跟随页面当前算法）
+                        const tgAlg = this.telegramAlgorithm || this.currentAlgorithm;
+                        const tgAlgName = CONFIG.ALGORITHM_NAMES[tgAlg] || tgAlg;
+                        const tgPred = (tgAlg === this.currentAlgorithm)
+                            ? pred
+                            : Algorithms.predict(tgAlg, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
+                        const allPreds = Algorithms.getAllPredictions(history3, prev.combo, prev.sum, current.nums, fullPrev);
+                        const consensus = Algorithms.getConsensus(allPreds);
+                        let sumPred = null;
+                        if (data.length >= 5) { try { sumPred = Algorithms.predictSum(data); } catch(_) {} }
+                        const tgMsg = this.buildTelegramBroadcastMessage(data, tgPred, nextPeriod, tgAlgName, consensus, sumPred);
+                        this.sendTelegramMessage(tgMsg).then(ok => {
+                            if (ok) this.showToast('📤 已推送至 Telegram', 'success');
+                        });
+                    }
+                }
+
+                // 语音播报（如果语音未开启则跳过）
+                if (!this.voice.enabled) return;
+
+                // 第一段：开奖结果
+                let openText = `最新开奖，第${latest.period}期，开奖号码${numsStr}，等于${latest.sum}，形态${latest.combo}。`;
+                this.voice.speak(openText);
+
+                // 第二段：杀组预测（延迟3秒）
+                setTimeout(() => {
+                    let predText;
+                    if (pred.killGroup === '--') {
+                        predText = `第${nextPeriod}期，${algName}算法暂无明确预测信号。`;
+                    } else {
+                        // 获取共识和置信度
+                        const allPreds = Algorithms.getAllPredictions(history3, prev.combo, prev.sum, current.nums, fullPrev);
+                        const consensus = Algorithms.getConsensus(allPreds);
+                        const confScore = consensus.totalVotes > 0 && consensus.topKills.length > 0
+                            ? Math.round((consensus.topKills[0][1] / consensus.totalVotes) * 100)
+                            : 0;
+                        const confLevel = confScore >= 75 ? '高' : (confScore >= 50 ? '中' : '低');
+                        predText = `第${nextPeriod}期预测，使用${algName}算法，推荐${pred.predictCombos[0]}加${pred.predictCombos[1]}，排除杀组${pred.killGroup}，置信度${confScore}%，${confLevel}。`;
+                    }
+                    this.voice.speak(predText);
+                }, 3500);
+
+                // 第三段：特码（和值）预测（延迟7秒）
+                setTimeout(() => {
+                    if (data.length < 5) return;
+                    const sumPred = Algorithms.predictSum(data);
+                    if (sumPred.sum !== null && sumPred.sum !== undefined) {
+                        const altText = sumPred.alts && sumPred.alts.length ? `，备选${sumPred.alts.map(a => a[0]).join('和')}` : '';
+                        const sumText = `特码预测，推荐和值${sumPred.sum}，置信度${sumPred.confidence}%${altText}。`;
+                        this.voice.speak(sumText);
+                    }
+                }, 7000);
+
+                // 第四段：长龙提醒（延迟10秒）
+                setTimeout(() => {
+                    const status = this.getDragonStatus();
+                    for (const [combo, count] of Object.entries(status)) {
+                        if (count >= CONFIG.DRAGON_ALERT_THRESHOLD) {
+                            this.voice.speak(`注意，${combo}已连续出现${count}期，形成长龙。`);
+                            break;
+                        }
+                    }
+                }, 10000);
+            }
+
+            // ===== 长龙提醒订阅开关（移植自 Python subscribe_dragon） =====
+            toggleDragonSubscribe() {
+                this.dragonSubscribed = !this.dragonSubscribed;
+                const btn = document.getElementById('dragon-sub-btn');
+                if (btn) btn.classList.toggle('active', this.dragonSubscribed);
+                this.showToast(this.dragonSubscribed ? '✅ 已订阅长龙提醒，连续≥4期将通知' : '✅ 已取消长龙提醒', 'info');
+                this.savePreferences();
+                // 立即检查一次
+                if (this.dragonSubscribed) this.checkDragonAlert();
+            }
+
+            // ===== Telegram 机器人播报（移植自 Python bot 的 send_message_safe / channel_broadcast） =====
+            toggleTelegramPush() {
+                // 如果已配置且已开启，则关闭
+                if (this.telegramEnabled) {
+                    this.telegramEnabled = false;
+                    const btn = document.getElementById('telegram-btn');
+                    if (btn) btn.classList.remove('active');
+                    this.showToast('✅ 已关闭 Telegram 播报', 'info');
+                    this.savePreferences();
+                    return;
+                }
+                // 打开设置面板
+                const modal = document.getElementById('telegram-modal');
+                if (modal) {
+                    modal.style.display = 'flex';
+                    // 填充已保存的值
+                    const ti = document.getElementById('tg-token-input');
+                    const ci = document.getElementById('tg-chatid-input');
+                    const tt = document.getElementById('tg-target-type');
+                    const ta = document.getElementById('tg-algorithm-select');
+                    if (ti) ti.value = this.telegramBotToken || CONFIG.TELEGRAM_BOT_TOKEN;
+                    if (ci) ci.value = this.telegramChatId || CONFIG.TELEGRAM_CHAT_ID;
+                    if (tt) tt.value = this.telegramTargetType || 'private';
+                    if (ta) ta.value = this.telegramAlgorithm || '';
+                    this.updateTelegramTargetHint();
+                }
+            }
+
+            updateTelegramTargetHint() {
+                const tt = document.getElementById('tg-target-type');
+                const hint = document.getElementById('tg-chatid-hint');
+                const help = document.getElementById('tg-help-text');
+                const type = tt ? tt.value : 'private';
+                if (type === 'private') {
+                    if (hint) hint.textContent = '（通过 @userinfobot 获取个人ID）';
+                    if (help) help.innerHTML = '💡 设置说明：<br>• Bot Token 从 @BotFather 创建机器人获取<br>• 私聊 Chat ID 从 @userinfobot 获取<br>• 必须先在 Telegram 中给 Bot 发一条消息（点 Start）<br>• 保存后点击"📤 TG播报"按钮开启自动推送';
+                } else if (type === 'group') {
+                    if (hint) hint.textContent = '（把 Bot 加入群组后，从 @RawDataBot 获取群组ID，以 - 开头）';
+                    if (help) help.innerHTML = '💡 群组设置说明：<br>• 先把 Bot 加入群组（设为管理员可发消息）<br>• 群组 Chat ID 以 <strong>-</strong> 开头，如 -100123456789<br>• 通过 @RawDataBot 或 API getUpdates 获取<br>• Bot 必须是群组成员才能发消息';
+                } else if (type === 'channel') {
+                    if (hint) hint.textContent = '（频道用户名如 @mychannel 或频道ID）';
+                    if (help) help.innerHTML = '💡 频道设置说明：<br>• 先把 Bot 设为频道管理员<br>• Chat ID 填频道用户名（如 @mychannel）<br>• 或填频道 ID（以 -100 开头的数字）<br>• Bot 必须是频道管理员才能发消息';
+                }
+            }
+
+            saveTelegramSettings() {
+                const ti = document.getElementById('tg-token-input');
+                const ci = document.getElementById('tg-chatid-input');
+                const tt = document.getElementById('tg-target-type');
+                const ta = document.getElementById('tg-algorithm-select');
+                this.telegramBotToken = (ti?.value || '').trim();
+                this.telegramChatId = (ci?.value || '').trim();
+                this.telegramTargetType = (tt?.value || 'private');
+                this.telegramAlgorithm = (ta?.value || '');
+                if (!this.telegramBotToken) {
+                    this.showToast('⚠️ 请输入 Bot Token', 'warning');
+                    return;
+                }
+                if (!this.telegramChatId) {
+                    this.showToast('⚠️ 请输入 Chat ID', 'warning');
+                    return;
+                }
+                this.telegramEnabled = true;
+                const btn = document.getElementById('telegram-btn');
+                if (btn) btn.classList.add('active');
+                document.getElementById('telegram-modal').style.display = 'none';
+                const targetTypeText = this.telegramTargetType === 'channel' ? '频道' : (this.telegramTargetType === 'group' ? '群组' : '私聊');
+                const algText = this.telegramAlgorithm ? CONFIG.ALGORITHM_NAMES[this.telegramAlgorithm] : '跟随页面算法';
+                this.showToast(`✅ Telegram 播报已开启（${targetTypeText} | ${algText}）`, 'success');
+                this.savePreferences();
+            }
+
+            async sendTelegramMessage(text) {
+                if (!this.telegramEnabled || !this.telegramBotToken || !this.telegramChatId) return false;
+                // 与 Python send_message_safe 一致：截断超长消息
+                if (text.length > CONFIG.TELEGRAM_MAX_MSG_LEN) {
+                    text = text.slice(0, CONFIG.TELEGRAM_MAX_MSG_LEN - 20) + '\n...(已截断)';
+                }
+                try {
+                    const url = `${CONFIG.TELEGRAM_API_BASE}/bot${this.telegramBotToken}/sendMessage`;
+                    const resp = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: this.telegramChatId,
+                            text: text,
+                            parse_mode: 'HTML',
+                            disable_web_page_preview: true
+                        })
+                    });
+                    const data = await resp.json();
+                    if (data.ok) return true;
+                    console.error('[Telegram] 发送失败:', data.description);
+                    return false;
+                } catch (e) {
+                    console.error('[Telegram] 请求异常:', e.message);
+                    return false;
+                }
+            }
+
+            async testTelegramBot() {
+                const ti = document.getElementById('tg-token-input');
+                const ci = document.getElementById('tg-chatid-input');
+                const token = (ti?.value || '').trim();
+                const chatId = (ci?.value || '').trim();
+                const resultDiv = document.getElementById('tg-test-result');
+                if (!token || !chatId) {
+                    if (resultDiv) { resultDiv.style.display = 'block'; resultDiv.innerHTML = '<span style="color:var(--warning);">⚠️ 请先填写 Token 和 Chat ID</span>'; }
+                    return;
+                }
+                if (resultDiv) { resultDiv.style.display = 'block'; resultDiv.innerHTML = '<span style="color:var(--text-muted);">⏳ 正在发送测试消息...</span>'; }
+                try {
+                    const url = `${CONFIG.TELEGRAM_API_BASE}/bot${token}/sendMessage`;
+                    const resp = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: '🤖 清浔预测面板 - Telegram播报测试成功！\n\n每期开奖后将自动推送预测消息。',
+                            parse_mode: 'HTML'
+                        })
+                    });
+                    const data = await resp.json();
+                    if (data.ok) {
+                        if (resultDiv) { resultDiv.innerHTML = '<span style="color:#4ade80;">✅ 测试消息发送成功！请检查 Telegram</span>'; }
+                        this.showToast('✅ Telegram 测试成功', 'success');
+                    } else {
+                        if (resultDiv) { resultDiv.innerHTML = `<span style="color:var(--warning);">❌ 发送失败: ${data.description || '未知错误'}</span>`; }
+                    }
+                } catch (e) {
+                    if (resultDiv) { resultDiv.innerHTML = `<span style="color:var(--warning);">❌ 请求异常: ${e.message}</span>`; }
+                }
+            }
+
+            buildTelegramBroadcastMessage(data, pred, nextPeriod, algName, consensus, sumPred) {
+                // 构建与 Python build_message_for_recipient 一致的 Telegram 消息
+                const latest = data[data.length - 1];
+                const numsStr = latest.nums.join('+');
+                const lines = [];
+
+                // 开奖结果
+                lines.push(`📊 第${latest.period}期开奖`);
+                lines.push(`号码: ${numsStr} = ${latest.sum} (${latest.combo})`);
+                lines.push('');
+
+                // 预测
+                if (pred.killGroup !== '--') {
+                    lines.push(`⏳ 第${nextPeriod}期预测 | ${algName}`);
+                    lines.push(`🎯 推荐: ${pred.predictCombos[0]} / ${pred.predictCombos[1]}`);
+                    lines.push(`🚫 杀组: ${pred.killGroup}`);
+
+                    // 置信度
+                    if (consensus && consensus.totalVotes > 0 && consensus.topKills.length > 0) {
+                        const confScore = Math.round((consensus.topKills[0][1] / consensus.totalVotes) * 100);
+                        const confLevel = confScore >= 75 ? '高' : (confScore >= 50 ? '中' : '低');
+                        lines.push(`📈 置信度: ${confScore}% (${confLevel})`);
+
+                        // 共识
+                        const comboStr = consensus.topCombos.map(c => `${c[0]}(${c[1]}票)`).join('、');
+                        const killStr = consensus.topKills.map(k => `${k[0]}(${k[1]}票)`).join('、');
+                        lines.push(`🔍 共识: 推荐[${comboStr}] | 杀[${killStr}]`);
+                    }
+                    lines.push('');
+                }
+
+                // 特码预测
+                if (sumPred && sumPred.sum !== null && sumPred.sum !== undefined) {
+                    lines.push(`🎰 特码预测`);
+                    lines.push(`推荐和值: ${sumPred.sum} (置信度${sumPred.confidence}%)`);
+                    if (sumPred.alts && sumPred.alts.length) {
+                        const altStr = sumPred.alts.map(a => `${a[0]}(${a[1]}%)`).join(', ');
+                        lines.push(`备选: ${altStr}`);
+                    }
+                    if (sumPred.trend) lines.push(`趋势: ${sumPred.trend}`);
+                    lines.push('');
+                }
+
+                // 长龙提醒
+                const status = this.getDragonStatus();
+                for (const [combo, count] of Object.entries(status)) {
+                    if (count >= CONFIG.DRAGON_ALERT_THRESHOLD) {
+                        lines.push(`🐉 长龙: ${combo}已连续${count}期`);
+                        break;
+                    }
+                }
+
+                lines.push('');
+                lines.push('⚠️ 仅供参考，理性对待');
+
+                return lines.join('\n');
+            }
+
             toggleFrequencyStats() {
                 const display = this.dom.frequencyStatsDisplay;
                 if (display.style.display === 'block') { display.style.display = 'none'; return; }
