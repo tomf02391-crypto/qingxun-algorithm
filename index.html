@@ -865,7 +865,7 @@
                 <!-- 本金输入 -->
                 <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
                     <span style="font-size:11px;color:var(--text-muted);">本金:</span>
-                    <input type="number" id="strategy-capital-input" value="1000" min="10" step="10" style="width:90px;padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:13px;font-weight:700;outline:none;" oninput="app.onCapitalManualInput()" />
+                    <input type="number" id="strategy-capital-input" value="100000" min="10" step="10" style="width:90px;padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-glass);color:var(--text-primary);font-size:13px;font-weight:700;outline:none;" oninput="app.onCapitalManualInput()" />
                     <span class="capital-sync-badge" id="capital-sync-badge">实时同步</span>
                     <button class="smart-suggest-follow" onclick="app.syncCapitalToBalance()" style="font-size:10px;padding:4px 8px;">🔄 同步</button>
                     <button class="smart-suggest-follow" onclick="app.generateStrategy()" style="font-size:11px;padding:4px 12px;">🧮 计算方案</button>
@@ -932,7 +932,7 @@
 
                 <!-- 统计 -->
                 <div class="bet-summary">
-                    <span class="stat">💰 资金: <strong class="num" id="virtual-balance">10000</strong><span class="balance-delta" id="balance-delta"></span></span>
+                    <span class="stat">💰 资金: <strong class="num" id="virtual-balance">100000</strong><span class="balance-delta" id="balance-delta"></span></span>
                     <span class="stat">📊 盈亏: <strong class="num" id="total-profit">0</strong></span>
                     <span class="stat">🎯 命中率: <strong id="bet-hit-rate">--%</strong></span>
                     <span class="stat" id="bet-status-msg" style="font-size:12px;color:var(--text-muted);"></span>
@@ -1194,7 +1194,7 @@
                 PRED_CACHE: 'qingxun-pred-cache-v2'  // 历史预测记录持久化缓存（防止刷新后重算导致结果变化）
             },
             FETCH_INTERVAL: 3*60*1000, FETCH_TIMEOUT: 10000, MAX_HISTORY: 50,
-            VIRTUAL_BALANCE: 10000, RETRY_DELAY: 3000, MAX_RETRIES: 3, CACHE_TTL: 10*60*1000,
+            VIRTUAL_BALANCE: 100000, RETRY_DELAY: 3000, MAX_RETRIES: 3, CACHE_TTL: 10*60*1000,
             DRAW_INTERVAL: 3*60*1000 + 30*1000, NEW_PERIOD_RETRY_DELAY: 5000, NEW_PERIOD_MAX_RETRIES: 6,
             BET_AMOUNT: 100, BET_WIN: 190, BACKTEST_DEFAULT_COUNT: 30, BACKFILL_LIMIT: 30,
             // ===== 从 Python bot 移植的系统功能配置 =====
@@ -3740,7 +3740,7 @@
         // ==================== 阶段二：回测分析系统 ====================
         class BacktestEngine {
             constructor(app) { this.app = app; }
-            run(algorithm, startIdx, endIdx, initialBalance = 10000) {
+            run(algorithm, startIdx, endIdx, initialBalance = 100000) {
                 const data = this.app.apiData;
                 if (!data || data.length < 10) return null;
                 const start = startIdx || 0;
@@ -4635,7 +4635,17 @@
                         totalProfit += profit;
                         betResults.push({ ...ab, won, payout, profit });
                     }
+                    const balanceBeforeSettlement = this.virtualBalance;
                     this.virtualBalance += totalProfit;
+                    // 欠款自动偿还提示
+                    if (totalProfit > 0 && balanceBeforeSettlement < 0) {
+                        const debtBefore = -balanceBeforeSettlement;
+                        const repayment = Math.min(totalProfit, debtBefore);
+                        const remainingDebt = debtBefore - repayment;
+                        if (repayment > 0) {
+                            this.showToast(`自动还债 ${repayment} 筹码，剩余欠款 ${remainingDebt}`, 'info');
+                        }
+                    }
                     this.totalBetCount += this.activeBets.length;
                     const winCount = betResults.filter(r => r.won).length;
                     this.totalWinCount += winCount;
@@ -4729,12 +4739,10 @@
                 );
                 if (existing) {
                     const newTotal = existing.amount + betAmount;
-                    if (this.virtualBalance < betAmount) { this.showToast('资金不足', 'error'); return; }
                     existing.amount = newTotal;
                     this.virtualBalance -= betAmount;
                     this.showToast(`加注 ${betType} +${betAmount} (共${newTotal})`, 'success');
                 } else {
-                    if (this.virtualBalance < betAmount) { this.showToast('资金不足', 'error'); return; }
                     this.activeBets.push({ betType, amount: betAmount, isABC: !!isABC, isNumber: !!isNumber, numberValue: numberValue || null });
                     this.virtualBalance -= betAmount;
                     this.showToast(`下注 ${betType} ${betAmount}筹码`, 'success');
@@ -4892,7 +4900,14 @@
                 const balanceRatio = this.virtualBalance / this.initialBalance;
                 const riskEl = document.getElementById('risk-panel');
                 if (!riskEl) return;
-                if (balanceRatio < 0.5) {
+                if (this.virtualBalance <= 0) {
+                    this.riskLock = false;
+                    const debt = -this.virtualBalance;
+                    const debtText = debt > 0 ? `欠款 ${debt} 筹码` : '本金已用完';
+                    riskEl.innerHTML = '<div class="risk-caution"><span>⚡ ' + debtText + '，可继续透支下注，赢后自动还债</span></div>';
+                    riskEl.style.display = 'block';
+                    document.querySelectorAll('.bet-btn').forEach(btn => btn.disabled = false);
+                } else if (balanceRatio < 0.5) {
                     this.riskLock = true;
                     riskEl.innerHTML = '<div class="risk-warning"><span>⚠️ 资金低于50%，已锁定投注</span><button onclick="app.resetBalance()">重置资金</button></div>';
                     riskEl.style.display = 'block';
@@ -5508,10 +5523,6 @@
                 let added = 0, totalStake = 0;
                 for (const s of this._currentSuggestions) {
                     const amount = s.suggestedAmount;
-                    if (this.virtualBalance < amount) {
-                        this.showToast('资金不足，部分推荐已跳过', 'warning');
-                        break;
-                    }
                     this.activeBets.push({
                         betType: s.betType, amount,
                         isABC: !!s.isABC, isNumber: !!s.isNumber,
@@ -6961,57 +6972,49 @@
             }
 
             buildTelegramBroadcastMessage(data, pred, nextPeriod, algName, consensus, sumPred) {
-                // 构建与 Python build_message_for_recipient 一致的 Telegram 消息
-                const latest = data[data.length - 1];
-                const numsStr = latest.nums.join('+');
+                // 推送格式：最近历史预测记录列表
                 const lines = [];
+                const alg = this.telegramAlgorithm || this.currentAlgorithm;
 
-                // 开奖结果
-                lines.push(`📊 第${latest.period}期开奖`);
-                lines.push(`号码: ${numsStr} = ${latest.sum} (${latest.combo})`);
-                lines.push('');
+                // 生成最近历史预测记录列表（最多15期）
+                const historyLines = [];
+                const maxShow = 15;
+                const startI = Math.max(0, data.length - 3 - maxShow);
 
-                // 预测
-                if (pred.killGroup !== '--') {
-                    lines.push(`⏳ 第${nextPeriod}期预测 | ${algName}`);
-                    lines.push(`🎯 推荐: ${pred.predictCombos[0]} / ${pred.predictCombos[1]}`);
-                    lines.push(`🚫 杀组: ${pred.killGroup}`);
+                for (let i = startI; i <= data.length - 4; i++) {
+                    const current = data[i + 3];
+                    const period = current.period;
+                    let rec = this.historyRecords[alg]?.[period];
 
-                    // 置信度
-                    if (consensus && consensus.totalVotes > 0 && consensus.topKills.length > 0) {
-                        const confScore = Math.round((consensus.topKills[0][1] / consensus.totalVotes) * 100);
-                        const confLevel = confScore >= 75 ? '高' : (confScore >= 50 ? '中' : '低');
-                        lines.push(`📈 置信度: ${confScore}% (${confLevel})`);
-
-                        // 共识
-                        const comboStr = consensus.topCombos.map(c => `${c[0]}(${c[1]}票)`).join('、');
-                        const killStr = consensus.topKills.map(k => `${k[0]}(${k[1]}票)`).join('、');
-                        lines.push(`🔍 共识: 推荐[${comboStr}] | 杀[${killStr}]`);
+                    // 如果缓存中没有，尝试计算一次（不污染缓存）
+                    if (!rec) {
+                        try {
+                            const history3 = data.slice(i, i + 3);
+                            const prev = data[i + 2];
+                            const fullPrev = data.slice(0, i + 3);
+                            const p = Algorithms.predict(alg, history3, prev.combo, prev.sum, current.nums, fullPrev, this.fusionWeights);
+                            const hit = Utils.isKillHit(p.killGroup, current.combo);
+                            rec = { killGroup: p.killGroup, hit: hit };
+                        } catch(_) { rec = null; }
                     }
-                    lines.push('');
-                }
 
-                // 特码预测
-                if (sumPred && sumPred.sum !== null && sumPred.sum !== undefined) {
-                    lines.push(`🎰 特码预测`);
-                    lines.push(`推荐和值: ${sumPred.sum} (置信度${sumPred.confidence}%)`);
-                    if (sumPred.alts && sumPred.alts.length) {
-                        const altStr = sumPred.alts.map(a => `${a[0]}(${a[1]}%)`).join(', ');
-                        lines.push(`备选: ${altStr}`);
-                    }
-                    if (sumPred.trend) lines.push(`趋势: ${sumPred.trend}`);
-                    lines.push('');
-                }
-
-                // 长龙提醒
-                const status = this.getDragonStatus();
-                for (const [combo, count] of Object.entries(status)) {
-                    if (count >= CONFIG.DRAGON_ALERT_THRESHOLD) {
-                        lines.push(`🐉 长龙: ${combo}已连续${count}期`);
-                        break;
+                    if (rec && rec.killGroup && rec.killGroup !== '--') {
+                        const shortPeriod = String(period).slice(-2);
+                        const mark = rec.hit ? '✅' : '❌';
+                        historyLines.push(`${shortPeriod}杀${rec.killGroup}${mark}${current.sum}`);
                     }
                 }
 
+                // 添加下一期预测（未开奖）
+                if (pred && pred.killGroup && pred.killGroup !== '--') {
+                    const shortPeriod = String(nextPeriod).slice(-2);
+                    historyLines.push(`${shortPeriod}杀${pred.killGroup}`);
+                }
+
+                lines.push(...historyLines);
+                if (lines.length === 0) {
+                    lines.push('暂无预测数据');
+                }
                 lines.push('');
                 lines.push('⚠️ 仅供参考，理性对待');
 
