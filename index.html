@@ -364,6 +364,38 @@
         .missed-table .hot { background:rgba(239,68,68,0.12); color:var(--danger); border-color:rgba(239,68,68,0.2); }
         .missed-table .cold { background:rgba(52,211,153,0.12); color:var(--success); border-color:rgba(52,211,153,0.2); }
         .missed-table .neutral { background:var(--bg-glass); color:var(--text-secondary); }
+        .missed-table .extreme { background:rgba(245,158,11,0.20); color:var(--accent-light); border-color:var(--accent); box-shadow:0 0 8px var(--accent-glow); }
+        /* ===== 追0和27 专用面板样式 ===== */
+        .chase027-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+        @media (max-width:480px) { .chase027-grid { grid-template-columns:1fr; } }
+        .chase027-extreme-card { background:var(--bg-glass); border:1px solid var(--border); border-radius:var(--radius-md); padding:14px; text-align:center; position:relative; overflow:hidden; transition:var(--transition); }
+        .chase027-extreme-card.extreme-0 { border-color:rgba(96,165,250,0.3); }
+        .chase027-extreme-card.extreme-27 { border-color:rgba(239,68,68,0.3); }
+        .chase027-extreme-card.alert-critical { border-color:var(--danger); box-shadow:0 0 16px var(--danger-glow); animation:pulse-glow 2s infinite; }
+        .chase027-extreme-card.alert-high { border-color:var(--warning); box-shadow:0 0 12px var(--warning-glow); }
+        .chase027-extreme-val { font-size:36px; font-weight:900; font-family:var(--font-mono); line-height:1; }
+        .chase027-extreme-0 .chase027-extreme-val { color:#60a5fa; }
+        .chase027-extreme-27 .chase027-extreme-val { color:var(--danger); }
+        .chase027-extreme-label { font-size:11px; color:var(--text-muted); margin-top:4px; font-weight:600; }
+        .chase027-extreme-miss { font-size:20px; font-weight:800; font-family:var(--font-mono); margin-top:8px; color:var(--accent-light); }
+        .chase027-extreme-miss-label { font-size:10px; color:var(--text-muted); }
+        .chase027-pressure-bar { height:6px; border-radius:3px; background:var(--bg-overlay); margin-top:8px; overflow:hidden; }
+        .chase027-pressure-fill { height:100%; border-radius:3px; transition:width 0.5s ease; background:linear-gradient(90deg, var(--success), var(--warning), var(--danger)); }
+        .chase027-section { background:var(--bg-glass); border:1px solid var(--border); border-radius:var(--radius-md); padding:12px; margin-bottom:10px; }
+        .chase027-section-title { font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+        .chase027-bound-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); }
+        .chase027-bound-row:last-child { border-bottom:none; }
+        .chase027-bound-label { font-size:12px; color:var(--text-secondary); }
+        .chase027-bound-val { font-size:14px; font-weight:700; font-family:var(--font-mono); color:var(--text-primary); }
+        .chase027-signal-box { background:var(--accent-weak); border:1px solid rgba(245,158,11,0.2); border-radius:var(--radius-md); padding:12px; text-align:center; }
+        .chase027-signal-rec { font-size:22px; font-weight:900; color:var(--success); font-family:var(--font-mono); }
+        .chase027-signal-kill { font-size:16px; font-weight:700; color:var(--danger); font-family:var(--font-mono); margin-top:4px; }
+        .chase027-signal-conf { font-size:12px; color:var(--text-muted); margin-top:6px; }
+        .chase027-alert-tag { display:inline-block; padding:2px 10px; border-radius:999px; font-size:10px; font-weight:700; }
+        .chase027-alert-tag.critical { background:rgba(239,68,68,0.15); color:var(--danger); border:1px solid var(--danger); }
+        .chase027-alert-tag.high { background:rgba(245,158,11,0.15); color:var(--warning); border:1px solid var(--warning); }
+        .chase027-alert-tag.medium { background:rgba(96,165,250,0.15); color:#60a5fa; border:1px solid #60a5fa; }
+        .chase027-alert-tag.normal { background:var(--bg-glass); color:var(--text-muted); border:1px solid var(--border); }
         .history-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:var(--radius-md); border:1px solid var(--border); max-height:420px; overflow-y:auto; }
         .history-table { width:100%; border-collapse:collapse; font-size:12px; min-width:480px; }
         .history-table thead { position:sticky; top:0; z-index:10; }
@@ -785,6 +817,7 @@
                     <option value="meta_ensemble_pro">元融合Pro</option>
                     <option value="value_invest">价值投资</option>
                     <option value="mean_reversion">均值回归</option>
+                    <option value="chase_0_27">🔥 追0和27</option>
                 </select>
             </div>
             <div style="display:flex;gap:8px;margin-top:16px;">
@@ -1090,6 +1123,7 @@
                     <option value="meta_ensemble">元融合</option>
                     <option value="value_invest">价值投资</option>
                     <option value="mean_reversion">均值回归</option>
+                    <option value="chase_0_27">🔥 追0和27</option>
                 </select></div>
                 <button class="btn" onclick="app.exportCSV()">📥 导出</button>
             </div>
@@ -1153,6 +1187,17 @@
             </div>
         </div>
 
+        <!-- ===== 追0和27 专用面板 ===== -->
+        <div class="card fade-in delay-4" id="chase027-card">
+            <div class="card-header">
+                <div class="card-title">🔥 追0和27 · 极值追踪分析</div>
+                <span class="card-badge" id="chase027-alert-badge">等待数据</span>
+            </div>
+            <div id="chase027-content" style="padding:8px 0;">
+                <div style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px 0;">📊 加载开奖数据后自动分析</div>
+            </div>
+        </div>
+
         <!-- History -->
         <div class="card fade-in delay-5">
             <div class="card-header"><div class="card-title">📜 历史预测记录</div><span class="card-badge" id="table-algorithm-tag" style="font-size:11px;">元融合Pro</span></div>
@@ -1160,7 +1205,7 @@
             <div class="stats-footer" id="stats"><span>基础胜率</span><span class="rate">--%</span><span>-- / --</span></div>
         </div>
 
-        <div class="footer">清浔杀组预测 Pro · 优化版（反重复+马尔可夫+多策略融合） · 数据仅供参考 · 仅供学习娱乐<br><span style="font-size:11px;opacity:0.6;">随机事件无记忆性，理性看待预测结果</span><br><span style="font-size:10px;opacity:0.4;" id="tg-version-info"></span></div>
+        <div class="footer">清浔杀组预测 Pro · 追0和27增强版（极值追踪+遗漏统计+多策略融合） · 数据仅供参考 · 仅供学习娱乐<br><span style="font-size:11px;opacity:0.6;">随机事件无记忆性，理性看待预测结果</span><br><span style="font-size:10px;opacity:0.4;" id="tg-version-info"></span></div>
     </div>
 
     <div class="lyrics-bar" id="lyrics-bar" style="display:none;">
@@ -1227,7 +1272,8 @@
                 meta_ensemble: '元融合',
                 meta_ensemble_pro: '元融合Pro',
                 value_invest: '价值投资',
-                mean_reversion: '均值回归'
+                mean_reversion: '均值回归',
+                chase_0_27: '追0和27'
             },
             COMBO_MAP: {
                 '小单': ['大单','小双'], '小双': ['大双','小单'],
@@ -3286,6 +3332,146 @@
                 };
             },
 
+            // ============================================================
+            // ========== 追0和27 专用算法 (chase_0_27) ====================
+            // 思路：和值0(0+0+0)与27(9+9+9)是极值，出现概率最低(理论各约1/1000)。
+            // 本算法通过"极值遗漏追踪 + 边界热度衰减 + 回补压力"三重信号，
+            // 判断极值和值(0或27)是否即将回补，并据此推断整体大小单双走势。
+            // 当极值长期未出 → 边界区(0-3小 / 24-27大)回补概率升高 →
+            //   若小边界更冷 → 倾向杀大、推荐小单小双
+            //   若大边界更冷 → 倾向杀小、推荐大单大双
+            // ============================================================
+            chaseZeroTwentySeven(history) {
+                if (!history || history.length < 10) return { killGroup: '--', predictCombos: ['--','--'], confidence: 0 };
+
+                const len = history.length;
+                const sums = history.map(h => h.sum);
+
+                // 1. 极值和值遗漏追踪：计算0和27各自的遗漏期数
+                let miss0 = len, miss27 = len, miss0Idx = -1, miss27Idx = -1;
+                for (let i = len - 1; i >= 0; i--) {
+                    if (miss0 === len && sums[i] === 0) { miss0 = len - 1 - i; miss0Idx = i; }
+                    if (miss27 === len && sums[i] === 27) { miss27 = len - 1 - i; miss27Idx = i; }
+                    if (miss0 < len && miss27 < len) break;
+                }
+                // 从未出现过的记为历史总长（最大遗漏）
+                const extremeMiss = Math.max(miss0, miss27); // 极值最大遗漏
+                const extremeMinMiss = Math.min(miss0, miss27);
+
+                // 2. 边界区域统计：小边界[0-3] 与 大边界[24-27]
+                const lowerBound = sums.filter(s => s <= 3).length;
+                const upperBound = sums.filter(s => s >= 24).length;
+                const lowerRatio = lowerBound / len;
+                const upperRatio = upperBound / len;
+
+                // 边界遗漏：小边界/大边界各自最后一次出现的距离
+                let lowerBoundMiss = len, upperBoundMiss = len;
+                for (let i = len - 1; i >= 0; i--) {
+                    if (lowerBoundMiss === len && sums[i] <= 3) lowerBoundMiss = len - 1 - i;
+                    if (upperBoundMiss === len && sums[i] >= 24) upperBoundMiss = len - 1 - i;
+                    if (lowerBoundMiss < len && upperBoundMiss < len) break;
+                }
+
+                // 3. 回补压力评分：极值遗漏越久，回补压力越大
+                // 理论上0和27约每1000期出现一次，遗漏超过200期即进入"高压区"
+                const EXTREME_THEORY_CYCLE = 1000;
+                const pressure0 = Math.min(1, miss0 / (EXTREME_THEORY_CYCLE * 0.3));   // 300期为满压
+                const pressure27 = Math.min(1, miss27 / (EXTREME_THEORY_CYCLE * 0.3));
+                const totalExtremePressure = (pressure0 + pressure27) / 2;
+
+                // 4. 近30期大小分布偏移
+                const recent30 = sums.slice(-30);
+                const bigRatio30 = recent30.filter(s => s >= 14).length / recent30.length;
+                const smallRatio30 = 1 - bigRatio30;
+
+                // 5. 极值近5期信号：如果近5期有极值出现，说明极值在"活跃期"
+                const recent5 = sums.slice(-5);
+                const extremeActiveRecent = recent5.filter(s => s === 0 || s === 27).length;
+
+                // ===== 核心决策逻辑 =====
+                // 如果小边界更冷(遗漏更大) → 小区域回补概率高 → 推荐小、杀大
+                // 如果大边界更冷(遗漏更大) → 大区域回补概率高 → 推荐大、杀小
+                let sizeSignal; // '大' or '小' 表示推荐方向
+                let paritySignal;
+
+                const lowerColder = lowerBoundMiss > upperBoundMiss;
+                const lowerPressure = pressure0 >= pressure27; // 0的遗漏压力更大 → 小边界更可能回补
+
+                // 综合判断方向
+                if (lowerColder && lowerPressure) {
+                    // 小边界(含0)回补概率高 → 推荐小
+                    sizeSignal = '小';
+                } else if (!lowerColder && !lowerPressure) {
+                    // 大边界(含27)回补概率高 → 推荐大
+                    sizeSignal = '大';
+                } else {
+                    // 信号矛盾时，看近30期偏移做反向回归
+                    sizeSignal = bigRatio30 > 0.55 ? '小' : (smallRatio30 > 0.55 ? '大' : (lowerColder ? '小' : '大'));
+                }
+
+                // 奇偶判断：极值0(双)和27(单)——哪个遗漏更久，反方向的奇偶更可能出现
+                // 0是双数，27是单数
+                // 如果0遗漏更久(即将出0) → 双；如果27遗漏更久(即将出27) → 单
+                // 但极值出现概率极低，所以奇偶主要看近期奇偶分布回归
+                const oddRatio30 = recent30.filter(s => s % 2 === 1).length / recent30.length;
+                if (pressure0 > pressure27 && pressure0 > 0.3) {
+                    // 0遗漏高压 → 双方向
+                    paritySignal = '双';
+                } else if (pressure27 > pressure0 && pressure27 > 0.3) {
+                    // 27遗漏高压 → 单方向
+                    paritySignal = '单';
+                } else {
+                    // 常规均值回归
+                    paritySignal = oddRatio30 > 0.55 ? '双' : (oddRatio30 < 0.45 ? '单' : (sums[len-1] % 2 === 0 ? '单' : '双'));
+                }
+
+                const recCombo = sizeSignal + paritySignal;
+                const opposite = { "小单":"大双", "小双":"大单", "大单":"小双", "大双":"小单" };
+                const kill = opposite[recCombo] || '大双';
+                const predictCombos = Utils.getPredictFromKill(kill);
+
+                // 6. 置信度计算
+                // 基础置信度 + 极值压力加成 + 边界冷热加成
+                let confidence = 50;
+                confidence += totalExtremePressure * 20;  // 极值压力最高加20
+                const boundGap = Math.abs(lowerBoundMiss - upperBoundMiss);
+                confidence += Math.min(15, boundGap * 0.5);  // 边界冷热差加成
+                // 近30期偏移加成
+                const sizeDeviation = Math.abs(bigRatio30 - 0.5);
+                confidence += sizeDeviation * 20;
+                // 极值活跃期加成
+                if (extremeActiveRecent > 0) confidence += 5;
+                confidence = Math.min(95, Math.round(confidence));
+
+                // 7. 极值预警等级
+                let extremeAlert = 'normal';
+                if (extremeMiss >= 500) extremeAlert = 'critical';   // 严重高压
+                else if (extremeMiss >= 300) extremeAlert = 'high';  // 高压
+                else if (extremeMiss >= 150) extremeAlert = 'medium'; // 中压
+
+                return {
+                    killGroup: kill,
+                    predictCombos: predictCombos,
+                    confidence,
+                    // 追0和27专用元数据
+                    chase027: {
+                        miss0, miss27, extremeMiss, extremeMinMiss,
+                        pressure0: Math.round(pressure0 * 100),
+                        pressure27: Math.round(pressure27 * 100),
+                        totalPressure: Math.round(totalExtremePressure * 100),
+                        lowerBoundMiss, upperBoundMiss,
+                        lowerRatio: +(lowerRatio * 100).toFixed(1),
+                        upperRatio: +(upperRatio * 100).toFixed(1),
+                        bigRatio30: +(bigRatio30 * 100).toFixed(1),
+                        extremeActiveRecent,
+                        extremeAlert,
+                        recCombo,
+                        sizeSignal,
+                        paritySignal
+                    }
+                };
+            },
+
             // ===== 商业投资版：动态权重投票 (V3增强) =====
             dynamicWeightVote(history, stats, regime) {
                 if (!history || history.length < 10) return { killGroup: '--', predictCombos: ['--','--'], confidence: 0 };
@@ -3433,6 +3619,10 @@
                     }
                     case 'mean_reversion': {
                         rawResult = this.meanReversion(fullHistoryPrev);
+                        break;
+                    }
+                    case 'chase_0_27': {
+                        rawResult = this.chaseZeroTwentySeven(fullHistoryPrev);
                         break;
                     }
                     default: rawResult = this.shuyingV1(history3); break;
@@ -6974,8 +7164,23 @@
                     const missed = this.app.missedStats;
                     const combos = Object.entries(missed.combos || {}).sort((a,b) => b[1]-a[1]).slice(0, 3);
                     answer = `最大遗漏：${combos.map(c => `${c[0]}(${c[1]}期)`).join('，')}。`;
+                } else if (q.includes('追0') || q.includes('追27') || q.includes('极值') || q.includes('0和27') || q.includes('0或27')) {
+                    // 追0和27极值追踪查询
+                    if (this.app.apiData.length < 10) {
+                        answer = '数据不足，需至少10期数据。';
+                    } else {
+                        try {
+                            const fullPrev = this.app.apiData.slice(0, this.app.apiData.length - 1);
+                            const r = Algorithms.chaseZeroTwentySeven(fullPrev);
+                            const c = r.chase027;
+                            const m0 = c.miss0 >= this.app.apiData.length ? '历史未见' : c.miss0 + '期';
+                            const m27 = c.miss27 >= this.app.apiData.length ? '历史未见' : c.miss27 + '期';
+                            const alertText = { critical: '严重高压🔴', high: '高压🟠', medium: '中压🟡', normal: '正常🟢' }[c.extremeAlert];
+                            answer = `🔥 追0和27追踪：和值0遗漏${m0}(压力${c.pressure0}%)，和值27遗漏${m27}(压力${c.pressure27}%)。预警等级：${alertText}。推荐${c.recCombo}，杀${r.killGroup}，置信度${r.confidence}%。`;
+                        } catch(_) { answer = '分析异常，请稍后重试。'; }
+                    }
                 } else {
-                    answer = '我可以回答关于胜率、走势、遗漏、资金和下注建议的问题。试试问："当前胜率如何？"或"推荐下注方案"';
+                    answer = '我可以回答关于胜率、走势、遗漏、追0和27、资金和下注建议的问题。试试问："当前胜率如何？"或"追0和27"或"推荐下注方案"';
                 }
                 this.conversationHistory.push({ question, answer, timestamp: Date.now() });
                 return answer;
@@ -8354,6 +8559,7 @@
                 this.renderPrediction();
                 this.renderCrossValidation();
                 this.renderSumPrediction();
+                this.renderChase027();   // 追0和27面板
                 this.renderHistory();
                 this.renderMonitor();
                 this.renderAlgoCompare();
@@ -8431,9 +8637,11 @@
             renderMissed() {
                 if (!this.apiData.length) return;
                 document.getElementById('missed-stats').style.display = 'block';
-                let sumHTML = '<tr>' + Array.from({length:28}, (_,i) => `<td style="font-weight:700;color:var(--text-secondary);">${i}</td>`).join('') + '</tr>';
-                sumHTML += '<tr>' + this.missedStats.sums.map((v) => {
-                    const cls = v >= 20 ? 'hot' : (v <= 3 ? 'cold' : 'neutral');
+                // 和值遗漏表（0和27高亮为极值）
+                let sumHTML = '<tr>' + Array.from({length:28}, (_,i) => `<td style="font-weight:700;color:${(i===0||i===27)?'var(--accent-light)':'var(--text-secondary)'};${(i===0||i===27)?'background:rgba(245,158,11,0.10);':''}">${i}</td>`).join('') + '</tr>';
+                sumHTML += '<tr>' + this.missedStats.sums.map((v, i) => {
+                    let cls = v >= 20 ? 'hot' : (v <= 3 ? 'cold' : 'neutral');
+                    if (i === 0 || i === 27) cls = 'extreme';
                     return `<td class="${cls}">${v}</td>`;
                 }).join('') + '</tr>';
                 this.dom.sumMissedBody.innerHTML = sumHTML;
@@ -8445,6 +8653,119 @@
                     return `<td class="${cls}">${v}</td>`;
                 }).join('') + '</tr>';
                 this.dom.comboMissedBody.innerHTML = comboHTML;
+            }
+
+            // ===== 追0和27 面板渲染 =====
+            renderChase027() {
+                const content = document.getElementById('chase027-content');
+                const badge = document.getElementById('chase027-alert-badge');
+                if (!content) return;
+                if (!this.apiData || this.apiData.length < 10) {
+                    content.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px 0;">📊 需至少10期数据进行分析</div>';
+                    if (badge) badge.textContent = '等待数据';
+                    return;
+                }
+
+                // 调用追0和27算法获取分析数据
+                const fullPrev = this.apiData.slice(0, this.apiData.length - 1);
+                let result;
+                try {
+                    result = Algorithms.chaseZeroTwentySeven(fullPrev);
+                } catch(e) {
+                    content.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px 0;">⚠️ 分析异常</div>';
+                    return;
+                }
+                const c = result.chase027;
+                if (!c) {
+                    content.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px 0;">数据不足</div>';
+                    return;
+                }
+
+                // 预警标签
+                const alertMap = {
+                    critical: { text: '🔴 严重高压', cls: 'critical' },
+                    high: { text: '🟠 高压预警', cls: 'high' },
+                    medium: { text: '🟡 中压关注', cls: 'medium' },
+                    normal: { text: '🟢 正常', cls: 'normal' }
+                };
+                const alertInfo = alertMap[c.extremeAlert] || alertMap.normal;
+                if (badge) {
+                    badge.textContent = alertInfo.text;
+                    badge.style.color = alertInfo.cls === 'critical' ? 'var(--danger)' :
+                        alertInfo.cls === 'high' ? 'var(--warning)' :
+                        alertInfo.cls === 'medium' ? '#60a5fa' : 'var(--text-muted)';
+                }
+
+                // 遗漏显示：从未出现显示"历史未见"
+                const miss0Text = c.miss0 >= this.apiData.length ? '历史未见' : c.miss0 + '期';
+                const miss27Text = c.miss27 >= this.apiData.length ? '历史未见' : c.miss27 + '期';
+
+                let html = '';
+                // 极值追踪卡片
+                html += '<div class="chase027-grid">';
+                // 和值0
+                html += `<div class="chase027-extreme-card extreme-0 ${c.extremeAlert === 'critical' && c.pressure0 > c.pressure27 ? 'alert-critical' : ''} ${c.extremeAlert === 'high' && c.pressure0 > c.pressure27 ? 'alert-high' : ''}">
+                    <div class="chase027-extreme-val">0</div>
+                    <div class="chase027-extreme-label">和值0 · (0+0+0)</div>
+                    <div class="chase027-extreme-miss">${miss0Text}</div>
+                    <div class="chase027-extreme-miss-label">当前遗漏</div>
+                    <div class="chase027-pressure-bar"><div class="chase027-pressure-fill" style="width:${c.pressure0}%"></div></div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">回补压力 ${c.pressure0}%</div>
+                </div>`;
+                // 和值27
+                html += `<div class="chase027-extreme-card extreme-27 ${c.extremeAlert === 'critical' && c.pressure27 > c.pressure0 ? 'alert-critical' : ''} ${c.extremeAlert === 'high' && c.pressure27 > c.pressure0 ? 'alert-high' : ''}">
+                    <div class="chase027-extreme-val">27</div>
+                    <div class="chase027-extreme-label">和值27 · (9+9+9)</div>
+                    <div class="chase027-extreme-miss">${miss27Text}</div>
+                    <div class="chase027-extreme-miss-label">当前遗漏</div>
+                    <div class="chase027-pressure-bar"><div class="chase027-pressure-fill" style="width:${c.pressure27}%"></div></div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">回补压力 ${c.pressure27}%</div>
+                </div>`;
+                html += '</div>';
+
+                // 边界区域分析
+                const lbMissText = c.lowerBoundMiss >= this.apiData.length ? '未见' : c.lowerBoundMiss + '期';
+                const ubMissText = c.upperBoundMiss >= this.apiData.length ? '未见' : c.upperBoundMiss + '期';
+                html += '<div class="chase027-section">';
+                html += '<div class="chase027-section-title">📐 边界区域分析</div>';
+                html += `<div class="chase027-bound-row"><span class="chase027-bound-label">小边界 [0-3] 出现占比</span><span class="chase027-bound-val">${c.lowerRatio}%</span></div>`;
+                html += `<div class="chase027-bound-row"><span class="chase027-bound-label">小边界上次出现距今</span><span class="chase027-bound-val">${lbMissText}</span></div>`;
+                html += `<div class="chase027-bound-row"><span class="chase027-bound-label">大边界 [24-27] 出现占比</span><span class="chase027-bound-val">${c.upperRatio}%</span></div>`;
+                html += `<div class="chase027-bound-row"><span class="chase027-bound-label">大边界上次出现距今</span><span class="chase027-bound-val">${ubMissText}</span></div>`;
+                html += '</div>';
+
+                // 综合分析
+                html += '<div class="chase027-section">';
+                html += '<div class="chase027-section-title">📊 综合统计分析</div>';
+                html += `<div class="chase027-bound-row"><span class="chase027-bound-label">极值最大遗漏</span><span class="chase027-bound-val">${c.extremeMiss}期</span></div>`;
+                html += `<div class="chase027-bound-row"><span class="chase027-bound-label">极值最小遗漏</span><span class="chase027-bound-val">${c.extremeMinMiss}期</span></div>`;
+                html += `<div class="chase027-bound-row"><span class="chase027-bound-label">综合回补压力</span><span class="chase027-bound-val">${c.totalPressure}%</span></div>`;
+                html += `<div class="chase027-bound-row"><span class="chase027-bound-label">近30期大数占比</span><span class="chase027-bound-val">${c.bigRatio30}%</span></div>`;
+                html += `<div class="chase027-bound-row"><span class="chase027-bound-label">近5期极值出现</span><span class="chase027-bound-val">${c.extremeActiveRecent}次</span></div>`;
+                html += `<div class="chase027-bound-row"><span class="chase027-bound-label">预警等级</span><span class="chase027-alert-tag ${alertInfo.cls}">${alertInfo.text}</span></div>`;
+                html += '</div>';
+
+                // 预测信号
+                const confColor = result.confidence >= 80 ? 'var(--success)' : result.confidence >= 60 ? 'var(--warning)' : 'var(--danger)';
+                html += '<div class="chase027-signal-box">';
+                html += `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">🔮 追0和27算法预测信号</div>`;
+                html += `<div class="chase027-signal-rec">推荐 ${c.recCombo}</div>`;
+                html += `<div class="chase027-signal-kill">杀 ${result.killGroup}</div>`;
+                html += `<div class="chase027-signal-conf">置信度 <span style="color:${confColor};font-weight:700;">${result.confidence}%</span> · 方向:${c.sizeSignal} · 奇偶:${c.paritySignal}</div>`;
+                html += `<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">逻辑: ${c.sizeSignal === '小' ? '小边界更冷→推荐小' : '大边界更冷→推荐大'}</div>`;
+                html += '</div>';
+
+                content.innerHTML = html;
+
+                // 极值高压时推送提醒
+                if (c.extremeAlert === 'critical' && this._lastChase027Alert !== 'critical') {
+                    this._lastChase027Alert = 'critical';
+                    if (this.notifyEnabled && 'Notification' in window && Notification.permission === 'granted') {
+                        new Notification('🔥 极值高压预警', { body: `和值0或27已遗漏${c.extremeMiss}期，进入严重高压区！` });
+                    }
+                } else if (c.extremeAlert !== 'critical') {
+                    this._lastChase027Alert = c.extremeAlert;
+                }
             }
 
             async renderPrediction() {
@@ -10426,6 +10747,27 @@
                         }
                     }
                 }, 10000);
+
+                // 第五段：追0和27极值追踪（延迟13秒）
+                setTimeout(() => {
+                    if (data.length < 10) return;
+                    try {
+                        const fullPrev = data.slice(0, data.length - 1);
+                        const c027 = Algorithms.chaseZeroTwentySeven(fullPrev);
+                        if (c027 && c027.chase027) {
+                            const c = c027.chase027;
+                            const m0 = c.miss0 >= data.length ? '历史未见' : c.miss0 + '期';
+                            const m27 = c.miss27 >= data.length ? '历史未见' : c.miss27 + '期';
+                            let txt = `追0和27追踪。和值0已遗漏${m0}，和值27已遗漏${m27}。`;
+                            if (c.extremeAlert === 'critical') {
+                                txt += `极值进入严重高压区，回补在即，重点关注！`;
+                            } else if (c.extremeAlert === 'high') {
+                                txt += `极值进入高压区，建议关注。`;
+                            }
+                            this.voice.speak(txt);
+                        }
+                    } catch(_) {}
+                }, 13000);
             }
 
             // ===== 长龙提醒订阅开关（移植自 Python subscribe_dragon） =====
@@ -10617,6 +10959,29 @@
                 if (lines.length === 0) {
                     lines.push('暂无预测数据');
                 }
+
+                // ===== 追0和27 极值追踪信号（仿@gb28bot播报格式） =====
+                try {
+                    const fullPrev = data.slice(0, data.length - 1);
+                    const c027 = Algorithms.chaseZeroTwentySeven(fullPrev);
+                    if (c027 && c027.chase027) {
+                        const c = c027.chase027;
+                        const alertEmoji = { critical: '🔴', high: '🟠', medium: '🟡', normal: '🟢' }[c.extremeAlert] || '🟢';
+                        const m0 = c.miss0 >= data.length ? '未见' : c.miss0;
+                        const m27 = c.miss27 >= data.length ? '未见' : c.miss27;
+                        lines.push('');
+                        lines.push(`🔥 追0和27 极值追踪`);
+                        lines.push(`${alertEmoji} 预警:${alertEmoji === '🔴' ? '严重高压' : alertEmoji === '🟠' ? '高压' : alertEmoji === '🟡' ? '中压' : '正常'}`);
+                        lines.push(`0遗漏:${m0}期 压力${c.pressure0}%`);
+                        lines.push(`27遗漏:${m27}期 压力${c.pressure27}%`);
+                        lines.push(`边界:小[${c.lowerRatio}%] 大[${c.upperRatio}%]`);
+                        lines.push(`信号:推荐${c.recCombo} 杀${c027.killGroup}(${c027.confidence}%)`);
+                        if (c.extremeAlert === 'critical' || c.extremeAlert === 'high') {
+                            lines.push(`⚡ 极值回补在即，重点关注！`);
+                        }
+                    }
+                } catch(_) {}
+
                 lines.push('');
                 lines.push('⚠️ 仅供参考，理性对待');
 
