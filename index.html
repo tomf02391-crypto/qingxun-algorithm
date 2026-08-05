@@ -1317,12 +1317,12 @@
                 CACHE: 'qingxun-cache-v2', BET_HISTORY: 'qingxun-bet-history-v2', PRED_PREFIX: 'qingxun-pred-',
                 PRED_CACHE: 'qingxun-pred-cache-v2'  // 历史预测记录持久化缓存（防止刷新后重算导致结果变化）
             },
-            FETCH_INTERVAL: 3*60*1000, FETCH_TIMEOUT: 10000, MAX_HISTORY: 50,
+            FETCH_INTERVAL: 3*60*1000, FETCH_TIMEOUT: 8000, MAX_HISTORY: 50,
             VIRTUAL_BALANCE: 100000, RETRY_DELAY: 3000, MAX_RETRIES: 3, CACHE_TTL: 10*60*1000,
-            DRAW_INTERVAL: 3*60*1000 + 30*1000, NEW_PERIOD_RETRY_DELAY: 5000, NEW_PERIOD_MAX_RETRIES: 6,
+            DRAW_INTERVAL: 3*60*1000 + 30*1000, NEW_PERIOD_RETRY_DELAY: 3000, NEW_PERIOD_MAX_RETRIES: 10,
             BET_AMOUNT: 100, BET_WIN: 190, BACKTEST_DEFAULT_COUNT: 50, BACKFILL_LIMIT: 30,
             // ===== 从 Python bot 移植的系统功能配置 =====
-            BACKGROUND_POLL_INTERVAL: 24*1000,   // 后台轮询间隔（秒级，与 Python FETCH_INTERVAL=24 一致）
+            BACKGROUND_POLL_INTERVAL: 15*1000,   // 后台轮询间隔（15秒，提升实时性）
             DRAGON_ALERT_THRESHOLD: 4,            // 长龙提醒阈值（连续≥4期同一形态）
             MOCK_DATA_ENABLED: true,              // API全不可用时启用模拟数据兜底
             MOCK_DATA_COUNT: 20,                  // 模拟数据条数
@@ -7947,6 +7947,7 @@
                     const results = Utils.judgeAll(latest.nums, latest.sum);
                     let totalProfit = 0;
                     let totalStaked = 0;
+                    let totalPayout = 0;  // 总赔付金额（用于结算时加回余额）
                     const betResults = [];
                     const isRefundPeriod = ruleset.refundOn.includes(String(latest.sum)) ||
                         (ruleset.refundOn.includes('对子') && results['对子']) ||
@@ -7990,10 +7991,14 @@
                         }
                         const profit = payout - ab.amount;
                         totalProfit += profit;
+                        totalPayout += payout;  // 累计赔付金额
                         betResults.push({ ...ab, won, payout, profit });
                     }
                     const balanceBeforeSettlement = this.virtualBalance;
-                    this.virtualBalance += totalProfit;
+                    // 修复：下注时已扣除本金，结算时只加回赔付金额（payout），不重复扣本金
+                    // 未中奖: payout=0, 余额不变（本金已在下注时扣除）
+                    // 中奖: payout=amount*odds, 余额加回赔付金额
+                    this.virtualBalance += totalPayout;
                     // 欠款自动偿还提示
                     if (totalProfit > 0 && balanceBeforeSettlement < 0) {
                         const debtBefore = -balanceBeforeSettlement;
@@ -10638,8 +10643,8 @@
                             hasTriggeredFetch = true;
                             this._updateSyncStatus('waiting', '等待新期开奖...');
                             this.newPeriodRetryCount = 0;
-                            // 延迟1.5秒后开始轮询（给API一点缓冲时间）
-                            this.smartFetchTimer = setTimeout(() => this.fetchData(true), 1500);
+                            // 延迟1秒后开始轮询（给API一点缓冲时间）
+                            this.smartFetchTimer = setTimeout(() => this.fetchData(true), 1000);
                         }
                         return;
                     }
