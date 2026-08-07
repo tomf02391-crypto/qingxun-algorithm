@@ -9,8 +9,11 @@
     <meta name="theme-color" content="#7c3aed" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <!-- P1优化：telegram脚本加defer避免阻塞首屏渲染（非TG环境无需同步加载） -->
+    <script defer src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- P1优化：Google Fonts异步加载，避免阻塞首屏渲染；仅保留必要字重 -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" /></noscript>
     <style>
         /* ===== 清浔算法 · 仪表盘风格 ===== */
         :root {
@@ -85,12 +88,12 @@
         }
         .bg-glow { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
         .bg-glow::before {
-            content:''; position:absolute; border-radius:50%; filter:blur(180px); opacity:0.12;
+            content:''; position:absolute; border-radius:50%; filter:blur(80px); opacity:0.10;
             width:800px; height:800px; background:var(--accent); top:-300px; right:-300px;
             animation:glow-float 60s ease-in-out infinite alternate;
         }
         .bg-glow::after {
-            content:''; position:absolute; border-radius:50%; filter:blur(140px); opacity:0.06;
+            content:''; position:absolute; border-radius:50%; filter:blur(60px); opacity:0.04;
             width:500px; height:500px; background:var(--accent); bottom:-150px; left:-150px;
             animation:glow-float 50s ease-in-out infinite alternate-reverse;
         }
@@ -1317,12 +1320,16 @@
                 CACHE: 'qingxun-cache-v2', BET_HISTORY: 'qingxun-bet-history-v2', PRED_PREFIX: 'qingxun-pred-',
                 PRED_CACHE: 'qingxun-pred-cache-v2'  // 历史预测记录持久化缓存（防止刷新后重算导致结果变化）
             },
-            FETCH_INTERVAL: 3*60*1000, FETCH_TIMEOUT: 8000, MAX_HISTORY: 50,
-            VIRTUAL_BALANCE: 100000, RETRY_DELAY: 3000, MAX_RETRIES: 3, CACHE_TTL: 10*60*1000,
-            DRAW_INTERVAL: 3*60*1000 + 30*1000, NEW_PERIOD_RETRY_DELAY: 3000, NEW_PERIOD_MAX_RETRIES: 10,
+            FETCH_INTERVAL: 3*60*1000, FETCH_TIMEOUT: 10000, MAX_HISTORY: 50,
+            VIRTUAL_BALANCE: 100000, CACHE_TTL: 10*60*1000,
+            // P0优化：实现指数退避重试（替代之前定义但未使用的MAX_RETRIES/RETRY_DELAY死代码）
+            MAX_FETCH_RETRIES: 3, RETRY_BASE_DELAY: 1000,
+            // P0优化：PRED_CACHE每算法期数上限，防止localStorage无限增长
+            PRED_CACHE_MAX_PERIODS: 100,
+            DRAW_INTERVAL: 3*60*1000 + 30*1000, NEW_PERIOD_RETRY_DELAY: 5000, NEW_PERIOD_MAX_RETRIES: 6,
             BET_AMOUNT: 100, BET_WIN: 190, BACKTEST_DEFAULT_COUNT: 50, BACKFILL_LIMIT: 30,
             // ===== 从 Python bot 移植的系统功能配置 =====
-            BACKGROUND_POLL_INTERVAL: 15*1000,   // 后台轮询间隔（15秒，提升实时性）
+            BACKGROUND_POLL_INTERVAL: 24*1000,   // 后台轮询间隔（秒级，与 Python FETCH_INTERVAL=24 一致）
             DRAGON_ALERT_THRESHOLD: 4,            // 长龙提醒阈值（连续≥4期同一形态）
             MOCK_DATA_ENABLED: true,              // API全不可用时启用模拟数据兜底
             MOCK_DATA_COUNT: 20,                  // 模拟数据条数
@@ -1331,7 +1338,7 @@
             METING_API: 'https://api.injahow.cn/meting/',
             // ===== Telegram Bot 配置（移植自 Python bot 的 TOKEN 和 send_message_safe） =====
             TELEGRAM_API_BASE: 'https://api.telegram.org',
-            TELEGRAM_BOT_TOKEN: '8697550086:AAHPOZdAV6qcBVy9_TtlDzHD-89Cmdkj8b4',  // 与 Python bot 的 TOKEN 一致
+            TELEGRAM_BOT_TOKEN: '',  // ⚠️ 安全警告：请勿在前端硬编码 Token。请在设置面板中填入你的 Bot Token，或通过后端代理转发。
             TELEGRAM_CHAT_ID: '',  // 用户需自行设置 chat_id（通过 @userinfobot 获取）
             TELEGRAM_MAX_MSG_LEN: 4000,  // 与 Python send_message_safe 的截断长度一致
             MUSIC_SOURCES: {
@@ -3642,9 +3649,16 @@
                 }
 
                 // 3. 回补压力评分
-                const EXTREME_THEORY_CYCLE = 1000;
-                const pressure0 = Math.min(1, miss0 / (EXTREME_THEORY_CYCLE * 0.3));
-                const pressure27 = Math.min(1, miss27 / (EXTREME_THEORY_CYCLE * 0.3));
+                // V3算法升级：动态极端周期，基于历史实际出现频率
+                const sumCount0 = sums.filter(s => s === 0).length;
+                const sumCount27 = sums.filter(s => s === 27).length;
+                const dynProb0 = (sumCount0 + 1) / (len + 2);   // 拉普拉斯平滑
+                const dynProb27 = (sumCount27 + 1) / (len + 2);
+                const dynCycle0 = Math.max(500, Math.round(1 / dynProb0));  // 下限500
+                const dynCycle27 = Math.max(500, Math.round(1 / dynProb27));
+                const EXTREME_THEORY_CYCLE = Math.round((dynCycle0 + dynCycle27) / 2);
+                const pressure0 = Math.min(1, miss0 / (dynCycle0 * 0.3));
+                const pressure27 = Math.min(1, miss27 / (dynCycle27 * 0.3));
                 const totalPressure = (pressure0 + pressure27) / 2;
 
                 // 4. 多周期回补概率（几何分布：1-(1-p)^n）
@@ -3723,7 +3737,10 @@
                         lowerBoundMiss,
                         upperBoundMiss,
                         bigRatio30: +(bigRatio30 * 100).toFixed(1),
-                        recCombo  // 兼容用
+                        recCombo,  // 兼容用
+                        // V3: 边界区联动警告（和值1~3高活跃→压制0，和值24~26高活跃→压制27）
+                        boundaryWarn0: lowerRatio > 0.12,
+                        boundaryWarn27: upperRatio > 0.12
                     }
                 };
             },
@@ -7182,7 +7199,7 @@
                 // 注册Service Worker
                 if ('serviceWorker' in navigator) {
                     const swCode = `
-                        const CACHE_NAME = 'qingxun-v1';
+                        const CACHE_NAME = 'qingxun-v2';
                         const ASSETS = ['/', '/index.html'];
                         self.addEventListener('install', e => {
                             e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)).catch(()=>{}));
@@ -7191,13 +7208,31 @@
                         self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
                         self.addEventListener('fetch', e => {
                             if (e.request.method !== 'GET') return;
-                            e.respondWith(
-                                caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
-                                    const clone = resp.clone();
-                                    caches.open(CACHE_NAME).then(c => c.put(e.request, clone)).catch(()=>{});
-                                    return resp;
-                                }).catch(() => r))
-                            );
+                            const url = new URL(e.request.url);
+                            // P1优化：API请求和代理请求使用network-first策略，避免返回过期缓存数据
+                            const isApiRequest = url.hostname.includes('pc28998') || url.hostname.includes('7boe') ||
+                                url.hostname.includes('cors.sh') || url.hostname.includes('allorigins') ||
+                                url.hostname.includes('codetabs') || url.hostname.includes('corsproxy') ||
+                                url.hostname.includes('telegram.org') || url.hostname.includes('injahow');
+                            if (isApiRequest) {
+                                // network-first: 先尝试网络，失败时回退缓存
+                                e.respondWith(
+                                    fetch(e.request).then(resp => {
+                                        const clone = resp.clone();
+                                        caches.open(CACHE_NAME).then(c => c.put(e.request, clone)).catch(()=>{});
+                                        return resp;
+                                    }).catch(() => caches.match(e.request).then(r => r || new Response('', {status: 503})))
+                                );
+                            } else {
+                                // cache-first: 静态资源优先使用缓存
+                                e.respondWith(
+                                    caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
+                                        const clone = resp.clone();
+                                        caches.open(CACHE_NAME).then(c => c.put(e.request, clone)).catch(()=>{});
+                                        return resp;
+                                    }).catch(() => r))
+                                );
+                            }
                         });
                     `;
                     const blob = new Blob([swCode], { type: 'application/javascript' });
@@ -7604,7 +7639,7 @@
                 this.renderPending = false;
                 this.currentSource = '';
                 this.isSettling = false;
-                this.isTelegram = !!(window.Telegram && window.Telegram.WebApp);
+                this.isTelegram = false; // 初始为false，在init()中延迟检测（telegram脚本已改为defer加载）
                 this.autoAnnounce = false;
                 // ===== 从 Python bot 移植的系统状态 =====
                 this.backgroundPollTimer = null;      // 后台轮询定时器（24秒间隔，不依赖倒计时）
@@ -7677,14 +7712,16 @@
                 for (const k of Object.keys(CONFIG.ALGORITHM_NAMES)) {
                     this.algorithmStats[k] = { total:0, win:0, currentConsecutive:0, winRate:0 };
                 }
-                if (this.isTelegram) {
-                    const tg = window.Telegram.WebApp;
-                    tg.ready(); tg.expand(); this.tgInstance = tg;
-                }
+                // P1优化：Telegram环境检测移至init()中（defer脚本此时已加载）
                 this.init();
             }
 
             init() {
+                // P1优化：延迟检测Telegram环境（telegram-web-app.js已改为defer加载）
+                this.isTelegram = !!(window.Telegram && window.Telegram.WebApp);
+                if (this.isTelegram) {
+                    try { const tg = window.Telegram.WebApp; tg.ready(); tg.expand(); this.tgInstance = tg; } catch(_) {}
+                }
                 this.initTheme();
                 this.loadPreferences();
                 this.loadBets();
@@ -7704,7 +7741,17 @@
                 if (this.dom.rebateBadge && rebateCfg) this.dom.rebateBadge.textContent = rebateCfg.label;
                 const abcBtn = document.getElementById('abc-toggle');
                 if (abcBtn) { abcBtn.classList.toggle('active', this.abcMode); abcBtn.textContent = this.abcMode ? 'ABC模式 ON' : 'ABC模式'; }
-                this.fetchData();
+                // P1优化：首屏解耦——先用缓存数据渲染首屏，网络请求延后到下一帧
+                // 确保缓存数据已渲染到DOM后再发起网络请求，避免首屏阻塞
+                if (this.apiData.length > 0) {
+                    this.setStatus('ready');
+                }
+                const startFetch = () => { this.fetchData(); };
+                if (window.requestIdleCallback) {
+                    requestIdleCallback(startFetch, { timeout: 2000 });
+                } else {
+                    setTimeout(startFetch, 50);
+                }
                 this.setupVisibilityHandler();
                 this.startBackgroundPolling();  // 启动24秒后台轮询（移植自 Python periodic_check）
                 if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = () => { this.voice.getChineseVoice(); };
@@ -7717,6 +7764,13 @@
                 this.transparencyLogger.log('app_init', { balance: this.virtualBalance, algorithm: this.currentAlgorithm });
                 // 云同步延迟启动（等数据加载后）
                 setTimeout(() => { if (CONFIG.CLOUD_SYNC_ENABLED) this.cloudSyncManager.enable(); }, 3000);
+                // P1优化：defer脚本可能在init后才加载完成，延迟100ms重新检测Telegram环境
+                setTimeout(() => {
+                    if (!this.isTelegram && window.Telegram && window.Telegram.WebApp) {
+                        this.isTelegram = true;
+                        try { const tg = window.Telegram.WebApp; tg.ready(); tg.expand(); this.tgInstance = tg; } catch(_) {}
+                    }
+                }, 100);
             }
 
             initTheme() {
@@ -7750,9 +7804,22 @@
                 } catch(_) {}
             }
             saveCache() {
+                // V3性能优化：节流localStorage写入，最小间隔2秒
+                const now = Date.now();
+                if (this._lastCacheSave && now - this._lastCacheSave < 2000) {
+                    if (!this._cacheDirty) this._cacheDirty = true;
+                    return;
+                }
+                this._lastCacheSave = now;
+                this._cacheDirty = false;
                 try {
-                    localStorage.setItem(CONFIG.STORAGE_KEYS.CACHE, JSON.stringify({ data: this.apiData, timestamp: Date.now() }));
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.CACHE, JSON.stringify({ data: this.apiData, timestamp: now }));
                 } catch(_) {}
+                // 延后刷盘兜底
+                if (this._cacheDirtyTimer) clearTimeout(this._cacheDirtyTimer);
+                this._cacheDirtyTimer = setTimeout(() => {
+                    if (this._cacheDirty) { this._lastCacheSave = 0; this.saveCache(); }
+                }, 2500);
             }
 
             // ===== 历史预测记录持久化：一旦某期某算法的预测被计算，永久缓存，刷新后不重算 =====
@@ -7768,7 +7835,15 @@
                 } catch(_) {}
             }
             _saveHistoryRecords() {
+                // P0优化：每算法限制最大期数，滑动窗口淘汰旧记录，防止localStorage无限增长
+                const maxPeriods = CONFIG.PRED_CACHE_MAX_PERIODS;
                 try {
+                    for (const alg in this.historyRecords) {
+                        const records = this.historyRecords[alg];
+                        if (Array.isArray(records) && records.length > maxPeriods) {
+                            this.historyRecords[alg] = records.slice(-maxPeriods);
+                        }
+                    }
                     localStorage.setItem(CONFIG.STORAGE_KEYS.PRED_CACHE, JSON.stringify(this.historyRecords));
                 } catch(_) {
                     // localStorage 满了，清理最旧的算法缓存保留最近5个
@@ -7786,6 +7861,7 @@
                 if (this.isFetching) return;
                 this.isFetching = true;
                 if (!isAutoRetry) this.setStatus('loading');
+                if (!isAutoRetry) this._fetchRetryCount = 0; // 重置重试计数
                 try {
                     // ===== 多源并行：所有源同时请求，最快成功者即用（Promise.any） =====
                     const urls = CONFIG.API_URLS;
@@ -7820,8 +7896,7 @@
                     const isPeriodAdvanced = this.lastFetchedPeriod && newLatestPeriod !== this.lastFetchedPeriod;
 
                     if (this.lastFetchedPeriod && !isPeriodAdvanced && isAutoRetry) {
-                        // 自动重试时期号未更新 — 继续等待
-                        this.isFetching = false;
+                        // 自动重试时期号未更新 — 继续等待（isFetching由finally块统一释放）
                         this.newPeriodRetryCount++;
                         if (this.newPeriodRetryCount <= CONFIG.NEW_PERIOD_MAX_RETRIES) {
                             this.setStatus('waiting');
@@ -7841,6 +7916,8 @@
                     this.newPeriodRetryCount = 0;
                     this.apiData = formatted.reverse();
                     this.currentSource = 'API';
+                    this._isMockData = false;
+                    const mb = document.getElementById('mock-banner'); if(mb) mb.style.display='none';
                     this.settleBet();
                     this.calculateAllStats();
                     this.updateMissedStats();
@@ -7877,13 +7954,19 @@
                         this.renderDragonStatus();
                     }
                     this.setStatus('ready');
-                    this.retryCount = 0;
+                    this._fetchRetryCount = 0; // P1优化：成功后重置重试计数
                     this.updateBacktestAlgLabel();
                     this.autoBackfill();
                 } catch (e) {
                     console.error('获取数据失败:', e);
                     this._updateSyncStatus('error', '同步失败');
-                    if (this.apiData.length > 0) {
+                    // P1优化：指数退避重试（首次失败时触发，避免UI冻结等待）
+                    if (!isAutoRetry && this._fetchRetryCount < CONFIG.MAX_FETCH_RETRIES) {
+                        this._fetchRetryCount++;
+                        const delay = CONFIG.RETRY_BASE_DELAY * Math.pow(2, this._fetchRetryCount - 1);
+                        this._updateSyncStatus('waiting', `重试中(${this._fetchRetryCount}/${CONFIG.MAX_FETCH_RETRIES})...`);
+                        setTimeout(() => this.fetchData(false), delay);
+                    } else if (this.apiData.length > 0) {
                         // 有缓存数据，继续使用（后台轮询会自动重试获取真实数据）
                         this.currentSource = '缓存（过期）';
                         this.render();
@@ -7892,6 +7975,8 @@
                         // ===== 移植自 Python _generate_mock_data：API全不可用时的兜底 =====
                         this.showToast('API不可用，启用模拟数据模式', 'warning');
                         const mockData = this.generateMockData();
+                        this._isMockData = true;
+                        const mb = document.getElementById('mock-banner'); if(mb) mb.style.display='block';
                         this.apiData = mockData;
                         this.currentSource = '模拟数据';
                         this.lastFetchedPeriod = mockData[mockData.length-1].period;
@@ -7899,12 +7984,13 @@
                         this.render();
                         this.setupCountdown();
                         this.setStatus('ready');
-                        this.retryCount = 0;
                     } else {
                         this.showToast('所有数据源均不可用且无缓存', 'error');
                     }
+                } finally {
+                    // P0优化：改用finally确保isFetching一定释放，防止异常路径锁死
+                    this.isFetching = false;
                 }
-                this.isFetching = false;
             }
 
             // ===== 实时同步状态指示器 =====
@@ -7947,7 +8033,6 @@
                     const results = Utils.judgeAll(latest.nums, latest.sum);
                     let totalProfit = 0;
                     let totalStaked = 0;
-                    let totalPayout = 0;  // 总赔付金额（用于结算时加回余额）
                     const betResults = [];
                     const isRefundPeriod = ruleset.refundOn.includes(String(latest.sum)) ||
                         (ruleset.refundOn.includes('对子') && results['对子']) ||
@@ -7991,14 +8076,10 @@
                         }
                         const profit = payout - ab.amount;
                         totalProfit += profit;
-                        totalPayout += payout;  // 累计赔付金额
                         betResults.push({ ...ab, won, payout, profit });
                     }
                     const balanceBeforeSettlement = this.virtualBalance;
-                    // 修复：下注时已扣除本金，结算时只加回赔付金额（payout），不重复扣本金
-                    // 未中奖: payout=0, 余额不变（本金已在下注时扣除）
-                    // 中奖: payout=amount*odds, 余额加回赔付金额
-                    this.virtualBalance += totalPayout;
+                    this.virtualBalance += totalProfit;
                     // 欠款自动偿还提示
                     if (totalProfit > 0 && balanceBeforeSettlement < 0) {
                         const debtBefore = -balanceBeforeSettlement;
@@ -8811,38 +8892,54 @@
             }
 
             // ----- 渲染 -----
+            // V3性能优化：分优先级渲染，高优先级用rAF立即执行，低优先级延迟执行
             render() {
-                if (this.renderPending) return;
+                if (this.renderPending) { this._renderQueued = true; return; }
                 this.renderPending = true;
+                this._renderQueued = false;
                 requestAnimationFrame(() => {
                     this.renderPending = false;
                     this._doRender();
+                    // 如果渲染期间又有新的render请求，再执行一次
+                    if (this._renderQueued) {
+                        this._renderQueued = false;
+                        this.render();
+                    }
                 });
             }
             _doRender() {
+                // P1 - 立即渲染（核心信息）
                 this.renderLatest();
-                this.renderMissed();
-                this._updateMarketRegime();  // V2: 市场状态检测
+                this._updateMarketRegime();
                 this.renderPrediction();
-                this.renderCrossValidation();
-                this.renderSumPrediction();
-                this.renderChase027();   // 追0和27面板
-                this.renderHistory();
-                this.renderMonitor();
-                this.renderAlgoCompare();
-                this.renderTrendChart();
-                this.updateBetSummary();
-                this.renderBetHistory();
-                this.renderDragonStatus();  // 长龙状态面板渲染
-                // 实时更新NewUI股票走势图
-                if (document.getElementById('newui-view')?.classList.contains('active')) {
-                    this.renderNewUIStockChart();
-                }
-                // ===== 全阶段优化组件渲染 =====
-                this.renderKellyPanel();
-                this.renderMarkovPrediction();
-                this.renderAIAnalysis();
-                this.renderInvestmentPanel();  // V2: 投资面板
+                this.renderChase027();
+                // P2 - 延迟渲染（详细数据/图表，用setTimeout分帧）
+                const deferRender = () => {
+                    this.renderMissed();
+                    this.renderCrossValidation();
+                    this.renderSumPrediction();
+                };
+                const deferRender2 = () => {
+                    this.renderHistory();
+                    this.renderMonitor();
+                    this.renderAlgoCompare();
+                    this.renderTrendChart();
+                    this.updateBetSummary();
+                };
+                const deferRender3 = () => {
+                    this.renderBetHistory();
+                    this.renderDragonStatus();
+                    if (document.getElementById('newui-view')?.classList.contains('active')) {
+                        this.renderNewUIStockChart();
+                    }
+                    this.renderKellyPanel();
+                    this.renderMarkovPrediction();
+                    this.renderAIAnalysis();
+                    this.renderInvestmentPanel();
+                };
+                setTimeout(deferRender, 0);
+                setTimeout(deferRender2, 16);
+                setTimeout(deferRender3, 32);
             }
 
             // V2: 市场状态检测更新
@@ -10643,8 +10740,8 @@
                             hasTriggeredFetch = true;
                             this._updateSyncStatus('waiting', '等待新期开奖...');
                             this.newPeriodRetryCount = 0;
-                            // 延迟1秒后开始轮询（给API一点缓冲时间）
-                            this.smartFetchTimer = setTimeout(() => this.fetchData(true), 1000);
+                            // 延迟1.5秒后开始轮询（给API一点缓冲时间）
+                            this.smartFetchTimer = setTimeout(() => this.fetchData(true), 1500);
                         }
                         return;
                     }
@@ -10779,7 +10876,9 @@
                 const toast = document.createElement('div');
                 toast.className = 'toast';
                 const icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
-                toast.innerHTML = `<span>${icons[type]||'ℹ️'} ${message}</span><span class="close" onclick="this.closest('.toast').remove()">×</span>`;
+                // P0安全修复：对message进行HTML转义，防止XSS
+                const safeMsg = this._esc(String(message));
+                toast.innerHTML = `<span>${icons[type]||'ℹ️'} ${safeMsg}</span><span class="close" onclick="this.closest('.toast').remove()">×</span>`;
                 container.appendChild(toast);
                 setTimeout(() => { toast.classList.add('out'); setTimeout(() => toast.remove(), 300); }, 5000);
             }
@@ -10992,7 +11091,8 @@
                             this.showToast('未找到相关歌曲', 'info');
                         }
                     } catch (e) {
-                        container.innerHTML = `<div style="padding:8px;color:var(--danger);">搜索失败: ${e.message}</div>`;
+                        // P0安全修复：转义异常消息，防止XSS
+                        container.innerHTML = `<div style="padding:8px;color:var(--danger);">搜索失败: ${this._esc(e.message)}</div>`;
                         this.showToast('搜索失败，请检查网络或API地址', 'error');
                     } finally {
                         btn.disabled = false; btn.textContent = '🔍 搜索'; this._searchTimer = null;
@@ -11218,7 +11318,34 @@
                 }
             }
 
+            // P0优化：统一清理所有定时器、监听器和连接，防止页面卸载后资源泄漏
+            cleanup() {
+                // 清理后台轮询定时器
+                this.stopBackgroundPolling();
+                // 清理智能重试定时器
+                if (this.smartFetchTimer) { clearTimeout(this.smartFetchTimer); this.smartFetchTimer = null; }
+                // 清理倒计时RAF
+                if (this.countdownRAF) { cancelAnimationFrame(this.countdownRAF); this.countdownRAF = null; }
+                // 清理音乐健康监控
+                if (this.musicHealthMonitor && this.musicHealthMonitor.stop) { try { this.musicHealthMonitor.stop(); } catch(_) {} }
+                // 清理环境音乐
+                if (this.ambientMusic && this.ambientMusic.destroy) { try { this.ambientMusic.destroy(); } catch(_) {} }
+                // 清理歌曲播放器
+                if (this.songPlayer && this.songPlayer.destroy) { try { this.songPlayer.destroy(); } catch(_) {} }
+                // 清理在线音频
+                if (this._onlineAudio) { try { this._onlineAudio.pause(); this._onlineAudio.src = ''; } catch(_) {} }
+                // 清理实时推送连接
+                if (this.realtimePushManager && this.realtimePushManager.disconnect) { try { this.realtimePushManager.disconnect(); } catch(_) {} }
+                // 清理云同步
+                if (this.cloudSyncManager && this.cloudSyncManager.disable) { try { this.cloudSyncManager.disable(); } catch(_) {} }
+                // 保存最终状态
+                try { this.savePreferences(); this.saveCache(); } catch(_) {}
+            }
+
             // ===== 模拟数据生成（移植自 Python _generate_mock_data） =====
+            // ===== V3性能优化：模拟数据标记 =====
+            _isMockData = false;  // 标记当前数据源是否为模拟数据（类字段语法）
+
             generateMockData() {
                 const now = Math.floor(Date.now() / 1000);
                 const data = [];
@@ -11239,6 +11366,7 @@
                         opentimeStamp: ts
                     });
                 }
+                this._isMockData = true;  // V3: 标记数据为模拟
                 return data.reverse();
             }
 
@@ -11564,10 +11692,12 @@
                         if (resultDiv) { resultDiv.innerHTML = '<span style="color:#4ade80;">✅ 测试消息发送成功！请检查 Telegram</span>'; }
                         this.showToast('✅ Telegram 测试成功', 'success');
                     } else {
-                        if (resultDiv) { resultDiv.innerHTML = `<span style="color:var(--warning);">❌ 发送失败: ${data.description || '未知错误'}</span>`; }
+                        // P0安全修复：转义Telegram API返回的错误描述，防止XSS
+                        if (resultDiv) { const safeDesc = this._esc(data.description || '未知错误'); resultDiv.innerHTML = `<span style="color:var(--warning);">❌ 发送失败: ${safeDesc}</span>`; }
                     }
                 } catch (e) {
-                    if (resultDiv) { resultDiv.innerHTML = `<span style="color:var(--warning);">❌ 请求异常: ${e.message}</span>`; }
+                    // P0安全修复：转义异常消息，防止XSS
+                    if (resultDiv) { const safeErr = this._esc(e.message); resultDiv.innerHTML = `<span style="color:var(--warning);">❌ 请求异常: ${safeErr}</span>`; }
                 }
             }
 
@@ -12449,7 +12579,10 @@
                 const answer = this.aiAssistant.ask(input.value);
                 const area = document.getElementById('ai-answer-area');
                 if (area) {
-                    area.innerHTML = `<div class="ai-assistant-msg" style="border-left:3px solid var(--accent);"><strong>Q:</strong> ${input.value}<br><strong>A:</strong> ${answer}</div>`;
+                    // P0安全修复：转义用户输入和AI回答，防止XSS
+                    const safeQ = this._esc(input.value);
+                    const safeA = this._esc(answer);
+                    area.innerHTML = `<div class="ai-assistant-msg" style="border-left:3px solid var(--accent);"><strong>Q:</strong> ${safeQ}<br><strong>A:</strong> ${safeA}</div>`;
                 }
                 input.value = '';
             }
@@ -12463,9 +12596,12 @@
                     html += '<div style="font-size:11px;color:var(--text-muted);text-align:center;padding:20px;">暂无策略，点击下方按钮发布你的策略</div>';
                 } else {
                     for (const s of strategies) {
-                        html += `<div class="strategy-market-item" onclick="app.importStrategy('${s.id}')">
-                            <div class="smi-header"><span class="smi-name">${s.name}</span><span class="smi-rate">${s.rating > 0 ? '⭐'.repeat(s.rating) : '新'}</span></div>
-                            <div class="smi-desc">${s.description || '无描述'} · 下载${s.downloads || 0}次</div>
+                        // P0安全修复：转义策略名称和描述（来自localStorage，可能被篡改），防止XSS
+                        const safeName = this._esc(s.name);
+                        const safeDesc = this._esc(s.description || '无描述');
+                        html += `<div class="strategy-market-item" onclick="app.importStrategy('${this._esc(s.id)}')">
+                            <div class="smi-header"><span class="smi-name">${safeName}</span><span class="smi-rate">${s.rating > 0 ? '⭐'.repeat(s.rating) : '新'}</span></div>
+                            <div class="smi-desc">${safeDesc} · 下载${s.downloads || 0}次</div>
                         </div>`;
                     }
                 }
@@ -12506,9 +12642,11 @@
                     modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
                     document.body.appendChild(modal);
                 }
+                // P0安全修复：转义modal标题，防止XSS
+                const safeTitle = this._esc(title);
                 modal.innerHTML = `<div style="background:var(--bg-card);border-radius:var(--radius-card);padding:20px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;border:1px solid var(--border);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                        <h3 style="font-size:16px;font-weight:700;">${title}</h3>
+                        <h3 style="font-size:16px;font-weight:700;">${safeTitle}</h3>
                         <button onclick="document.getElementById('custom-modal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);">✕</button>
                     </div>
                     ${content}
@@ -12892,7 +13030,9 @@
         window.app = app;
         window.addEventListener('error', (e) => console.error('[Global]', e.message));
         window.addEventListener('unhandledrejection', (e) => console.error('[Unhandled]', e.reason));
-        console.log('[清浔] 增强版双组预测已集成');
+        // P0优化：页面卸载时统一清理所有定时器、监听器和连接，防止资源泄漏
+        window.addEventListener('pagehide', () => { try { app.cleanup(); } catch(e) { console.error('[Cleanup]', e); } });
+        console.log('[清浔] 增强版双组预测已集成 | V3优化版（安全加固+性能优化）');
     </script>
 </body>
 </html>
