@@ -3875,9 +3875,147 @@
             },
 
             // ============================================================
-            // ========== 多维加权综合评分算法 (multi_dim_score) ============
-            // 算法类型：多维加权综合评分预测算法
+            // 辅助方法：为回测构建单个因子函数
+            // ============================================================
+            _buildSingleFactor(factorName, history) {
+                if (!history || history.length < 10) return null;
+                const combos = ['小单','小双','大单','大双'];
+                const n = history.length;
+                const last = history[n - 1];
+                const lastCombo = last.combo;
+                const combosHistory = history.map(d => d.combo);
+                const sums = history.map(d => d.sum);
+                const recent10 = history.slice(-10);
+                const recent20 = history.slice(-20);
+                const recent30 = history.slice(-30);
+
+                if (factorName === 'freq') {
+                    const f10 = {}, f20 = {}, f30 = {};
+                    combos.forEach(c => { f10[c] = 0; f20[c] = 0; f30[c] = 0; });
+                    recent10.forEach(d => { if (f10[d.combo] !== undefined) f10[d.combo]++; });
+                    recent20.forEach(d => { if (f20[d.combo] !== undefined) f20[d.combo]++; });
+                    recent30.forEach(d => { if (f30[d.combo] !== undefined) f30[d.combo]++; });
+                    return (c) => ((f10[c]+1)/14)*0.5 + ((f20[c]+1)/24)*0.3 + ((f30[c]+1)/34)*0.2;
+                }
+                if (factorName === 'markov') {
+                    // V3.3修复: 多阶马尔可夫回测（与预测函数一致）
+                    const t1 = {};
+                    for (let i = 0; i < n - 1; i++) {
+                        if (!t1[combosHistory[i]]) t1[combosHistory[i]] = {};
+                        t1[combosHistory[i]][combosHistory[i+1]] = (t1[combosHistory[i]][combosHistory[i+1]] || 0) + 1;
+                    }
+                    const t2 = {};
+                    for (let i = 0; i < n - 2; i++) {
+                        const key = combosHistory[i] + ',' + combosHistory[i+1];
+                        if (!t2[key]) t2[key] = {};
+                        t2[key][combosHistory[i+2]] = (t2[key][combosHistory[i+2]] || 0) + 1;
+                    }
+                    const t3 = {};
+                    for (let i = 0; i < n - 3; i++) {
+                        const key = combosHistory[i] + ',' + combosHistory[i+1] + ',' + combosHistory[i+2];
+                        if (!t3[key]) t3[key] = {};
+                        t3[key][combosHistory[i+3]] = (t3[key][combosHistory[i+3]] || 0) + 1;
+                    }
+                    const prevC = history[n-2] ? history[n-2].combo : lastCombo;
+                    const prev2C = history[n-3] ? history[n-3].combo : prevC;
+                    const key2 = prevC + ',' + lastCombo;
+                    const key3 = prev2C + ',' + prevC + ',' + lastCombo;
+                    const t2T = t2[key2] ? Object.values(t2[key2]).reduce((a,b)=>a+b,0) : 0;
+                    const t3T = t3[key3] ? Object.values(t3[key3]).reduce((a,b)=>a+b,0) : 0;
+                    return (c) => {
+                        const v1 = t1[lastCombo] ? ((t1[lastCombo][c]||0)+0.5)/(Object.values(t1[lastCombo]).reduce((a,b)=>a+b,0)+2) : 0.25;
+                        const v2 = t2[key2] ? ((t2[key2][c]||0)+0.5)/(t2T+2) : 0.25;
+                        const v3 = t3[key3] ? ((t3[key3][c]||0)+0.5)/(t3T+2) : 0.25;
+                        const w1 = 0.5, w2 = t2T >= 3 ? 0.3 : 0.25, w3 = t3T >= 3 ? 0.2 : 0.0;
+                        const ws = w1 + w2 + w3;
+                        return (v1*w1 + v2*w2 + v3*w3) / ws;
+                    };
+                }
+                if (factorName === 'miss') {
+                    const miss = {};
+                    combos.forEach(c => {
+                        let idx = n - 1;
+                        while (idx >= 0 && combosHistory[idx] !== c) idx--;
+                        miss[c] = n - 1 - idx;
+                    });
+                    const avgGap = {};
+                    combos.forEach(c => {
+                        const gaps = [];
+                        let ls = -1;
+                        for (let i = 0; i < n; i++) {
+                            if (combosHistory[i] === c) { if (ls >= 0) gaps.push(i - ls); ls = i; }
+                        }
+                        avgGap[c] = gaps.length > 0 ? gaps.reduce((a,b)=>a+b,0)/gaps.length : 4;
+                    });
+                    return (c) => 0.25 + (1 - Math.exp(-(miss[c]/avgGap[c])*0.8)) * 0.5;
+                }
+                if (factorName === 'trend') {
+                    const avg10 = recent10.reduce((a,b)=>a+b.sum,0)/10;
+                    const avg20 = recent20.reduce((a,b)=>a+b.sum,0)/20;
+                    const td = avg10 - avg20;
+                    let bm = 0;
+                    for (let i = n-10; i < n; i++) { if (i>=0 && combosHistory[i].startsWith('大')) bm++; }
+                    return (c) => {
+                        const isBig = c.startsWith('大'), isOdd = c.endsWith('单');
+                        let s = 0.25;
+                        if (td > 1) s = isBig ? 0.35 : 0.15;
+                        else if (td < -1) s = isBig ? 0.15 : 0.35;
+                        if (bm > 7) s = isBig ? s*1.4 : s*0.6;
+                        else if (bm < 3) s = isBig ? s*0.6 : s*1.4;
+                        return Math.min(0.55, Math.max(0.05, s));
+                    };
+                }
+                if (factorName === 'antiRepeat') {
+                    let rc = 0, tt = 0;
+                    for (let i = 1; i < n; i++) { tt++; if (combosHistory[i]===combosHistory[i-1]) rc++; }
+                    const rr = tt > 0 ? rc/tt : 0.25;
+                    return (c) => {
+                        let st = 0;
+                        for (let i = n-1; i >= 0 && combosHistory[i]===c; i--) st++;
+                        return Math.max(0.05, 0.25 - st * 0.08 * Math.max(0.5, 0.25/Math.max(0.05,rr)));
+                    };
+                }
+                if (factorName === 'pattern') {
+                    const last3 = combosHistory.slice(-3).join(',');
+                    const matches = [];
+                    for (let i = 0; i < n - 4; i++) {
+                        if (combosHistory.slice(i, i+3).join(',') === last3) matches.push(combosHistory[i+3]);
+                    }
+                    return (c) => matches.length === 0 ? 0.25 : matches.filter(s=>s===c).length/matches.length;
+                }
+                if (factorName === 'periodicity') {
+                    return (c) => {
+                        const pos = [];
+                        for (let i = 0; i < n; i++) { if (combosHistory[i]===c) pos.push(i); }
+                        if (pos.length < 3) return 0.25;
+                        const intervals = [];
+                        for (let i = 1; i < pos.length; i++) intervals.push(pos[i]-pos[i-1]);
+                        const ag = intervals.reduce((a,b)=>a+b,0)/intervals.length;
+                        const v = intervals.reduce((a,b)=>a+(b-ag)*(b-ag),0)/intervals.length;
+                        const cv = Math.sqrt(v)/ag;
+                        const exp = pos[pos.length-1]+ag;
+                        const d = Math.abs(n-exp);
+                        return 0.25 + Math.max(0,1-cv)*Math.max(0,1-d/ag)*0.4;
+                    };
+                }
+                if (factorName === 'entropy') {
+                    const f30 = {};
+                    combos.forEach(c => f30[c] = 0);
+                    recent30.forEach(d => { if (f30[d.combo] !== undefined) f30[d.combo]++; });
+                    let ent = 0;
+                    combos.forEach(c => { const p = f30[c]/30; if (p>0) ent -= p*Math.log2(p); });
+                    const pred = 1 - ent/2.0;
+                    return (c) => 0.25 + ((f30[c]+1)/34 - 0.25) * pred * 1.5;
+                }
+                return null;
+            },
+
+            // ============================================================
+            // ========== 多维加权综合评分算法 V2 (multi_dim_score) ============
+            // 算法类型：多维加权综合评分预测算法（增强版）
             // 核心公式：Score(c) = Σ wi × Fi(c)
+            // 8因子：贝叶斯频率 + 多阶马尔可夫 + 指数遗漏 + 趋势动量
+            //        + 条件反重复 + 变长模式 + 周期分析 + 信息熵
             // 输出格式：推荐1推荐2防防组合 XX/XX/XX/XX 状态 组号
             // ============================================================
             predictMultiDimScore(history) {
@@ -3898,22 +4036,21 @@
                 const recent20 = history.slice(-20);
                 const recent30 = history.slice(-30);
 
-                // ===== 因子1：多窗口频率 (权重 0.15) =====
+                // ===== 因子1：贝叶斯频率 (Beta先验+观测更新) =====
                 const freq10 = {}, freq20 = {}, freq30 = {};
                 combos.forEach(c => { freq10[c] = 0; freq20[c] = 0; freq30[c] = 0; });
                 recent10.forEach(d => { if (freq10[d.combo] !== undefined) freq10[d.combo]++; });
                 recent20.forEach(d => { if (freq20[d.combo] !== undefined) freq20[d.combo]++; });
                 recent30.forEach(d => { if (freq30[d.combo] !== undefined) freq30[d.combo]++; });
+                // 贝叶斯：Beta(1,3)先验，观测更新后验均值
                 const F_freq = (c) => {
-                    const f10 = freq10[c] / 10;
-                    const f20 = freq20[c] / 20;
-                    const f30 = freq30[c] / 30;
-                    // 多窗口加权：短期权重更高
+                    const f10 = (freq10[c] + 1) / (10 + 4);
+                    const f20 = (freq20[c] + 1) / (20 + 4);
+                    const f30 = (freq30[c] + 1) / (30 + 4);
                     return f10 * 0.5 + f20 * 0.3 + f30 * 0.2;
                 };
 
-                // ===== 因子2：一阶+二阶马尔可夫 (权重 0.25) =====
-                // 一阶马尔可夫（拉普拉斯平滑）
+                // ===== 因子2：多阶马尔可夫 (1/2/3阶自适应混合) =====
                 const trans1 = {};
                 for (let i = 0; i < n - 1; i++) {
                     const from = combosHistory[i], to = combosHistory[i+1];
@@ -3927,7 +4064,6 @@
                     }
                     return 0.25;
                 };
-                // 二阶马尔可夫
                 const trans2 = {};
                 for (let i = 0; i < n - 2; i++) {
                     const key = combosHistory[i] + ',' + combosHistory[i+1];
@@ -3937,115 +4073,250 @@
                 }
                 const prevCombo = history[n-2] ? history[n-2].combo : lastCombo;
                 const key2 = prevCombo + ',' + lastCombo;
+                const t2Total = trans2[key2] ? Object.values(trans2[key2]).reduce((a,b)=>a+b, 0) : 0;
                 const F_markov2 = (c) => {
                     if (trans2[key2]) {
-                        const total = Object.values(trans2[key2]).reduce((a,b)=>a+b, 0);
-                        return ((trans2[key2][c] || 0) + 0.5) / (total + 2);
+                        return ((trans2[key2][c] || 0) + 0.5) / (t2Total + 2);
                     }
                     return 0.25;
                 };
-                const F_markov = (c) => F_markov1(c) * 0.6 + F_markov2(c) * 0.4;
+                // 三阶马尔可夫
+                const trans3 = {};
+                for (let i = 0; i < n - 3; i++) {
+                    const key = combosHistory[i] + ',' + combosHistory[i+1] + ',' + combosHistory[i+2];
+                    const to = combosHistory[i+3];
+                    if (!trans3[key]) trans3[key] = {};
+                    trans3[key][to] = (trans3[key][to] || 0) + 1;
+                }
+                const prev2Combo = history[n-3] ? history[n-3].combo : prevCombo;
+                const key3 = prev2Combo + ',' + prevCombo + ',' + lastCombo;
+                const t3Total = trans3[key3] ? Object.values(trans3[key3]).reduce((a,b)=>a+b, 0) : 0;
+                const F_markov3 = (c) => {
+                    if (trans3[key3]) {
+                        return ((trans3[key3][c] || 0) + 0.5) / (t3Total + 2);
+                    }
+                    return 0.25;
+                };
+                // 自适应混合：样本量越大，高阶权重越高
+                const w1 = 0.5, w2 = t2Total >= 3 ? 0.3 : 0.25, w3 = t3Total >= 3 ? 0.2 : 0.0;
+                const wSum = w1 + w2 + w3;
+                const F_markov = (c) => (F_markov1(c) * w1 + F_markov2(c) * w2 + F_markov3(c) * w3) / wSum;
 
-                // ===== 因子3：遗漏回归 (权重 0.20) =====
+                // ===== 因子3：指数遗漏回归 =====
                 const miss = {};
                 combos.forEach(c => {
                     let idx = n - 1;
                     while (idx >= 0 && combosHistory[idx] !== c) idx--;
                     miss[c] = n - 1 - idx;
                 });
-                const maxMiss = Math.max(...Object.values(miss), 1);
-                // 遗漏越久，回补概率越高（非线性加速）
+                // 统计历史平均遗漏间隔
+                const avgGap = {};
+                combos.forEach(c => {
+                    const gaps = [];
+                    let lastSeen = -1;
+                    for (let i = 0; i < n; i++) {
+                        if (combosHistory[i] === c) {
+                            if (lastSeen >= 0) gaps.push(i - lastSeen);
+                            lastSeen = i;
+                        }
+                    }
+                    avgGap[c] = gaps.length > 0 ? gaps.reduce((a,b)=>a+b,0) / gaps.length : 4;
+                });
                 const F_miss = (c) => {
-                    const missRatio = miss[c] / maxMiss;
-                    return 0.25 + missRatio * 0.5;
+                    const m = miss[c];
+                    const ag = avgGap[c];
+                    // 指数衰减：遗漏越接近/超过平均间隔，回补概率越高
+                    const ratio = m / ag;
+                    return 0.25 + (1 - Math.exp(-ratio * 0.8)) * 0.5;
                 };
 
-                // ===== 因子4：趋势动量 (权重 0.15) =====
+                // ===== 因子4：趋势动量 (RSI增强) =====
                 const recentAvg10 = recent10.reduce((a,b)=>a+b.sum, 0) / 10;
                 const recentAvg20 = recent20.reduce((a,b)=>a+b.sum, 0) / 20;
-                const trendDir = recentAvg10 - recentAvg20; // 正=上升趋势
+                const trendDir = recentAvg10 - recentAvg20;
+                // RSI-like: 计算大小变化动能
+                let bigMomentum = 0, smallMomentum = 0;
+                for (let i = n - 10; i < n; i++) {
+                    if (i < 0) continue;
+                    if (combosHistory[i].startsWith('大')) bigMomentum++;
+                    else smallMomentum++;
+                }
                 const F_trend = (c) => {
                     const isBig = c.startsWith('大');
                     const isOdd = c.endsWith('单');
                     let score = 0.25;
-                    // 趋势方向修正
-                    if (trendDir > 1) score = isBig ? 0.35 : 0.15; // 上升趋势→大组合概率高
+                    // 趋势方向
+                    if (trendDir > 1) score = isBig ? 0.35 : 0.15;
                     else if (trendDir < -1) score = isBig ? 0.15 : 0.35;
-                    // 连续趋势修正
+                    // RSI动量
+                    if (bigMomentum > 7) score = isBig ? score * 1.4 : score * 0.6;
+                    else if (smallMomentum > 7) score = isBig ? score * 0.6 : score * 1.4;
+                    // 连续趋势
                     if (n >= 3 && sums[n-1] > sums[n-2] && sums[n-2] > sums[n-3]) {
-                        score = isBig ? score * 1.3 : score * 0.7;
+                        score = isBig ? score * 1.25 : score * 0.75;
                     } else if (n >= 3 && sums[n-1] < sums[n-2] && sums[n-2] < sums[n-3]) {
-                        score = isBig ? score * 0.7 : score * 1.3;
+                        score = isBig ? score * 0.75 : score * 1.25;
                     }
                     // 奇偶趋势
-                    const oddRatio10 = recent10.filter(d => d.sum % 2 === 1).length / 10;
+                    const oddRatio10 = recent10.filter(d => Math.abs(d.sum) % 2 === 1).length / 10;
                     if (oddRatio10 > 0.6) score = isOdd ? score * 0.8 : score * 1.2;
                     else if (oddRatio10 < 0.4) score = isOdd ? score * 1.2 : score * 0.8;
-                    return Math.min(0.5, Math.max(0.05, score));
+                    return Math.min(0.55, Math.max(0.05, score));
                 };
 
-                // ===== 因子5：反重复偏置 (权重 0.15) =====
-                // 统计历史实际重复率，动态调整惩罚
+                // ===== 因子5：条件反重复偏置 =====
                 let repeatCount = 0, totalTrans = 0;
                 for (let i = 1; i < n; i++) {
                     totalTrans++;
                     if (combosHistory[i] === combosHistory[i-1]) repeatCount++;
                 }
                 const repeatRate = totalTrans > 0 ? repeatCount / totalTrans : 0.25;
-                const penaltyScale = Math.max(0.5, Math.min(2.0, 0.25 / Math.max(0.05, repeatRate)));
+                // 条件重复概率：给定连续streak次，下一次重复的概率
+                const streakStats = {};
+                for (let i = 1; i < n; i++) {
+                    let s = 0;
+                    for (let j = i - 1; j >= 0 && combosHistory[j] === combosHistory[i-1]; j--) s++;
+                    if (!streakStats[s]) streakStats[s] = { repeat: 0, total: 0 };
+                    streakStats[s].total++;
+                    if (combosHistory[i] === combosHistory[i-1]) streakStats[s].repeat++;
+                }
                 const F_antiRepeat = (c) => {
                     let streak = 0;
                     for (let i = n - 1; i >= 0 && combosHistory[i] === c; i--) streak++;
-                    return Math.max(0.05, 0.25 - streak * 0.08 * penaltyScale);
+                    // 使用条件概率：P(repeat | streak)
+                    const stat = streakStats[streak];
+                    if (stat && stat.total >= 2) {
+                        const condRepeatP = stat.repeat / stat.total;
+                        return Math.max(0.05, 1 - condRepeatP) * 0.25 + 0.05;
+                    }
+                    // 回退：用全局重复率
+                    return Math.max(0.05, 0.25 - streak * 0.08 * Math.max(0.5, 0.25 / Math.max(0.05, repeatRate)));
                 };
 
-                // ===== 因子6：微观模式匹配 (权重 0.10) =====
-                const last3Pattern = combosHistory.slice(-3).join(',');
-                const patternMatches = [];
-                for (let i = 0; i < n - 4; i++) {
-                    if (combosHistory.slice(i, i+3).join(',') === last3Pattern) {
-                        patternMatches.push(combosHistory[i+3]);
-                    }
-                }
+                // ===== 因子6：变长模式匹配 (2-5长度加权) =====
                 const F_pattern = (c) => {
-                    if (patternMatches.length === 0) return 0.25;
-                    return patternMatches.filter(s => s === c).length / patternMatches.length;
+                    let totalScore = 0, totalWeight = 0;
+                    for (let plen = 2; plen <= 5; plen++) {
+                        if (n < plen + 1) continue;
+                        const pattern = combosHistory.slice(-plen).join(',');
+                        const matches = [];
+                        for (let i = 0; i < n - plen; i++) {
+                            if (combosHistory.slice(i, i+plen).join(',') === pattern) {
+                                matches.push(combosHistory[i+plen]);
+                            }
+                        }
+                        if (matches.length > 0) {
+                            const hitRate = matches.filter(s => s === c).length / matches.length;
+                            // 更长的模式匹配权重更高（更具体），但需要足够样本
+                            const w = matches.length >= 2 ? plen * matches.length : 0;
+                            totalScore += hitRate * w;
+                            totalWeight += w;
+                        }
+                    }
+                    if (totalWeight === 0) return 0.25;
+                    return totalScore / totalWeight;
                 };
 
-                // ===== 动态权重（基于近期回测） =====
-                const factorFns = { freq: F_freq, markov: F_markov, miss: F_miss, trend: F_trend, antiRepeat: F_antiRepeat, pattern: F_pattern };
-                const factorNames = Object.keys(factorFns);
-                const baseWeights = { freq: 0.15, markov: 0.25, miss: 0.20, trend: 0.15, antiRepeat: 0.15, pattern: 0.10 };
-                const dynWeights = { ...baseWeights };
-
-                // 回测调整权重
-                const recentTest = history.slice(-25);
-                if (recentTest.length >= 5) {
-                    for (const fName of factorNames) {
-                        let hit = 0, total = 0;
-                        for (let i = 0; i < recentTest.length - 1; i++) {
-                            const hist = recentTest.slice(0, i + 1);
-                            const scores = {};
-                            combos.forEach(c => scores[c] = 0);
-                            // 简化回测：用当前因子排序
-                            const testRec = hist.slice(-10);
-                            const testFreq = {};
-                            combos.forEach(c => testFreq[c] = 0);
-                            testRec.forEach(d => { if (testFreq[d.combo] !== undefined) testFreq[d.combo]++; });
-                            // 近似：频率最高的为预测
-                            let best = combos[0], bestVal = -1;
-                            combos.forEach(c => {
-                                const val = testFreq[c] / 10;
-                                if (val > bestVal) { bestVal = val; best = c; }
-                            });
-                            if (best === recentTest[i + 1].combo) hit++;
-                            total++;
-                        }
-                        const rate = total > 0 ? hit / total : 0.25;
-                        dynWeights[fName] = Math.max(0.05, Math.min(0.40, baseWeights[fName] * (0.5 + rate / 0.25)));
+                // ===== 因子7：周期性分析 =====
+                // 检测组合的周期性出现模式
+                const F_periodicity = (c) => {
+                    const positions = [];
+                    for (let i = 0; i < n; i++) {
+                        if (combosHistory[i] === c) positions.push(i);
                     }
+                    if (positions.length < 3) return 0.25;
+                    // 计算间隔的标准差（低标准差=强周期性）
+                    const intervals = [];
+                    for (let i = 1; i < positions.length; i++) {
+                        intervals.push(positions[i] - positions[i-1]);
+                    }
+                    const avgInterval = intervals.reduce((a,b)=>a+b,0) / intervals.length;
+                    const variance = intervals.reduce((a,b)=>a+(b-avgInterval)*(b-avgInterval),0) / intervals.length;
+                    const cv = Math.sqrt(variance) / avgInterval; // 变异系数
+                    // 当前遗漏
+                    const currentMiss = n - 1 - positions[positions.length - 1];
+                    // 如果接近周期点，概率提升
+                    const expectedNext = positions[positions.length - 1] + avgInterval;
+                    const distToExpected = Math.abs(n - expectedNext);
+                    const periodicityStrength = Math.max(0, 1 - cv); // 周期性强度
+                    const proximityBonus = Math.max(0, 1 - distToExpected / avgInterval);
+                    return 0.25 + periodicityStrength * proximityBonus * 0.4;
+                };
+
+                // ===== 因子8：信息熵加权 =====
+                // 计算近期的信息熵，判断可预测性
+                const freq30 = {};
+                combos.forEach(c => freq30[c] = 0);
+                recent30.forEach(d => { if (freq30[d.combo] !== undefined) freq30[d.combo]++; });
+                let entropy = 0;
+                combos.forEach(c => {
+                    const p = freq30[c] / 30;
+                    if (p > 0) entropy -= p * Math.log2(p);
+                });
+                const maxEntropy = 2.0; // log2(4)
+                const predictability = 1 - entropy / maxEntropy; // 0=完全随机, 1=完全确定
+                // 熵本身不直接预测组合，而是作为全局调制因子
+                // 但我们用它来检测"热"组合（低熵时频率集中）
+                const F_entropy = (c) => {
+                    const p = (freq30[c] + 1) / 34; // 平滑
+                    // 低熵时（可预测），高频组合概率更高
+                    // 高熵时（随机），回归均匀
+                    return 0.25 + (p - 0.25) * predictability * 1.5;
+                };
+
+                // ===== 真实因子级回测 + EMA动态权重 =====
+                const factorFns = {
+                    freq: F_freq, markov: F_markov, miss: F_miss, trend: F_trend,
+                    antiRepeat: F_antiRepeat, pattern: F_pattern,
+                    periodicity: F_periodicity, entropy: F_entropy
+                };
+                const factorNames = Object.keys(factorFns);
+                const baseWeights = {
+                    freq: 0.12, markov: 0.22, miss: 0.15, trend: 0.12,
+                    antiRepeat: 0.12, pattern: 0.12, periodicity: 0.08, entropy: 0.07
+                };
+
+                // 对每个因子进行真实回测
+                const backtestWindow = Math.min(40, n - 5);
+                const factorHitRates = {};
+                for (const fName of factorNames) {
+                    let hits = 0, total = 0;
+                    for (let i = 0; i < backtestWindow; i++) {
+                        const endIdx = n - backtestWindow + i;
+                        if (endIdx < 15) continue;
+                        const testHistory = history.slice(0, endIdx);
+                        const actualNext = history[endIdx];
+                        // 用该因子对testHistory做预测
+                        const testCombos = combos.slice();
+                        let bestCombo = testCombos[0], bestVal = -Infinity;
+                        // 重新构建该因子在testHistory上的函数
+                        const testFn = this._buildSingleFactor(fName, testHistory);
+                        if (!testFn) continue;
+                        testCombos.forEach(c => {
+                            const v = testFn(c);
+                            if (v > bestVal) { bestVal = v; bestCombo = c; }
+                        });
+                        // 杀组预测 = 最低分的组合
+                        let worstCombo = testCombos[0], worstVal = Infinity;
+                        testCombos.forEach(c => {
+                            const v = testFn(c);
+                            if (v < worstVal) { worstVal = v; worstCombo = c; }
+                        });
+                        // 命中 = 杀组不等于实际结果
+                        if (worstCombo !== actualNext.combo) hits++;
+                        total++;
+                    }
+                    factorHitRates[fName] = total > 0 ? hits / total : 0.75;
                 }
-                // 归一化权重
+
+                // EMA加权：基础权重 × (近期命中率 / 0.75)
+                const dynWeights = {};
+                for (const fName of factorNames) {
+                    const hitRate = factorHitRates[fName];
+                    const performanceRatio = Math.max(0.3, Math.min(2.0, hitRate / 0.75));
+                    dynWeights[fName] = baseWeights[fName] * performanceRatio;
+                }
+                // 归一化
                 const weightSum = Object.values(dynWeights).reduce((a,b)=>a+b, 0);
                 factorNames.forEach(f => dynWeights[f] /= weightSum);
 
@@ -4059,12 +4330,111 @@
                     rawScores[c] = score;
                 });
 
-                // ===== 排序 =====
+                // ===== 多策略共识杀组 =====
+                // 策略1：综合评分最低
                 const sorted = combos.slice().sort((a, b) => rawScores[b] - rawScores[a]);
-                const rec1 = sorted[0];   // 推荐1（最高分）
-                const rec2 = sorted[1];   // 推荐2（次高分）
-                const remaining = sorted[2]; // 剩余
-                const def = sorted[3];    // 防（最低分）
+                let rec1 = sorted[0];
+                let rec2 = sorted[1];
+                let remaining = sorted[2];
+                const scoreWorst = sorted[3];
+
+                // 策略2：因子投票杀组（每个因子投最差组合）
+                const killVotes = {};
+                combos.forEach(c => killVotes[c] = 0);
+                factorNames.forEach(f => {
+                    let worst = combos[0], worstVal = Infinity;
+                    combos.forEach(c => {
+                        const v = factorFns[f](c);
+                        if (v < worstVal) { worstVal = v; worst = c; }
+                    });
+                    killVotes[worst] += dynWeights[f]; // 加权投票
+                });
+
+                // 策略3：反重复杀组（连续出现次数最多的组合更可能被杀）
+                let streakKill = combos[0], maxStreak = 0;
+                combos.forEach(c => {
+                    let st = 0;
+                    for (let i = n - 1; i >= 0 && combosHistory[i] === c; i--) st++;
+                    if (st > maxStreak) { maxStreak = st; streakKill = c; }
+                });
+
+                // 最终杀组：综合投票 + 评分最低 + 连续惩罚
+                let def = scoreWorst;
+                // 如果因子投票共识与评分最低一致，直接确定
+                const voteWorst = combos.slice().sort((a,b) => killVotes[b] - killVotes[a])[0];
+                if (voteWorst === scoreWorst) {
+                    def = scoreWorst;
+                } else {
+                    // 不一致时，加权决策：评分差 × 0.4 + 投票差 × 0.4 + 连续惩罚 × 0.2
+                    const scoreDiff = rawScores[voteWorst] - rawScores[scoreWorst];
+                    const voteDiff = killVotes[voteWorst] - killVotes[scoreWorst];
+                    const streakBonus = (streakKill === voteWorst ? 0.1 : (streakKill === scoreWorst ? -0.1 : 0));
+                    if (scoreDiff + voteDiff + streakBonus > 0) {
+                        def = voteWorst;
+                    }
+                }
+
+                // ===== V3.3新增：热频杀组覆盖 =====
+                // 当某组合在近10期出现4次以上（明显过热），直接杀它
+                const hotFreq = {};
+                combos.forEach(c => hotFreq[c] = 0);
+                recent10.forEach(d => { if (hotFreq[d.combo] !== undefined) hotFreq[d.combo]++; });
+                const hotCombo = combos.slice().sort((a,b) => hotFreq[b] - hotFreq[a])[0];
+                if (hotFreq[hotCombo] >= 4 && hotCombo !== def) {
+                    // 验证：热频杀组在近期的准确率
+                    let hotHits = 0, hotTotal = 0;
+                    for (let i = 0; i < Math.min(10, n - 15); i++) {
+                        const endIdx = n - 10 + i;
+                        if (endIdx < 15) continue;
+                        const testR10 = history.slice(endIdx - 10, endIdx);
+                        const tf = {};
+                        combos.forEach(c => tf[c] = 0);
+                        testR10.forEach(d => { if (tf[d.combo] !== undefined) tf[d.combo]++; });
+                        const testHot = combos.slice().sort((a,b) => tf[b] - tf[a])[0];
+                        if (tf[testHot] >= 4) {
+                            if (testHot !== history[endIdx].combo) hotHits++;
+                            hotTotal++;
+                        }
+                    }
+                    if (hotTotal > 0) {
+                        const hotRate = hotHits / hotTotal;
+                        // 只有当热频杀组明显更好时才覆盖
+                        if (hotRate > 0.80) {
+                            def = hotCombo;
+                        }
+                    }
+                }
+
+                // ===== 安全网：算法明显失效时回退到均值回归策略 =====
+                const avgHitRateRaw = factorNames.reduce((a,f) => a + factorHitRates[f], 0) / factorNames.length;
+                if (avgHitRateRaw < 0.72) {
+                    const recentFreq = {};
+                    combos.forEach(c => recentFreq[c] = 0);
+                    recent10.forEach(d => { if (recentFreq[d.combo] !== undefined) recentFreq[d.combo]++; });
+                    const mrKill = combos.slice().sort((a,b) => recentFreq[b] - recentFreq[a])[0];
+                    if (mrKill !== def) {
+                        let mrHits = 0, mrTotal = 0;
+                        for (let i = 0; i < Math.min(30, n - 15); i++) {
+                            const endIdx = n - 30 + i;
+                            if (endIdx < 15) continue;
+                            const testRecent = history.slice(endIdx - 10, endIdx);
+                            const tf = {};
+                            combos.forEach(c => tf[c] = 0);
+                            testRecent.forEach(d => { if (tf[d.combo] !== undefined) tf[d.combo]++; });
+                            const tk = combos.slice().sort((a,b) => tf[b] - tf[a])[0];
+                            if (tk !== history[endIdx].combo) mrHits++;
+                            mrTotal++;
+                        }
+                        const mrRate = mrTotal > 0 ? mrHits / mrTotal : 0.75;
+                        if (mrRate > avgHitRateRaw + 0.05) {
+                            def = mrKill;
+                            const otherCombos = combos.filter(c => c !== def).sort((a,b) => rawScores[b] - rawScores[a]);
+                            rec1 = otherCombos[0];
+                            rec2 = otherCombos[1];
+                            remaining = otherCombos[2];
+                        }
+                    }
+                }
 
                 // ===== 四码分值（缩放到 09-21 范围） =====
                 const allScores = [rawScores[rec1], rawScores[rec2], rawScores[def], rawScores[remaining]];
@@ -4080,23 +4450,29 @@
                 const score3 = scaleScore(rawScores[def]);
                 const score4 = scaleScore(rawScores[remaining]);
 
-                // ===== 置信度 =====
+                // ===== 增强置信度 =====
                 const scoreSpread = rawScores[rec1] - rawScores[def];
+                // 因子共识率
                 const consensusRate = factorNames.filter(f => {
                     let best = combos[0], bestVal = -Infinity;
                     combos.forEach(c => { if (factorFns[f](c) > bestVal) { bestVal = factorFns[f](c); best = c; } });
                     return best === rec1 || best === rec2;
                 }).length / factorNames.length;
-                const confidence = Math.min(99, Math.round(
-                    Math.min(1, scoreSpread / 0.15) * 40 + consensusRate * 40 + 20
+                // 回测平均命中率
+                const avgHitRate = factorNames.reduce((a,f) => a + factorHitRates[f], 0) / factorNames.length;
+                // 可预测性
+                const conf = Math.min(99, Math.round(
+                    Math.min(1, scoreSpread / 0.12) * 30 +
+                    consensusRate * 30 +
+                    avgHitRate * 25 +
+                    predictability * 15
                 ));
-                const status = confidence >= 70 ? '🔴满' : confidence >= 50 ? '🟡中' : '⚠️低';
+                const confidence = conf;
+                const status = confidence >= 80 ? '🔴满' : confidence >= 60 ? '🟡中' : '⚠️低';
 
                 // ===== 组号预测 =====
-                // 基于和值预测 + 号码模式分析
                 const sumPred = this.predictSum(history);
                 const predSum = sumPred.sum || Math.round(sums.reduce((a,b)=>a+b,0) / n);
-                // 组号 = 和值相关的组三/组六编号
                 const lastNums = last.nums;
                 const groupBase = (predSum + lastNums[0] * 3 + lastNums[2] * 7) % 28;
                 const isSpecial = confidence >= 80;
