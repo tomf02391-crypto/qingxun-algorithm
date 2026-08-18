@@ -133,6 +133,7 @@
         const parts = body.split(/[+,]/).map(n => parseInt(n.trim(), 10)).filter(n => !isNaN(n));
         if (parts.length >= 3) { b1 = parts[0]; b2 = parts[1]; b3 = parts[2]; s = b1 + b2 + b3; }
         else if (parts.length === 1) { s = parts[0]; const dc = decomposeSum(s); b1 = dc[0]; b2 = dc[1]; b3 = dc[2]; }
+        else return null; // 格式完全无法解析，跳过该条
       }
     }
 
