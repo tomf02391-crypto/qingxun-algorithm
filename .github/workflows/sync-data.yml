@@ -1,0 +1,39 @@
+name: 同步数据仓库
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # 每5分钟
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/sync-data.yml']
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 同步 Liquid-Glass-Profil 数据
+        run: python3 .github/scripts/sync_data.py
+
+      - name: 提交更新
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/)" ]; then
+            git add data/
+            LATEST=$(python3 -c "import json;d=json.load(open('data/latest.json'));print(d['data'][-1]['nbr'])")
+            git commit -m "chore: 同步数据仓库 最新期号 ${LATEST}"
+            git push
+            echo "✅ 已推送"
+          else
+            echo "ℹ️ 数据无变化，跳过"
+          fi
