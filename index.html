@@ -168,46 +168,62 @@ function addDebug(msg){
   box.scrollTop = box.scrollHeight;
 }
 
-/* 从 yu28.top 真实接口拉取数据（与 Liquid-Glass-Profil 同源） */
+/* 从特码反推三球（优先对子/豹子） */
+function decomposeSum(sum){
+  var combos=[];
+  for(var a=0;a<=9;a++)for(var b=0;b<=9;b++)for(var c=0;c<=9;c++)if(a+b+c===sum)combos.push([a,b,c].slice().sort(function(x,y){return x-y;}));
+  var seen={},uniq=[];
+  for(var k=0;k<combos.length;k++){var key=combos[k].join(',');if(!seen[key]){seen[key]=1;uniq.push(combos[k]);}}
+  uniq.sort(function(a,b){var ad=(a[0]===a[1]||a[1]===a[2])?1:0;var bd=(b[0]===b[1]||b[1]===b[2])?1:0;return bd-ad;});
+  return uniq[0]||[0,0,0];
+}
+/* 从 yu28.top 真实接口拉取数据（与 Liquid-Glass-Profil 同源）— 修复NaN版 */
 async function fetchFromDataWarehouse(){
   for(var u = 0; u < DATA_URLS.length; u++){
     var url = DATA_URLS[u];
     try {
       var isDirect = (url === YU28_API);
-      var headers = isDirect ? { 'X-Api-Key': YU28_KEY } : {};
-      var tag = isDirect ? 'yu28.top(直连)' : (url.includes('allorigins') ? 'yu28(allorigins代理)' : (url.includes('cors.sh') ? 'yu28(cors.sh代理)' : '本地latest.json'));
+      var headers = isDirect ? { 'X-Api-Key': YU28_KEY, 'Accept':'application/json' } : { 'Accept':'application/json' };
+      var tag = isDirect ? 'yu28.top(直连)' : (url.includes('allorigins') ? 'yu28(allorigins)' : (url.includes('cors.sh') ? 'yu28(cors.sh)' : '本地latest.json'));
       addDebug('尝试数据源: ' + tag + ' ...');
-      var resp = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store', headers: headers });
+      var sep = url.includes('?') ? '&' : '?';
+      var resp = await fetch(url + sep + 't=' + Date.now(), { cache: 'no-store', headers: headers });
       if(!resp.ok) throw new Error('HTTP ' + resp.status);
-      var json = await resp.json();
-      if(!json || !json.data || !Array.isArray(json.data) || json.data.length === 0){
-        throw new Error('数据为空');
-      }
-      // 兼容 yu28 格式 number="4+7+6=17" 和旧格式 b1/b2/b3/num
-      var allData = json.data.slice();
+      var text = await resp.text();
+      if(text.trim().charAt(0)==='<') throw new Error('HTML响应(被拦截)');
+      var json = JSON.parse(text);
+      if(json.status === 403) throw new Error('拦截: '+(json.title||json.detail||''));
+      var items = json.data || json.list || json.results || (Array.isArray(json)?json:null);
+      if(!items || items.length === 0) throw new Error('数据为空');
+
       var out = [];
-      for(var i = 0; i < allData.length && out.length < 30; i++){
-        var it = allData[i];
+      for(var i = 0; i < items.length && out.length < 30; i++){
+        var it = items[i];
+        var issue = String(it.nbr || it.issue || it.period || '');
+        if(!issue) continue; // 仅过滤无期号，不再过滤 sum===0
         var b = [0,0,0], s = 0;
+        // 优先 number/num 字符串 "4+7+6=17"
         var numStr = String(it.number || it.num || '');
         if(numStr){
           var body = numStr.split('=')[0];
           var parts = body.split(/[+,]/).map(function(n){return Number(n.trim());}).filter(function(n){return !isNaN(n);});
           if(parts.length >= 3){ b = [parts[0], parts[1], parts[2]]; s = b[0]+b[1]+b[2]; }
+          else if(parts.length === 1){ s = parts[0]; var dc = decomposeSum(s); b = [dc[0],dc[1],dc[2]]; }
         }
-        if(s === 0){
+        // fallback: 已有 b1/b2/b3
+        if(s === 0 && (it.b1!=null||it.b2!=null||it.b3!=null)){
           b = [Number(it.b1)||0, Number(it.b2)||0, Number(it.b3)||0];
-          s = Number(it.num)||Number(it.sum)||(b[0]+b[1]+b[2]);
+          s = Number(it.sum)||Number(it.num)||(b[0]+b[1]+b[2]);
         }
-        if(s < 1) continue;
-        if(b[0]<0||b[0]>9||b[1]<0||b[1]>9||b[2]<0||b[2]>9) continue;
+        // 范围校验
+        if(b[0]<0||b[0]>9||b[1]<0||b[1]>9||b[2]<0||b[2]>9){ b=[0,0,0]; s=0; }
         out.push({
-          issue: String(it.nbr || it.issue || ""),
+          issue: issue,
           balls: b,
-          time: (it.date || "") + " " + (it.time || ""),
+          time: (it.date || (it.time||'').split(' ')[0] || "") + " " + (it.time || ""),
           combination: it.combination || it.combo || ((s>=14)?(s%2===1?'大单':'大双'):(s%2===1?'小单':'小双')),
           sum: s,
-          nbrs: it.nbrs || null
+          nbrs: it.nbrs || it.rawNums || null
         });
       }
       if(out.length < 18) throw new Error('有效数据不足18期，当前 ' + out.length + ' 期');
@@ -215,7 +231,7 @@ async function fetchFromDataWarehouse(){
       try { localStorage.setItem("qingxun_v3_data", JSON.stringify(out.slice(0, 500))); } catch(e){}
       return { data: out, source: tag, countdown: json.countdown || '' };
     } catch(e) {
-      addDebug('❌ ' + url + ' 失败: ' + e.message);
+      addDebug('❌ ' + tag + ' 失败: ' + e.message);
     }
   }
   throw new Error('所有数据源均不可用');
