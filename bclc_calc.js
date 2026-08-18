@@ -206,29 +206,83 @@
   }
 
   // ============================================================
-  // 数据源获取（多源降级）
+  // 数据源获取（多源降级）— 统一使用 yu28.top 真实接口
+  // 接口由 Liquid-Glass-Profil 仓库实际使用，需 X-Api-Key 鉴权
   // ============================================================
-  const KENO_SOURCES = [
-    'https://pc28.help/api/keno.json?nbr=60',
-    'https://yu28.top/api/bclc?count=60&key=yu28-f9f41d673b447fac',
-  ];
+  const YU28_API = 'https://yu28.top/api/kj.json?nbr=60';
+  const YU28_KEY = 'yu28_f9f41d673b447fac';
+
+  // 三级降级：直连 → allorigins代理 → cors.sh代理
+  function getYu28Urls() {
+    const raw = YU28_API;
+    return [
+      raw,                                                              // ① 直连（带X-Api-Key头）
+      'https://api.allorigins.win/raw?url=' + encodeURIComponent(raw),  // ② 备用代理1
+      'https://proxy.cors.sh/' + raw,                                   // ③ 备用代理2
+    ];
+  }
+
+  // 解析 yu28.top kj.json 返回格式
+  // data[].nbr=期号, number="4+7+6=17", time="2026-08-15 00:51:30", combination="大单"
+  function parseYu28Response(json) {
+    const results = [];
+    const items = json.data || json.list || json.results || (Array.isArray(json) ? json : []);
+    for (const item of items) {
+      try {
+        const nbr = String(item.nbr || item.issue || item.period || '');
+        if (!nbr) continue;
+        let b1, b2, b3, s;
+        const numStr = String(item.number || item.num || '');
+        // 格式: "4+7+6=17" 或 "4,7,6" 或纯数字
+        const body = numStr.split('=')[0];
+        const parts = body.split(/[+,]/).map(n => parseInt(n.trim(), 10)).filter(n => !isNaN(n));
+        if (parts.length >= 3) {
+          b1 = parts[0]; b2 = parts[1]; b3 = parts[2];
+          s = b1 + b2 + b3;
+        } else {
+          s = parseInt(numStr.replace(/[^0-9]/g, ''), 10) || 0;
+          const decomp = decomposeSum(s);
+          b1 = decomp[0]; b2 = decomp[1]; b3 = decomp[2];
+        }
+        results.push({
+          nbr,
+          date: (item.time || item.datetime || '').split(' ')[0] || '',
+          time: item.time || item.datetime || '',
+          b1, b2, b3,
+          sum: s,
+          combo: item.combination || item.combo || comboOf(s),
+          pattern: detectPattern(b1, b2, b3),
+          big: s >= 14,
+          odd: s % 2 === 1,
+          rawNums: item.nbrs || item.raw_nums || [],
+        });
+      } catch (e) { continue; }
+    }
+    results.sort((a, b) => a.nbr.localeCompare(b.nbr));
+    return results;
+  }
 
   async function fetchFromAllSources() {
     const errors = [];
-    for (const url of KENO_SOURCES) {
+    const urls = getYu28Urls();
+
+    for (let i = 0; i < urls.length; i++) {
+      const url = urls[i];
       try {
-        const resp = await fetch(url, {
-          headers: { 'Accept': 'application/json' },
-          cache: 'no-store',
-        });
+        const isDirect = (i === 0);
+        const headers = isDirect
+          ? { 'Accept': 'application/json', 'X-Api-Key': YU28_KEY }
+          : { 'Accept': 'application/json' };
+        const resp = await fetch(url, { headers, cache: 'no-store' });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const text = await resp.text();
         if (text.trim().startsWith('<')) throw new Error('HTML响应(被拦截)');
         const json = JSON.parse(text);
         if (json.status === 403) throw new Error(`拦截: ${json.title || json.detail}`);
-        const data = parseKenoResponse(json);
+        const data = parseYu28Response(json);
         if (data.length > 0) {
-          return { data, source: `BCLC官方规则(${url.split('/')[2]})` };
+          const tag = isDirect ? 'yu28.top(直连)' : (i === 1 ? 'yu28.top(allorigins代理)' : 'yu28.top(cors.sh代理)');
+          return { data, source: tag };
         }
       } catch (e) {
         errors.push(`${url}: ${e.message}`);
@@ -236,31 +290,18 @@
       }
     }
 
-    // 全部失败 → 尝试从 Liquid-Glass-Profil 数据仓库读取
+    // 全部失败 → 降级到 pc28.help
     try {
-      const resp = await fetch('https://tomf02391-crypto.github.io/Liquid-Glass-Profil/data/latest.json?t=' + Date.now());
+      const resp = await fetch('https://pc28.help/api/keno.json?nbr=60', {
+        headers: { 'Accept': 'application/json' }, cache: 'no-store',
+      });
       if (resp.ok) {
         const json = await resp.json();
-        if (json.data && json.data.length > 0) {
-          const data = json.data.map(d => ({
-            nbr: d.nbr,
-            date: d.date || '',
-            time: d.time || '',
-            b1: d.b1 || 0,
-            b2: d.b2 || 0,
-            b3: d.b3 || 0,
-            sum: d.num || d.sum || (d.b1 + d.b2 + d.b3),
-            combo: d.combination || comboOf(d.num || d.sum || 0),
-            pattern: '未知',
-            big: (d.num || d.sum || 0) >= 14,
-            odd: (d.num || d.sum || 0) % 2 === 1,
-            rawNums: d.raw_nums || [],
-          }));
-          return { data, source: 'Liquid-Glass-Profil数据仓库(GitHub Pages)' };
-        }
+        const data = parseKenoResponse(json);
+        if (data.length > 0) return { data, source: 'pc28.help(降级)' };
       }
     } catch (e) {
-      errors.push(`LGP数据仓库: ${e.message}`);
+      errors.push(`pc28.help: ${e.message}`);
     }
 
     throw new Error('所有BCLC数据源均失败: ' + errors.join(' | '));
