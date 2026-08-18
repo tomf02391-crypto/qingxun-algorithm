@@ -139,13 +139,16 @@ td.time{font-size:11px;color:var(--sub)}
 </div>
 
 <script>
-/* ===================== Liquid-Glass-Profil 数据仓库 ===================== */
-/* 数据来源: Liquid-Glass-Profil 仓库的 data/latest.json
-   该文件由 GitHub Actions 每5分钟按BCLC官方规则自动更新
-   使用 raw.githubusercontent.com 绕过 GitHub Pages 403 限制 */
+/* ===================== yu28.top 真实接口（与 Liquid-Glass-Profil 同源）===================== */
+/* 接口: yu28.top/api/kj.json?nbr=60  需 X-Api-Key 鉴权
+   三级降级: 直连 → allorigins代理 → cors.sh代理 → 本地兜底 */
+const YU28_API = 'https://yu28.top/api/kj.json?nbr=60';
+const YU28_KEY = 'yu28_f9f41d673b447fac';
 const DATA_URLS = [
-  'https://raw.githubusercontent.com/tomf02391-crypto/Liquid-Glass-Profil/main/data/latest.json',  // ① Liquid-Glass-Profil 数据仓库（BCLC官方规则，实时更新）
-  'data/latest.json',               // ② 本地备用
+  YU28_API,                                                            // ① 直连（带X-Api-Key头）
+  'https://api.allorigins.win/raw?url=' + encodeURIComponent(YU28_API), // ② 备用代理1
+  'https://proxy.cors.sh/' + YU28_API,                                 // ③ 备用代理2
+  'data/latest.json',                                                   // ④ 本地兜底
 ];
 
 var items = null;
@@ -165,44 +168,52 @@ function addDebug(msg){
   box.scrollTop = box.scrollHeight;
 }
 
-/* 从 Liquid-Glass-Profil 数据仓库拉取数据 */
+/* 从 yu28.top 真实接口拉取数据（与 Liquid-Glass-Profil 同源） */
 async function fetchFromDataWarehouse(){
   for(var u = 0; u < DATA_URLS.length; u++){
     var url = DATA_URLS[u];
     try {
-      var srcName = url.includes('github.io') ? 'Liquid-Glass-Profil数据仓库(BCLC官方规则)' : '本地latest.json';
-      addDebug('尝试数据源: ' + srcName + ' ...');
-      var resp = await fetch(url + '?t=' + Date.now(), { cache: 'no-store' });
+      var isDirect = (url === YU28_API);
+      var headers = isDirect ? { 'X-Api-Key': YU28_KEY } : {};
+      var tag = isDirect ? 'yu28.top(直连)' : (url.includes('allorigins') ? 'yu28(allorigins代理)' : (url.includes('cors.sh') ? 'yu28(cors.sh代理)' : '本地latest.json'));
+      addDebug('尝试数据源: ' + tag + ' ...');
+      var resp = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store', headers: headers });
       if(!resp.ok) throw new Error('HTTP ' + resp.status);
       var json = await resp.json();
       if(!json || !json.data || !Array.isArray(json.data) || json.data.length === 0){
         throw new Error('数据为空');
       }
-      // 数据按期号升序排列（先开在前），直接取最近30期
-      var allData = json.data.slice(); // 升序：最旧在前，最新在后
-      allData = allData.slice(-30); // 取最近30期
+      // 兼容 yu28 格式 number="4+7+6=17" 和旧格式 b1/b2/b3/num
+      var allData = json.data.slice();
       var out = [];
       for(var i = 0; i < allData.length && out.length < 30; i++){
         var it = allData[i];
-        var parts = (it.number || "").split("+");
-        if(parts.length < 3) continue;
-        var b = [Number(parts[0]), Number(parts[1]), Number(parts[2])];
-        if(isNaN(b[0])||isNaN(b[1])||isNaN(b[2])) continue;
+        var b = [0,0,0], s = 0;
+        var numStr = String(it.number || it.num || '');
+        if(numStr){
+          var body = numStr.split('=')[0];
+          var parts = body.split(/[+,]/).map(function(n){return Number(n.trim());}).filter(function(n){return !isNaN(n);});
+          if(parts.length >= 3){ b = [parts[0], parts[1], parts[2]]; s = b[0]+b[1]+b[2]; }
+        }
+        if(s === 0){
+          b = [Number(it.b1)||0, Number(it.b2)||0, Number(it.b3)||0];
+          s = Number(it.num)||Number(it.sum)||(b[0]+b[1]+b[2]);
+        }
+        if(s < 1) continue;
         if(b[0]<0||b[0]>9||b[1]<0||b[1]>9||b[2]<0||b[2]>9) continue;
         out.push({
-          issue: String(it.nbr || ""),
+          issue: String(it.nbr || it.issue || ""),
           balls: b,
           time: (it.date || "") + " " + (it.time || ""),
-          combination: it.combination || "",
-          sum: it.num || (b[0]+b[1]+b[2]),
+          combination: it.combination || it.combo || ((s>=14)?(s%2===1?'大单':'大双'):(s%2===1?'小单':'小双')),
+          sum: s,
           nbrs: it.nbrs || null
         });
       }
       if(out.length < 18) throw new Error('有效数据不足18期，当前 ' + out.length + ' 期');
-      addDebug('✅ ' + srcName + ' → ' + out.length + '期可用');
-      // 保存到localStorage
+      addDebug('✅ ' + tag + ' → ' + out.length + '期可用');
       try { localStorage.setItem("qingxun_v3_data", JSON.stringify(out.slice(0, 500))); } catch(e){}
-      return { data: out, source: srcName };
+      return { data: out, source: tag, countdown: json.countdown || '' };
     } catch(e) {
       addDebug('❌ ' + url + ' 失败: ' + e.message);
     }
