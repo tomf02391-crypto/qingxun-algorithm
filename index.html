@@ -140,8 +140,11 @@ td.time{font-size:11px;color:var(--sub)}
 
 <script>
 /* ===================== Liquid-Glass-Profil 数据仓库 ===================== */
+/* 数据来源: Liquid-Glass-Profil 仓库的 data/latest.json
+   该文件由 GitHub Actions 每5分钟按BCLC官方规则自动更新
+   使用 raw.githubusercontent.com 绕过 GitHub Pages 403 限制 */
 const DATA_URLS = [
-  'https://tomf02391-crypto.github.io/Liquid-Glass-Profil/data/latest.json',
+  'https://raw.githubusercontent.com/tomf02391-crypto/Liquid-Glass-Profil/main/data/latest.json',
   'data/latest.json', // 本地备用
 ];
 
@@ -175,8 +178,9 @@ async function fetchFromDataWarehouse(){
       if(!json || !json.data || !Array.isArray(json.data) || json.data.length === 0){
         throw new Error('数据为空');
       }
-      // 取最近18期，按时间正序排列（先开在前）
-      var allData = json.data.slice().reverse(); // 仓库是倒序存的，反转
+      // 数据按期号升序排列（先开在前），直接取最近30期
+      var allData = json.data.slice(); // 升序：最旧在前，最新在后
+      allData = allData.slice(-30); // 取最近30期
       var out = [];
       for(var i = 0; i < allData.length && out.length < 30; i++){
         var it = allData[i];
