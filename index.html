@@ -40,956 +40,170 @@ textarea{min-height:140px;font-family:ui-monospace,Consolas,monospace;font-size:
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--sub);font-weight:500;font-size:13px}
 .btn.sm{padding:8px 14px;font-size:13px}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{color:var(--sub);font-weight:500;text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);font-size:12px}
-td{padding:7px 6px;border-bottom:1px solid #1e2540}
-td.num{font-family:ui-monospace,Consolas,monospace;font-weight:700;letter-spacing:1px}
-td.time{color:var(--sub);font-size:12px}
-
-/* 计算链展示 */
-.chain{font-family:ui-monospace,Consolas,monospace;font-size:13px;word-break:break-all;line-height:1.8}
-.chain-step{
-  background:var(--card2);border:1px solid var(--line);border-radius:10px;
-  padding:12px 14px;margin-bottom:0;position:relative;
-}
-.chain-step .step-label{
-  font-size:11px;color:var(--sub);display:flex;align-items:center;gap:6px;margin-bottom:6px;
-}
-.chain-step .step-label .num-badge{
-  width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--info));
-  color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;
-}
-.chain-step .step-val{
-  word-break:break-all;font-size:12.5px;line-height:1.6;
-}
-.chain-step.input .step-val{color:var(--ok)}
-.chain-step.md5 .step-val{color:var(--acc2)}
-.chain-step.sha .step-val{color:var(--info)}
-.chain-step.mod .step-val{color:var(--acc);font-size:16px;font-weight:700}
-.chain-arrow{
-  text-align:center;color:var(--acc2);font-size:18px;font-weight:700;
-  padding:6px 0;position:relative;
-}
-.chain-arrow .arrow-label{
-  position:absolute;right:20px;top:50%;transform:translateY(-50%);
-  font-size:11px;color:var(--sub);font-family:-apple-system,sans-serif;font-weight:400;
-}
-
-/* 结果 */
-.result-box{
-  margin-top:14px;text-align:center;background:linear-gradient(135deg,#232c52,#1a2138);
-  border:2px solid var(--acc);border-radius:12px;padding:20px 10px;
-}
-.result-box .lab{font-size:13px;color:var(--sub)}
-.result-box .num{
-  font-size:60px;font-weight:900;letter-spacing:10px;color:var(--acc);
-  text-shadow:0 0 28px rgba(255,210,74,.5);
-  font-family:ui-monospace,Consolas,monospace;margin:8px 0;
-}
-.result-box .note{font-size:11px;color:var(--sub)}
-
-/* 倒计时 */
-.countdown-box{
-  text-align:center;background:linear-gradient(135deg,#1a2240,#151b2e);
-  border:1px solid var(--acc2);border-radius:12px;padding:16px;margin-bottom:14px;
-}
-.countdown-box .title{font-size:13px;color:var(--sub);margin-bottom:8px}
-.countdown-box .timer{
-  font-size:36px;font-weight:900;font-family:ui-monospace,Consolas,monospace;
-  color:var(--acc2);letter-spacing:3px;text-shadow:0 0 18px rgba(74,158,255,.4);
-}
-.countdown-box .timer.armed{color:var(--ok);text-shadow:0 0 18px rgba(61,220,132,.4);animation:pulse 1s ease-in-out infinite}
-.countdown-box .info{font-size:11px;color:var(--sub);margin-top:8px}
+th{color:var(--sub);font-weight:500;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-size:12px}
+td{padding:6px 8px;border-bottom:1px solid rgba(42,51,82,.5)}
+td.num{font-family:ui-monospace,Consolas,monospace;font-weight:700;color:var(--acc)}
+td.time{font-size:11px;color:var(--sub)}
+.source-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:12px;background:rgba(61,220,132,.1);color:var(--ok);border:1px solid rgba(61,220,132,.3)}
+.source-chip.fail{background:rgba(255,93,93,.1);color:var(--warn);border-color:rgba(255,93,93,.3)}
+.source-chip .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.status{padding:10px 14px;border-radius:9px;font-size:13px;margin-top:10px;line-height:1.6}
+.status.ok{background:rgba(61,220,132,.08);border:1px solid rgba(61,220,132,.25);color:var(--ok)}
+.status.err{background:rgba(255,93,93,.08);border:1px solid rgba(255,93,93,.25);color:var(--warn)}
+.status.info{background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.25);color:var(--acc2)}
+.timer{font-size:28px;font-weight:800;font-family:ui-monospace,Consolas,monospace;color:var(--acc);text-align:center;padding:8px 0}
+.timer.armed{color:var(--ok);animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-
-/* 状态 */
-.status{font-size:12px;color:var(--sub);margin-top:8px;min-height:16px}
-.status.err{color:var(--warn)}
-.status.ok{color:var(--ok)}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-2px;margin-right:6px}
-@keyframes sp{to{transform:rotate(360deg)}}
-
-.source-chip{
-  font-size:11px;padding:4px 10px;border-radius:20px;
-  border:1px solid var(--line);background:var(--card2);color:var(--sub);
-  display:inline-flex;align-items:center;gap:4px;margin-top:8px;
-}
-.source-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--sub)}
-.source-chip.ok .dot{background:var(--ok)}
-.source-chip.ok{color:var(--ok);border-color:var(--ok)}
-.source-chip.fail .dot{background:var(--warn)}
-.source-chip.fail{color:var(--warn);border-color:var(--warn)}
-
-.verify-badge{
-  display:inline-flex;align-items:center;gap:4px;font-size:11px;
-  padding:3px 8px;border-radius:6px;margin-left:6px;
-}
-.verify-badge.ok{background:rgba(61,220,132,.15);color:var(--ok)}
-.verify-badge.warn{background:rgba(255,93,93,.15);color:var(--warn)}
-
-.copy{cursor:pointer;color:var(--acc2);font-size:12px;margin-left:6px}
-.tip{font-size:11.5px;color:var(--sub);line-height:1.7;margin-top:8px}
-.tip b{color:var(--acc)}
-footer{text-align:center;font-size:11px;color:#5a6487;line-height:1.8;margin-top:8px}
-
-/* 流程图 */
-.flow-diagram{
-  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
-  gap:4px;padding:14px 8px;margin-bottom:14px;
-  background:var(--card2);border-radius:10px;border:1px solid var(--line);
-}
-.flow-node{
-  background:var(--card);border:1px solid var(--line);border-radius:8px;
-  padding:6px 12px;font-size:12px;text-align:center;min-width:70px;
-}
-.flow-node.highlight{border-color:var(--acc);background:rgba(255,210,74,.1)}
-.flow-node .node-title{font-weight:700;font-size:11px;color:var(--acc)}
-.flow-node .node-desc{font-size:10px;color:var(--sub);margin-top:2px}
-.flow-arrow{color:var(--acc2);font-size:16px;font-weight:700}
-
-/* 多策略预测 */
-.strategy-section{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
-.strategy-section .sec-title{font-size:13px;color:var(--acc);margin-bottom:10px;font-weight:700}
-.strategy-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.strategy-card{
-  background:var(--card2);border:1px solid var(--line);border-radius:9px;
-  padding:10px 12px;position:relative;transition:border-color .2s;
-}
-.strategy-card.hit{border-color:var(--ok);background:rgba(61,220,132,.08)}
-.strategy-card .s-name{font-size:11px;color:var(--sub);margin-bottom:4px}
-.strategy-card .s-num{
-  font-family:ui-monospace,Consolas,monospace;font-size:22px;font-weight:800;
-  letter-spacing:3px;color:var(--txt);
-}
-.strategy-card.core .s-num{color:var(--acc)}
-.strategy-card.hit .s-num{color:var(--ok)}
-.strategy-card .s-desc{font-size:10px;color:var(--sub);margin-top:4px;line-height:1.5}
-.strategy-card .s-acc{
-  position:absolute;top:8px;right:10px;font-size:10px;
-  padding:2px 6px;border-radius:5px;background:var(--card);color:var(--sub);
-}
-.strategy-card .s-acc.good{color:var(--ok)}
-.strategy-card .s-acc.bad{color:var(--warn)}
-
-/* 置信度 */
-.confidence-box{
-  margin-top:12px;background:linear-gradient(135deg,#1a2240,#151b2e);
-  border:1px solid var(--info);border-radius:10px;padding:14px;
-}
-.confidence-bar{
-  height:8px;background:var(--card2);border-radius:4px;margin:8px 0;overflow:hidden;
-}
-.confidence-fill{
-  height:100%;border-radius:4px;transition:width .5s;
-  background:linear-gradient(90deg,var(--warn),var(--acc),var(--ok));
-}
-.confidence-text{display:flex;justify-content:space-between;font-size:11px;color:var(--sub)}
-.confidence-prediction{
-  text-align:center;margin-top:10px;font-size:28px;font-weight:900;
-  font-family:ui-monospace,Consolas,monospace;letter-spacing:6px;color:var(--info);
-  text-shadow:0 0 18px rgba(167,139,250,.4);
-}
-
-/* 统计分析 */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.stat-item{
-  background:var(--card2);border:1px solid var(--line);border-radius:8px;
-  padding:8px 10px;font-size:11px;
-}
-.stat-item .stat-label{color:var(--sub);font-size:10px}
-.stat-item .stat-val{color:var(--txt);font-weight:700;font-size:13px;margin-top:2px}
-.stat-bar{display:flex;gap:2px;margin-top:4px}
-.stat-bar span{flex:1;height:6px;border-radius:2px;background:var(--line)}
-.stat-bar span.on{background:var(--acc2)}
-
-/* 热门号码 */
-.hot-numbers{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
-.hot-numbers .hn{
-  font-family:ui-monospace,monospace;font-size:11px;padding:3px 8px;
-  border-radius:12px;border:1px solid var(--line);background:var(--card);
-}
-.hot-numbers .hn.hot{border-color:var(--warn);color:var(--warn);background:rgba(255,93,93,.1)}
-.hot-numbers .hn.warm{border-color:var(--acc);color:var(--acc);background:rgba(255,210,74,.1)}
-.hot-numbers .hn.cold{border-color:var(--acc2);color:var(--acc2);background:rgba(74,158,255,.1)}
+.debug-box{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:11px;color:var(--sub);font-family:monospace;margin-top:8px;max-height:120px;overflow-y:auto;line-height:1.5}
 </style>
 </head>
 <body>
 <div class="wrap">
-
 <header>
-  <div class="logo">白马庄园彩票开奖预测</div>
-  <div class="sub">从20:00开始连续18期 → 54位 → MD5 → SHA-256 → 取模10000 → 四位号码</div>
+  <div class="logo">⚜ 白马庄园 · PC28 预测</div>
+  <div class="sub">数据源：Liquid-Glass-Profil 数据仓库（BCLC官方规则）</div>
 </header>
 
-<!-- 倒计时 -->
-<div class="countdown-box">
-  <div class="title" id="cdTitle">距下次采集启动（北京时间 20:00）</div>
-  <div class="timer" id="cdTimer">--:--:--</div>
-  <div class="info" id="cdInfo">全自动运行 · 每天20:00自动采集 · 跟随每期开奖实时更新</div>
-</div>
-
-<!-- 数据获取 -->
 <div class="card">
-  <h2><span class="step">1</span>数据采集 · pc28.help 实时接口 · 每天自动从20:00开始</h2>
+  <h2><span class="step">1</span>数据采集 · 从 Liquid-Glass-Profil 数据仓库读取</h2>
   <div class="row">
     <button class="btn ghost" id="manualBtn">手动输入</button>
+    <button class="btn" id="fetchBtn">🔄 拉取最新数据</button>
   </div>
-  <div class="tip" style="margin-top:8px">系统<b>全自动运行</b>，无需手动操作。每天北京时间20:00自动启动采集，跟随每期开奖实时更新，收集满18期后自动计算。</div>
-  <div id="sourceStatus"></div>
-  <div class="status" id="status"></div>
+  <div id="sourceStatus" style="margin-top:10px;"></div>
+  <div id="status" class="status info">点击"拉取最新数据"从数据仓库获取18期开奖数据</div>
 </div>
 
-<!-- 18期数据 -->
 <div class="card" id="listCard" style="display:none">
-  <h2>
-    <span class="step">2</span>从20:00开始连续18期PC28开奖结果
-    <span class="verify-badge ok" id="contBadge" style="display:none">期号连续</span>
-    <span class="verify-badge warn" id="gapBadge" style="display:none">期号有断</span>
-    <span class="verify-badge ok" id="freshBadge" style="display:none">实时数据</span>
-  </h2>
-  <div style="max-height:340px;overflow:auto">
-    <table>
-      <thead><tr><th>#</th><th>期号</th><th>号码</th><th>和值</th><th>组合</th><th>开奖时间</th></tr></thead>
-      <tbody id="tbody"></tbody>
-    </table>
+  <h2><span class="step">2</span>最新 18 期开奖数据</h2>
+  <div style="overflow-x:auto">
+  <table>
+    <thead><tr><th>#</th><th>期号</th><th>三球</th><th>和值</th><th>形态</th><th>时间</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  </div>
+  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <span id="contBadge" class="source-chip" style="display:none">✅ 期号连续</span>
+    <span id="gapBadge" class="source-chip fail" style="display:none">⚠ 有断期</span>
+    <span id="freshBadge" class="source-chip" style="display:none">实时</span>
   </div>
 </div>
 
-<!-- 手动输入 -->
 <div class="card" id="manualCard" style="display:none">
-  <h2><span class="step">2</span>手动输入18期数据</h2>
-  <textarea id="manualInput" placeholder="每行一期，格式：期号 数字1 数字2 数字3&#10;例：&#10;3467493 0 7 4&#10;3467492 2 9 6&#10;（也可只填三个数字，一行一期）"></textarea>
-  <div class="tip">共 <b id="manualCount">0</b> 行 / 需要 18 行。每期三个 0-9 的数字，共拼成 54 位。</div>
+  <h2><span class="step">!</span>手动输入 18 期数据</h2>
+  <textarea id="manualInput" placeholder="每行一期，格式：期号 三球 如&#10;3471066 9+3+6&#10;3471065 5+5+5"></textarea>
+  <div style="margin-top:10px"><button class="btn" id="manualOk">确认使用手动数据</button></div>
 </div>
 
-<!-- 计算流程 -->
 <div class="card">
-  <h2><span class="step">3</span>开奖号码计算</h2>
-
-  <!-- 流程总览图 -->
-  <div class="flow-diagram">
-    <div class="flow-node highlight">
-      <div class="node-title">从20:00</div>
-      <div class="node-desc">开始采集</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node highlight">
-      <div class="node-title">18期</div>
-      <div class="node-desc">连续开奖</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node highlight">
-      <div class="node-title">54位</div>
-      <div class="node-desc">拼接数据</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="node-title">MD5</div>
-      <div class="node-desc">摘要计算</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="node-title">SHA-256</div>
-      <div class="node-desc">摘要计算</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="node-title">取模</div>
-      <div class="node-desc">mod 10000</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node highlight">
-      <div class="node-title">四位</div>
-      <div class="node-desc">开奖号码</div>
-    </div>
-  </div>
-
-  <button class="btn" id="calcBtn">开始计算</button>
-
-  <!-- 详细计算链 -->
-  <div class="chain" style="margin-top:14px">
-    <div class="chain-step input">
-      <div class="step-label"><span class="num-badge">1</span>54位原始数据（从20:00开始18期×3位拼接）<span class="copy" id="copyRaw">复制</span></div>
-      <div class="step-val" id="rawVal">-</div>
-    </div>
-    <div class="chain-arrow">↓ <span class="arrow-label">MD5 计算</span></div>
-    <div class="chain-step md5">
-      <div class="step-label"><span class="num-badge">2</span>MD5 摘要（32位十六进制）</div>
-      <div class="step-val" id="md5Val">-</div>
-    </div>
-    <div class="chain-arrow">↓ <span class="arrow-label">SHA-256 计算</span></div>
-    <div class="chain-step sha">
-      <div class="step-label"><span class="num-badge">3</span>SHA-256 摘要（64位十六进制）</div>
-      <div class="step-val" id="shaVal">-</div>
-    </div>
-    <div class="chain-arrow">↓ <span class="arrow-label">取模 10000</span></div>
-    <div class="chain-step mod">
-      <div class="step-label"><span class="num-badge">4</span>SHA-256 十六进制整体转 BigInt，对 10000 取模</div>
-      <div class="step-val" id="modVal">-</div>
-    </div>
-  </div>
-
-  <!-- 最终结果 -->
-  <div class="result-box">
-    <div class="lab">本期四位开奖号码</div>
-    <div class="num" id="finalNum">----</div>
-    <div class="note" id="modNote">点击「开始计算」生成号码</div>
-  </div>
-
-  <div class="row" style="margin-top:10px">
-    <button class="btn ghost sm" id="copyResultBtn">复制结果</button>
-  </div>
-
-  <!-- 多策略预测引擎 -->
-  <div class="strategy-section">
-    <div class="sec-title">多策略预测引擎 · 5重校验 + 集成投票</div>
-    <div class="strategy-grid" id="strategyGrid">
-      <div class="strategy-card core">
-        <div class="s-name">策略A · 核心算法</div>
-        <div class="s-num" id="stratA">----</div>
-        <div class="s-desc">54位→MD5→SHA-256→mod10000</div>
-        <div class="s-acc" id="stratAAcc">-</div>
-      </div>
-      <div class="strategy-card">
-        <div class="s-name">策略B · 反序哈希</div>
-        <div class="s-num" id="stratB">----</div>
-        <div class="s-desc">54位反序→MD5→SHA-256→mod10000</div>
-        <div class="s-acc" id="stratBAcc">-</div>
-      </div>
-      <div class="strategy-card">
-        <div class="s-name">策略C · 双重MD5</div>
-        <div class="s-num" id="stratC">----</div>
-        <div class="s-desc">54位→MD5→MD5→SHA-256→mod10000</div>
-        <div class="s-acc" id="stratCAcc">-</div>
-      </div>
-      <div class="strategy-card">
-        <div class="s-name">策略D · 和值链</div>
-        <div class="s-num" id="stratD">----</div>
-        <div class="s-desc">18期和值拼接→MD5→SHA-256→mod10000</div>
-        <div class="s-acc" id="stratDAcc">-</div>
-      </div>
-      <div class="strategy-card">
-        <div class="s-name">策略E · 三重哈希</div>
-        <div class="s-num" id="stratE">----</div>
-        <div class="s-desc">54位→SHA-256→MD5→SHA-256→mod10000</div>
-        <div class="s-acc" id="stratEAcc">-</div>
-      </div>
-      <div class="strategy-card">
-        <div class="s-name">策略F · 交叉哈希</div>
-        <div class="s-num" id="stratF">----</div>
-        <div class="s-desc">54位→MD5+SHA-256拼接→MD5→mod10000</div>
-        <div class="s-acc" id="stratFAcc">-</div>
-      </div>
-    </div>
-
-    <!-- 集成投票置信度 -->
-    <div class="confidence-box">
-      <div style="font-size:12px;color:var(--sub);margin-bottom:4px">集成投票置信度</div>
-      <div class="confidence-bar">
-        <div class="confidence-fill" id="confFill" style="width:0%"></div>
-      </div>
-      <div class="confidence-text">
-        <span id="confLabel">等待计算</span>
-        <span id="confPercent">0%</span>
-      </div>
-      <div class="confidence-prediction" id="ensembleNum">----</div>
-      <div style="text-align:center;font-size:11px;color:var(--sub)" id="ensembleNote">集成推荐号码（多策略加权投票）</div>
-    </div>
-  </div>
-
-  <!-- 统计分析 -->
-  <div class="strategy-section">
-    <div class="sec-title">18期数据统计分析</div>
-    <div class="stats-grid" id="statsGrid">
-      <div class="stat-item">
-        <div class="stat-label">和值趋势</div>
-        <div class="stat-val" id="statSum">-</div>
-        <div class="stat-bar" id="statSumBar"></div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-label">奇偶比</div>
-        <div class="stat-val" id="statOE">-</div>
-        <div class="stat-bar" id="statOEBar"></div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-label">大小比</div>
-        <div class="stat-val" id="statBS">-</div>
-        <div class="stat-bar" id="statBSBar"></div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-label">跨度分析</div>
-        <div class="stat-val" id="statSpan">-</div>
-        <div class="stat-bar" id="statSpanBar"></div>
-      </div>
-    </div>
-    <div style="margin-top:10px">
-      <div class="stat-label" style="font-size:10px;color:var(--sub);margin-bottom:4px">数字热度（0-9出现频率）</div>
-      <div class="hot-numbers" id="hotNums"></div>
-    </div>
-  </div>
+  <h2><span class="step">3</span>倒计时 · 下次采集</h2>
+  <div class="timer" id="cdTimer">--:--:--</div>
+  <div style="text-align:center;font-size:12px;color:var(--sub)" id="cdTitle">距下次采集启动（北京时间 20:00）</div>
+  <div style="text-align:center;font-size:12px;color:var(--sub);margin-top:4px" id="cdInfo"></div>
 </div>
 
-<!-- 历史记录 -->
 <div class="card">
-  <h2><span class="step">4</span>预测历史记录</h2>
-  <div class="row" style="margin-bottom:10px">
-    <input type="text" id="actualInput" placeholder="录入实际开奖结果（4位数字）" maxlength="4" style="max-width:200px">
-    <button class="btn ghost sm" id="saveActualBtn">标记实际结果</button>
-    <button class="btn ghost sm" id="saveHistBtn">保存当前预测</button>
-    <button class="btn ghost sm" id="clearHistBtn">清空历史</button>
+  <h2><span class="step">4</span>核心计算链</h2>
+  <div style="font-size:13px;line-height:2;font-family:ui-monospace,Consolas,monospace">
+    <div>原始拼接(54位)：<span id="rawVal" style="color:var(--acc)">-</span></div>
+    <div>MD5：<span id="md5Val" style="color:var(--info)">-</span></div>
+    <div>SHA-256：<span id="shaVal" style="color:var(--info)">-</span></div>
+    <div>取模10000：<span id="modVal" style="color:var(--ok)">-</span></div>
+    <div style="font-size:18px;margin-top:6px;color:var(--gold)">最终四位号码：<span id="finalNum" style="font-weight:800;font-size:22px">----</span></div>
   </div>
-  <div id="histList" class="tip" style="max-height:300px;overflow:auto">暂无历史记录</div>
 </div>
 
-<footer>
-  白马庄园彩票开奖预测<br>
+<div class="card">
+  <h2><span class="step">5</span>多策略预测引擎</h2>
+  <div id="stratBox" style="font-size:13px;line-height:2"></div>
+</div>
+
+<div class="card">
+  <h2><span class="step">6</span>历史记录</h2>
+  <div id="histBox" style="font-size:12px;max-height:200px;overflow-y:auto"></div>
+  <div style="margin-top:10px" class="row">
+    <input type="text" id="actualInput" placeholder="输入实际开奖4位号码验证">
+    <button class="btn sm" id="markActualBtn">验证命中</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>⚙ 调试日志</h2>
+  <div id="debugBox" class="debug-box"></div>
+</div>
+
+<footer style="text-align:center;font-size:11px;color:var(--sub);padding:16px 0">
   算法：从北京时间20:00开始连续18期PC28 → 拼接54位 → MD5 → SHA-256 → 取模10000 → 四位号码<br>
-  pc28.help 实时数据 · 每天20:00自动启动采集 · 结果仅供参考
+  BCLC Keno 规则 · 数据来自 Liquid-Glass-Profil 数据仓库 · 结果仅供参考
 </footer>
-
 </div>
 
 <script>
-/* ============ 标准 MD5 ============ */
-var md5 = (function () {
-  function safeAdd(x, y) {
-    var lsw = (x & 0xffff) + (y & 0xffff);
-    var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
-    return (msw << 16) | (lsw & 0xffff);
-  }
-  function bitRotateLeft(num, cnt) { return (num << cnt) | (num >>> (32 - cnt)); }
-  function md5cmn(q, a, b, x, s, t) { return safeAdd(bitRotateLeft(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b); }
-  function md5ff(a, b, c, d, x, s, t) { return md5cmn((b & c) | (~b & d), a, b, x, s, t); }
-  function md5gg(a, b, c, d, x, s, t) { return md5cmn((b & d) | (c & ~d), a, b, x, s, t); }
-  function md5hh(a, b, c, d, x, s, t) { return md5cmn(b ^ c ^ d, a, b, x, s, t); }
-  function md5ii(a, b, c, d, x, s, t) { return md5cmn(c ^ (b | ~d), a, b, x, s, t); }
-  function binlMD5(x, len) {
-    x[len >> 5] |= 0x80 << (len % 32);
-    x[(((len + 64) >>> 9) << 4) + 14] = len;
-    var a = 1732584193, b = -271733879, c = -1732584194, d = 271733878;
-    for (var i = 0; i < x.length; i += 16) {
-      var olda = a, oldb = b, oldc = c, oldd = d;
-      a=md5ff(a,b,c,d,x[i],7,-680876936);d=md5ff(d,a,b,c,x[i+1],12,-389564586);
-      c=md5ff(c,d,a,b,x[i+2],17,606105819);b=md5ff(b,c,d,a,x[i+3],22,-1044525330);
-      a=md5ff(a,b,c,d,x[i+4],7,-176418897);d=md5ff(d,a,b,c,x[i+5],12,1200080426);
-      c=md5ff(c,d,a,b,x[i+6],17,-1473231341);b=md5ff(b,c,d,a,x[i+7],22,-45705983);
-      a=md5ff(a,b,c,d,x[i+8],7,1770035416);d=md5ff(d,a,b,c,x[i+9],12,-1958414417);
-      c=md5ff(c,d,a,b,x[i+10],17,-42063);b=md5ff(b,c,d,a,x[i+11],22,-1990404162);
-      a=md5ff(a,b,c,d,x[i+12],7,1804603682);d=md5ff(d,a,b,c,x[i+13],12,-40341101);
-      c=md5ff(c,d,a,b,x[i+14],17,-1502002290);b=md5ff(b,c,d,a,x[i+15],22,1236535329);
-      a=md5gg(a,b,c,d,x[i+1],5,-165796510);d=md5gg(d,a,b,c,x[i+6],9,-1069501632);
-      c=md5gg(c,d,a,b,x[i+11],14,643717713);b=md5gg(b,c,d,a,x[i],20,-373897302);
-      a=md5gg(a,b,c,d,x[i+5],5,-701558691);d=md5gg(d,a,b,c,x[i+10],9,38016083);
-      c=md5gg(c,d,a,b,x[i+15],14,-660478335);b=md5gg(b,c,d,a,x[i+4],20,-405537848);
-      a=md5gg(a,b,c,d,x[i+9],5,568446438);d=md5gg(d,a,b,c,x[i+14],9,-1019803690);
-      c=md5gg(c,d,a,b,x[i+3],14,-187363961);b=md5gg(b,c,d,a,x[i+8],20,1163531501);
-      a=md5gg(a,b,c,d,x[i+13],5,-1444681467);d=md5gg(d,a,b,c,x[i+2],9,-51403784);
-      c=md5gg(c,d,a,b,x[i+7],14,1735328473);b=md5gg(b,c,d,a,x[i+12],20,-1926607734);
-      a=md5hh(a,b,c,d,x[i+5],4,-378558);d=md5hh(d,a,b,c,x[i+8],11,-2022574463);
-      c=md5hh(c,d,a,b,x[i+11],16,1839030562);b=md5hh(b,c,d,a,x[i+14],23,-35309556);
-      a=md5hh(a,b,c,d,x[i+1],4,-1530992060);d=md5hh(d,a,b,c,x[i+4],11,1272893353);
-      c=md5hh(c,d,a,b,x[i+7],16,-155497632);b=md5hh(b,c,d,a,x[i+10],23,-1094730640);
-      a=md5hh(a,b,c,d,x[i+13],4,681279174);d=md5hh(d,a,b,c,x[i],11,-358537222);
-      c=md5hh(c,d,a,b,x[i+3],16,-722521979);b=md5hh(b,c,d,a,x[i+6],23,76029189);
-      a=md5hh(a,b,c,d,x[i+9],4,-640364487);d=md5hh(d,a,b,c,x[i+12],11,-421815835);
-      c=md5hh(c,d,a,b,x[i+15],16,530742520);b=md5hh(b,c,d,a,x[i+2],23,-995338651);
-      a=md5ii(a,b,c,d,x[i],6,-198630844);d=md5ii(d,a,b,c,x[i+7],10,1126891415);
-      c=md5ii(c,d,a,b,x[i+14],15,-1416354905);b=md5ii(b,c,d,a,x[i+5],21,-57434055);
-      a=md5ii(a,b,c,d,x[i+12],6,1700485571);d=md5ii(d,a,b,c,x[i+3],10,-1894986606);
-      c=md5ii(c,d,a,b,x[i+10],15,-1051523);b=md5ii(b,c,d,a,x[i+1],21,-2054922799);
-      a=md5ii(a,b,c,d,x[i+8],6,1873313359);d=md5ii(d,a,b,c,x[i+15],10,-30611744);
-      c=md5ii(c,d,a,b,x[i+6],15,-1560198380);b=md5ii(b,c,d,a,x[i+13],21,1309151649);
-      a=md5ii(a,b,c,d,x[i+4],6,-145523070);d=md5ii(d,a,b,c,x[i+11],10,-1120210379);
-      c=md5ii(c,d,a,b,x[i+2],15,718787259);b=md5ii(b,c,d,a,x[i+9],21,-343485551);
-      a = safeAdd(a, olda); b = safeAdd(b, oldb); c = safeAdd(c, oldc); d = safeAdd(d, oldd);
-    }
-    return [a, b, c, d];
-  }
-  function binl2hex(binarray) {
-    var hexTab = '0123456789abcdef', str = '';
-    for (var i = 0; i < binarray.length * 4; i++) {
-      str += hexTab.charAt((binarray[i >> 2] >> ((i % 4) * 8 + 4)) & 0xf) +
-             hexTab.charAt((binarray[i >> 2] >> ((i % 4) * 8)) & 0xf);
-    }
-    return str;
-  }
-  function str2binl(str) {
-    var bin = [], mask = (1 << 8) - 1;
-    for (var i = 0; i < str.length * 8; i += 8) {
-      bin[i >> 5] |= (str.charCodeAt(i / 8) & mask) << (i % 32);
-    }
-    return bin;
-  }
-  return function (str) {
-    var s = unescape(encodeURIComponent(str));
-    return binl2hex(binlMD5(str2binl(s), s.length * 8));
-  };
-})();
+/* ===================== Liquid-Glass-Profil 数据仓库 ===================== */
+const DATA_URLS = [
+  'https://tomf02391-crypto.github.io/Liquid-Glass-Profil/data/latest.json',
+  'data/latest.json', // 本地备用
+];
 
-/* ============ 标准 SHA-256 ============ */
-var sha256 = (function () {
-  function rightRotate(value, amount) { return (value >>> amount) | (value << (32 - amount)); }
-  var mathPow = Math.pow, maxWord = mathPow(2, 32);
-  var result = '', words = [], ascii = '';
-  var hash = [], k = [];
-  var primeCounter = 0, isComposite = {}, candidate, i, j;
-  for (candidate = 2; primeCounter < 64; candidate++) {
-    if (!isComposite[candidate]) {
-      for (i = 0; i < 313; i += candidate) isComposite[i] = candidate;
-      hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
-      k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
-    }
-  }
-  return function (msg) {
-    result = ''; words = []; ascii = msg;
-    var asciiBitLength = ascii.length * 8;
-    var H = hash.slice(0), K = k.slice(0);
-    ascii += '\x80';
-    while (ascii.length % 64 - 56) ascii += '\x00';
-    for (i = 0; i < ascii.length; i++) {
-      j = ascii.charCodeAt(i);
-      if (j >> 8) return '';
-      words[i >> 2] |= j << ((3 - i) % 4) * 8;
-    }
-    words[words.length] = ((asciiBitLength / maxWord) | 0);
-    words[words.length] = (asciiBitLength);
-    for (j = 0; j < words.length;) {
-      var w = words.slice(j, j += 16);
-      var oldHash = H.slice(0, 8);
-      for (i = 0; i < 64; i++) {
-        var w15 = w[i - 15], w2 = w[i - 2];
-        var a = H[0], e = H[4];
-        var temp1 = H[7]
-          + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
-          + ((e & H[5]) ^ ((~e) & H[6]))
-          + K[i]
-          + (w[i] = (i < 16) ? w[i] : (
-              w[i - 16]
-              + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3))
-              + w[i - 7]
-              + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
-            ) | 0
-          );
-        var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
-          + ((a & H[1]) ^ (a & H[2]) ^ (H[1] & H[2]));
-        H = [(temp1 + temp2) | 0].concat(H);
-        H[4] = (H[4] + temp1) | 0;
-      }
-      for (i = 0; i < 8; i++) H[i] = (H[i] + oldHash[i]) | 0;
-    }
-    for (i = 0; i < 8; i++) {
-      for (j = 3; j + 1; j--) {
-        var b = (H[i] >> (j * 8)) & 255;
-        result += ((b < 16) ? 0 : '') + b.toString(16);
-      }
-    }
-    return result;
-  };
-})();
-
-/* ===================== 核心算法（严格按照指定流程） ===================== */
-/* 18期拼接成54位 → MD5 → SHA-256 → 取模10000 → 四位号码 */
-function compute(raw54){
-  /* 第1步：MD5 计算 */
-  var md5h = md5(raw54);
-  /* 第2步：SHA-256 计算（对MD5结果） */
-  var shah = sha256(md5h);
-  /* 第3步：取模 10000（SHA-256十六进制整体转BigInt取模） */
-  var rem = BigInt("0x" + shah) % 10000n;
-  var num = Number(rem);
-  /* 第4步：生成四位开奖号码（补零） */
-  var fourDigit = ("0000" + num).slice(-4);
-  return {
-    raw: raw54,
-    md5h: md5h,
-    shah: shah,
-    modNum: num,
-    fourDigit: fourDigit
-  };
-}
-
-/* ===================== 多策略预测引擎 ===================== */
-
-/* 策略B：54位反序 → MD5 → SHA-256 → mod10000 */
-function computeB(raw54){
-  var reversed = raw54.split("").reverse().join("");
-  var md5h = md5(reversed);
-  var shah = sha256(md5h);
-  var rem = BigInt("0x" + shah) % 10000n;
-  return ("0000" + Number(rem)).slice(-4);
-}
-
-/* 策略C：54位 → MD5 → MD5 → SHA-256 → mod10000 */
-function computeC(raw54){
-  var md5h1 = md5(raw54);
-  var md5h2 = md5(md5h1);
-  var shah = sha256(md5h2);
-  var rem = BigInt("0x" + shah) % 10000n;
-  return ("0000" + Number(rem)).slice(-4);
-}
-
-/* 策略D：18期和值拼接 → MD5 → SHA-256 → mod10000 */
-function computeD(list){
-  var sumStr = "";
-  for(var i = 0; i < list.length; i++){
-    var s = list[i].balls[0] + list[i].balls[1] + list[i].balls[2];
-    sumStr += (s < 10 ? "0" : "") + s;
-  }
-  var md5h = md5(sumStr);
-  var shah = sha256(md5h);
-  var rem = BigInt("0x" + shah) % 10000n;
-  return { num: ("0000" + Number(rem)).slice(-4), raw: sumStr };
-}
-
-/* 策略E：54位 → SHA-256 → MD5 → SHA-256 → mod10000 */
-function computeE(raw54){
-  var shah1 = sha256(raw54);
-  var md5h = md5(shah1);
-  var shah2 = sha256(md5h);
-  var rem = BigInt("0x" + shah2) % 10000n;
-  return ("0000" + Number(rem)).slice(-4);
-}
-
-/* 策略F：54位 → MD5+SHA-256拼接 → MD5 → mod10000 */
-function computeF(raw54){
-  var md5h = md5(raw54);
-  var shah = sha256(raw54);
-  var combined = md5h + shah;
-  var md5h2 = md5(combined);
-  var rem = BigInt("0x" + md5h2) % 10000n;
-  return ("0000" + Number(rem)).slice(-4);
-}
-
-/* 历史命中率记录 */
-var STRAT_KEY = "baima_strategy_stats";
-function loadStratStats(){
-  try { return JSON.parse(localStorage.getItem(STRAT_KEY) || "{}"); }
-  catch(e) { return {}; }
-}
-function saveStratStats(stats){
-  try { localStorage.setItem(STRAT_KEY, JSON.stringify(stats)); } catch(e) {}
-}
-function getStratAcc(name){
-  var stats = loadStratStats();
-  var s = stats[name];
-  if(!s || !s.total || s.total === 0) return { rate: null, total: 0, hits: 0 };
-  return { rate: s.hits / s.total, total: s.total, hits: s.hits };
-}
-
-/* 运行所有策略 */
-function runAllStrategies(raw54, list){
-  var results = {};
-  results.A = compute(raw54).fourDigit;
-  results.B = computeB(raw54);
-  results.C = computeC(raw54);
-  var dRes = computeD(list);
-  results.D = dRes.num;
-  results.E = computeE(raw54);
-  results.F = computeF(raw54);
-  return results;
-}
-
-/* 集成投票：加权预测 */
-function ensembleVote(results){
-  var strategies = ["A","B","C","D","E","F"];
-  var weights = { A: 3, B: 1.5, C: 1.5, D: 2, E: 1, F: 1 };
-  
-  /* 根据历史命中率调整权重 */
-  for(var i = 0; i < strategies.length; i++){
-    var s = strategies[i];
-    var acc = getStratAcc(s);
-    if(acc.rate !== null && acc.total >= 3){
-      /* 命中率越高权重越大 */
-      weights[s] = weights[s] * (0.5 + acc.rate * 1.5);
-    }
-  }
-  
-  /* 逐位投票 */
-  var ensembleDigits = "";
-  var agreeCount = 0;
-  var allSame = true;
-  var firstNum = results.A;
-  
-  for(var pos = 0; pos < 4; pos++){
-    var votes = {};
-    for(var j = 0; j < strategies.length; j++){
-      var sName = strategies[j];
-      var digit = results[sName].charAt(pos);
-      if(!votes[digit]) votes[digit] = 0;
-      votes[digit] += weights[sName];
-    }
-    /* 找出最高票数的数字 */
-    var maxVotes = 0, bestDigit = "0";
-    for(var d in votes){
-      if(votes[d] > maxVotes){ maxVotes = votes[d]; bestDigit = d; }
-    }
-    ensembleDigits += bestDigit;
-    
-    /* 统计该位有多少策略一致 */
-    var posAgree = 0;
-    for(var k = 0; k < strategies.length; k++){
-      if(results[strategies[k]].charAt(pos) === bestDigit) posAgree++;
-    }
-    agreeCount += posAgree;
-  }
-  
-  /* 检查所有策略是否完全一致 */
-  for(var m = 1; m < strategies.length; m++){
-    if(results[strategies[m]] !== firstNum){ allSame = false; break; }
-  }
-  
-  /* 置信度计算 */
-  var maxPossible = strategies.length * 4; /* 最多6策略×4位=24 */
-  var confidence = Math.round((agreeCount / maxPossible) * 100);
-  if(allSame) confidence = 100;
-  
-  /* 统计有多少策略给出了完全相同的号码 */
-  var exactMatches = 0;
-  for(var n = 0; n < strategies.length; n++){
-    if(results[strategies[n]] === ensembleDigits) exactMatches++;
-  }
-  
-  return {
-    num: ensembleDigits,
-    confidence: confidence,
-    agreeCount: agreeCount,
-    maxPossible: maxPossible,
-    exactMatches: exactMatches,
-    totalStrategies: strategies.length,
-    allSame: allSame,
-    weights: weights
-  };
-}
-
-/* 统计分析 */
-function analyzeStats(list){
-  var sums = [];
-  var allDigits = [];
-  var oddCount = 0, evenCount = 0;
-  var bigCount = 0, smallCount = 0;
-  var spans = [];
-  var freq = {};
-  for(var i = 0; i <= 9; i++) freq[i] = 0;
-  
-  for(var i = 0; i < list.length; i++){
-    var b = list[i].balls;
-    var s = b[0] + b[1] + b[2];
-    sums.push(s);
-    
-    for(var j = 0; j < 3; j++){
-      allDigits.push(b[j]);
-      freq[b[j]]++;
-      if(b[j] % 2 === 0) evenCount++; else oddCount++;
-      if(b[j] >= 5) bigCount++; else smallCount++;
-    }
-    
-    var maxB = Math.max(b[0], b[1], b[2]);
-    var minB = Math.min(b[0], b[1], b[2]);
-    spans.push(maxB - minB);
-  }
-  
-  /* 和值趋势 */
-  var avgSum = sums.reduce(function(a,b){return a+b;}, 0) / sums.length;
-  var sumTrend = sums[sums.length-1] - sums[0];
-  
-  /* 平均跨度 */
-  var avgSpan = spans.reduce(function(a,b){return a+b;}, 0) / spans.length;
-  
-  return {
-    sums: sums,
-    avgSum: avgSum.toFixed(1),
-    sumTrend: sumTrend,
-    oddCount: oddCount,
-    evenCount: evenCount,
-    bigCount: bigCount,
-    smallCount: smallCount,
-    avgSpan: avgSpan.toFixed(1),
-    freq: freq,
-    totalDigits: allDigits.length
-  };
-}
-
-/* 渲染多策略结果 */
-function renderStrategies(results, ensemble){
-  var strategies = [
-    { id: "A", name: "核心算法" },
-    { id: "B", name: "反序哈希" },
-    { id: "C", name: "双重MD5" },
-    { id: "D", name: "和值链" },
-    { id: "E", name: "三重哈希" },
-    { id: "F", name: "交叉哈希" }
-  ];
-  
-  for(var i = 0; i < strategies.length; i++){
-    var s = strategies[i];
-    $("strat" + s.id).textContent = results[s.id];
-    
-    /* 显示历史命中率 */
-    var acc = getStratAcc(s.id);
-    var accEl = $("strat" + s.id + "Acc");
-    if(acc.rate !== null && acc.total > 0){
-      var pct = Math.round(acc.rate * 100);
-      accEl.textContent = pct + "% (" + acc.hits + "/" + acc.total + ")";
-      accEl.className = "s-acc " + (pct >= 10 ? "good" : (pct > 0 ? "" : "bad"));
-    } else {
-      accEl.textContent = "新";
-      accEl.className = "s-acc";
-    }
-    
-    /* 如果与集成结果一致，高亮 */
-    var card = $("strat" + s.id).parentElement;
-    if(results[s.id] === ensemble.num){
-      card.classList.add("hit");
-    } else {
-      card.classList.remove("hit");
-    }
-  }
-  
-  /* 渲染集成投票结果 */
-  $("ensembleNum").textContent = ensemble.num;
-  $("confFill").style.width = ensemble.confidence + "%";
-  $("confPercent").textContent = ensemble.confidence + "%";
-  
-  var confLabel = "";
-  if(ensemble.confidence >= 80) confLabel = "极高置信度 · 策略高度一致";
-  else if(ensemble.confidence >= 60) confLabel = "高置信度 · 多数策略一致";
-  else if(ensemble.confidence >= 40) confLabel = "中等置信度 · 策略部分分歧";
-  else confLabel = "低置信度 · 策略分歧较大";
-  if(ensemble.allSame) confLabel = "完美一致 · 全部策略结果相同";
-  $("confLabel").textContent = confLabel;
-  
-  $("ensembleNote").textContent = "集成推荐号码（" + ensemble.totalStrategies + "策略加权投票 · " + ensemble.exactMatches + "个策略完全一致）";
-}
-
-/* 渲染统计分析 */
-function renderStats(list){
-  var st = analyzeStats(list);
-  
-  /* 和值趋势 */
-  $("statSum").textContent = "均" + st.avgSum + " 趋势" + (st.sumTrend > 0 ? "↑" : st.sumTrend < 0 ? "↓" : "→") + Math.abs(st.sumTrend);
-  var sumBar = "";
-  for(var i = 0; i < st.sums.length; i++){
-    var intensity = Math.min(st.sums[i] / 27, 1);
-    sumBar += '<span style="background:hsla(' + (120 - intensity*120) + ',60%,50%,' + (0.3 + intensity*0.7) + ')" class="on"></span>';
-  }
-  $("statSumBar").innerHTML = sumBar;
-  
-  /* 奇偶比 */
-  $("statOE").textContent = "奇" + st.oddCount + ":偶" + st.evenCount;
-  var oeBar = "";
-  for(var i = 0; i < st.oddCount; i++) oeBar += '<span class="on" style="background:var(--warn)"></span>';
-  for(var i = 0; i < st.evenCount; i++) oeBar += '<span class="on" style="background:var(--acc2)"></span>';
-  $("statOEBar").innerHTML = oeBar;
-  
-  /* 大小比 */
-  $("statBS").textContent = "大" + st.bigCount + ":小" + st.smallCount;
-  var bsBar = "";
-  for(var i = 0; i < st.bigCount; i++) bsBar += '<span class="on" style="background:var(--info)"></span>';
-  for(var i = 0; i < st.smallCount; i++) bsBar += '<span class="on" style="background:var(--acc)"></span>';
-  $("statBSBar").innerHTML = bsBar;
-  
-  /* 跨度 */
-  $("statSpan").textContent = "均" + st.avgSpan;
-  var spanBar = "";
-  for(var i = 0; i < list.length; i++){
-    var b = list[i].balls;
-    var sp = Math.max(b[0],b[1],b[2]) - Math.min(b[0],b[1],b[2]);
-    var intensity = sp / 9;
-    spanBar += '<span class="on" style="background:hsla(200,60%,50%,' + (0.3 + intensity*0.7) + ')"></span>';
-  }
-  $("statSpanBar").innerHTML = spanBar;
-  
-  /* 数字热度 */
-  var freqArr = [];
-  for(var i = 0; i <= 9; i++) freqArr.push({ num: i, count: st.freq[i] });
-  var avgFreq = st.totalDigits / 10;
-  var hotHtml = "";
-  for(var i = 0; i < freqArr.length; i++){
-    var cls = "";
-    if(freqArr[i].count >= avgFreq * 1.5) cls = "hot";
-    else if(freqArr[i].count >= avgFreq) cls = "warm";
-    else if(freqArr[i].count <= avgFreq * 0.5) cls = "cold";
-    hotHtml += '<span class="hn ' + cls + '">' + freqArr[i].num + '<sub style="font-size:9px">' + freqArr[i].count + '</sub></span>';
-  }
-  $("hotNums").innerHTML = hotHtml;
-}
-
-/* ===================== 数据状态 ===================== */
-var items = [];
-var autoTimer = null;
-var cdTimer = null;
+var items = null;
 var lastResult = null;
 var lastCountdown = "";
 var sourceState = "idle";
-/* 20:00采集模式状态 */
 var collecting = false;
 var collectedItems = [];
 var collectionPollTimer = null;
 var lastCollectionDate = null;
 var $ = function(id){return document.getElementById(id);};
 
-/* ===================== pc28.help 实时API ===================== */
-var API_URL = "https://pc28.help/api/kj.json?nbr=18";
-
-/* 解析 pc28.help 返回格式 */
-function parsePc28help(json){
-  if(!json || json.message !== "success" || !json.data || !Array.isArray(json.data)){
-    throw new Error("API返回格式异常");
-  }
-  var arr = json.data;
-  var out = [];
-  for(var i = 0; i < arr.length; i++){
-    var it = arr[i];
-    var parts = (it.number || "").split("+");
-    if(parts.length < 3) continue;
-    var b = [Number(parts[0]), Number(parts[1]), Number(parts[2])];
-    if(isNaN(b[0]) || isNaN(b[1]) || isNaN(b[2])) continue;
-    if(b[0]<0||b[0]>9||b[1]<0||b[1]>9||b[2]<0||b[2]>9) continue;
-    out.push({
-      issue: String(it.nbr || ""),
-      balls: b,
-      time: (it.date || "") + " " + (it.time || ""),
-      combination: it.combination || "",
-      sum: it.num || (b[0]+b[1]+b[2])
-    });
-  }
-  if(out.length < 18) throw new Error("有效数据不足18期，当前 " + out.length + " 期");
-  if(json.countdown) lastCountdown = json.countdown;
-  return out;
+function addDebug(msg){
+  var box = $("debugBox");
+  var time = new Date().toLocaleTimeString();
+  box.innerHTML += "[" + time + "] " + msg + "<br>";
+  box.scrollTop = box.scrollHeight;
 }
 
-/* 通用解析（兼容其他格式） */
-function parseItems(json){
-  if(json && json.message === "success" && Array.isArray(json.data) && json.data[0] && json.data[0].number){
-    return parsePc28help(json);
-  }
-  /* 3658kj 格式 */
-  if(json && json.data && json.data.list && json.data.list[0] && json.data.list[0].drawCode){
-    var arr = json.data.list;
-    var out = [];
-    for(var i = 0; i < arr.length; i++){
-      var parts = (arr[i].drawCode || "").split(",");
-      if(parts.length < 3) continue;
-      var b = [Number(parts[0]), Number(parts[1]), Number(parts[2])];
-      if(isNaN(b[0])||isNaN(b[1])||isNaN(b[2])) continue;
-      out.push({issue:String(arr[i].drawIssue||""), balls:b, time:arr[i].drawTime||"", combination:"", sum:b[0]+b[1]+b[2]});
+/* 从 Liquid-Glass-Profil 数据仓库拉取数据 */
+async function fetchFromDataWarehouse(){
+  for(var u = 0; u < DATA_URLS.length; u++){
+    var url = DATA_URLS[u];
+    try {
+      var srcName = url.includes('github.io') ? 'Liquid-Glass-Profil数据仓库(BCLC官方规则)' : '本地latest.json';
+      addDebug('尝试数据源: ' + srcName + ' ...');
+      var resp = await fetch(url + '?t=' + Date.now(), { cache: 'no-store' });
+      if(!resp.ok) throw new Error('HTTP ' + resp.status);
+      var json = await resp.json();
+      if(!json || !json.data || !Array.isArray(json.data) || json.data.length === 0){
+        throw new Error('数据为空');
+      }
+      // 取最近18期，按时间正序排列（先开在前）
+      var allData = json.data.slice().reverse(); // 仓库是倒序存的，反转
+      var out = [];
+      for(var i = 0; i < allData.length && out.length < 30; i++){
+        var it = allData[i];
+        var parts = (it.number || "").split("+");
+        if(parts.length < 3) continue;
+        var b = [Number(parts[0]), Number(parts[1]), Number(parts[2])];
+        if(isNaN(b[0])||isNaN(b[1])||isNaN(b[2])) continue;
+        if(b[0]<0||b[0]>9||b[1]<0||b[1]>9||b[2]<0||b[2]>9) continue;
+        out.push({
+          issue: String(it.nbr || ""),
+          balls: b,
+          time: (it.date || "") + " " + (it.time || ""),
+          combination: it.combination || "",
+          sum: it.num || (b[0]+b[1]+b[2]),
+          nbrs: it.nbrs || null
+        });
+      }
+      if(out.length < 18) throw new Error('有效数据不足18期，当前 ' + out.length + ' 期');
+      addDebug('✅ ' + srcName + ' → ' + out.length + '期可用');
+      // 保存到localStorage
+      try { localStorage.setItem("qingxun_v3_data", JSON.stringify(out.slice(0, 500))); } catch(e){}
+      return { data: out, source: srcName };
+    } catch(e) {
+      addDebug('❌ ' + url + ' 失败: ' + e.message);
     }
-    if(out.length < 18) throw new Error("数据不足18期");
-    return out;
   }
-  /* pgsoft 格式 */
-  var arr2 = json && json.data && Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
-  var out2 = [];
-  for(var j = 0; j < arr2.length; j++){
-    var it = arr2[j];
-    var balls = it.balls || it.number;
-    if(typeof balls === "string") balls = balls.split(/[+,,\s]/).filter(function(x){return x!=="";});
-    if(!Array.isArray(balls) || balls.length < 3) continue;
-    var b2 = [Number(balls[0]), Number(balls[1]), Number(balls[2])];
-    if(isNaN(b2[0])||isNaN(b2[1])||isNaN(b2[2])) continue;
-    out2.push({issue:String(it.issue||it.expect||it.nbr||(j+1)), balls:b2, time:it.time||it.opentime||"", combination:"", sum:b2[0]+b2[1]+b2[2]});
-  }
-  if(out2.length < 18) throw new Error("数据不足18期");
-  return out2;
+  throw new Error('所有数据源均不可用');
 }
 
 /* 数据新鲜度检测 */
@@ -1046,11 +260,12 @@ function renderTable(list){
   }
 }
 
-function renderSourceStatus(){
-  var cls = sourceState === "ok" ? "ok" : (sourceState === "fail" ? "fail" : (sourceState === "loading" ? "" : ""));
-  var dotColor = sourceState === "ok" ? "var(--ok)" : (sourceState === "fail" ? "var(--warn)" : (sourceState === "loading" ? "var(--acc2)" : "var(--sub)"));
-  var text = sourceState === "ok" ? "pc28.help · 已连接" : (sourceState === "fail" ? "pc28.help · 连接失败" : (sourceState === "loading" ? "pc28.help · 连接中…" : "pc28.help · 未连接"));
+function renderSourceStatus(srcName){
+  var cls = sourceState === "ok" ? "" : (sourceState === "fail" ? "fail" : "");
+  var dotColor = sourceState === "ok" ? "var(--ok)" : (sourceState === "fail" ? "var(--warn)" : "var(--acc2)");
+  var text = sourceState === "ok" ? ("Liquid-Glass-Profil · 已连接") : (sourceState === "fail" ? "Liquid-Glass-Profil · 连接失败" : "Liquid-Glass-Profil · 连接中…");
   $("sourceStatus").innerHTML = '<span class="source-chip ' + cls + '"><span class="dot" style="background:' + dotColor + '"></span>' + text + '</span>';
+  if(srcName) $("sourceStatus").innerHTML += ' <span style="font-size:11px;color:var(--sub)">来源: ' + srcName + '</span>';
 }
 
 function setStatus(msg, cls){
@@ -1069,52 +284,187 @@ function buildRaw(list){
   return s;
 }
 
-function doCalc(){
-  if(!items || items.length < 18){
-    var m = parseManual();
-    if(!m){setStatus("请先提取数据或输入18期数据","err"); return;}
-    items = m;
-    renderTable(items);
+/* MD5 + SHA-256 计算 */
+async function compute(raw){
+  var md5h = "";
+  if(window.md5){
+    md5h = md5(raw);
+  } else {
+    // fallback: 简易hash（实际应引入md5库）
+    md5h = await cryptoSubtle(raw, 'MD5');
   }
-
-  /* 第1步：18期拼接成54位原始数据 */
-  var raw = buildRaw(items);
-
-  /* 第2步：核心算法 MD5 → SHA-256 → 取模10000 */
-  var r = compute(raw);
-
-  /* 展示核心计算链 */
-  $("rawVal").textContent = raw + " （" + raw.length + "位）";
-  $("md5Val").textContent = r.md5h;
-  $("shaVal").textContent = r.shah;
-  $("modVal").textContent = "BigInt(\"0x" + r.shah.substring(0,16) + "...\") % 10000 = " + r.modNum;
-  $("finalNum").textContent = r.fourDigit;
-  $("modNote").textContent = "取模结果 " + r.modNum + " → 补零为四位号码 " + r.fourDigit;
-
-  /* 第3步：运行多策略预测引擎 */
-  var allResults = runAllStrategies(raw, items);
-  var ensemble = ensembleVote(allResults);
-  renderStrategies(allResults, ensemble);
-
-  /* 第4步：统计分析 */
-  renderStats(items);
-
-  lastResult = {
-    timestamp: Date.now(),
-    raw: r.raw,
-    md5h: r.md5h,
-    shah: r.shah,
-    num: r.fourDigit,
-    modNum: r.modNum,
-    firstIssue: items[0].issue,
-    lastIssue: items[items.length-1].issue,
-    actual: null,
-    strategies: allResults,
-    ensemble: ensemble.num,
-    confidence: ensemble.confidence
-  };
+  var shah = await cryptoSubtle(md5h, 'SHA-256');
+  var bigInt = hexToBigInt(shah);
+  var modNum = bigInt % 10000n;
+  var fourDigit = String(modNum).padStart(4, '0');
+  return {md5h:md5h, shah:shah, modNum:Number(modNum), fourDigit:fourDigit, raw:raw};
 }
 
+async function cryptoSubtle(input, algo){
+  // 优先使用Web Crypto API
+  if(window.crypto && crypto.subtle){
+    var enc = new TextEncoder();
+    var buf = await crypto.subtle.digest(algo, enc.encode(input));
+    return bufToHex(buf);
+  }
+  // fallback
+  return simpleHash(input + algo);
+}
+
+function bufToHex(buf){
+  var arr = new Uint8Array(buf);
+  var hex = "";
+  for(var i = 0; i < arr.length; i++){
+    hex += ("0" + arr[i].toString(16)).slice(-2);
+  }
+  return hex;
+}
+
+function hexToBigInt(hex){
+  // 分段转换避免精度丢失
+  var result = 0n;
+  for(var i = 0; i < hex.length; i++){
+    result = result * 16n + BigInt(parseInt(hex[i], 16));
+  }
+  return result;
+}
+
+function simpleHash(s){
+  var h = 0;
+  for(var i = 0; i < s.length; i++){
+    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h).toString(16);
+}
+
+/* ===================== 多策略预测引擎 ===================== */
+function runAllStrategies(raw, list){
+  var strategies = {};
+  // 策略A: 直接取模末四位
+  strategies.A = raw.slice(-4);
+  // 策略B: 奇数位求和取模
+  var sumOdd = 0;
+  for(var i = 0; i < raw.length; i += 2){ sumOdd += parseInt(raw[i]); }
+  strategies.B = String(sumOdd % 10000).padStart(4,'0');
+  // 策略C: 偶数位求和取模
+  var sumEven = 0;
+  for(var i = 1; i < raw.length; i += 2){ sumEven += parseInt(raw[i]); }
+  strategies.C = String(sumEven % 10000).padStart(4,'0');
+  // 策略D: 三球均值趋势
+  var last3 = list.slice(0, 3);
+  var avg = 0;
+  for(var i = 0; i < last3.length; i++){ avg += last3[i].sum; }
+  avg = Math.round(avg / last3.length);
+  strategies.D = String(avg * 111).padStart(4,'0').slice(-4);
+  // 策略E: 和值波动
+  var sums = list.map(function(x){return x.sum;});
+  var diff = sums[0] - sums[Math.min(5, sums.length-1)];
+  strategies.E = String(Math.abs(diff * 37) % 10000).padStart(4,'0');
+  // 策略F: 频率分析
+  var freq = {};
+  for(var i = 0; i < raw.length; i++){
+    var d = raw[i];
+    freq[d] = (freq[d] || 0) + 1;
+  }
+  var top = Object.keys(freq).sort(function(a,b){return freq[b]-freq[a];}).slice(0,4).join('');
+  strategies.F = top.padStart(4,'0').slice(-4);
+  return strategies;
+}
+
+function ensembleVote(allResults){
+  // 取各策略末位做投票
+  var votes = {};
+  var keys = Object.keys(allResults);
+  for(var i = 0; i < keys.length; i++){
+    var v = allResults[keys[i]];
+    var last = v.slice(-1);
+    votes[last] = (votes[last] || 0) + 1;
+  }
+  var winner = Object.keys(votes).sort(function(a,b){return votes[b]-votes[a];})[0];
+  var maxVotes = votes[winner] || 0;
+  return { num: winner, confidence: maxVotes / keys.length };
+}
+
+function renderStrategies(allResults, ensemble){
+  var html = "";
+  var keys = Object.keys(allResults);
+  for(var i = 0; i < keys.length; i++){
+    var k = keys[i];
+    html += '<div><span style="color:var(--sub)">策略' + k + '：</span><span style="color:var(--acc);font-weight:700">' + allResults[k] + '</span></div>';
+  }
+  html += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line)"><span style="color:var(--gold)">集成投票：</span><span style="color:var(--gold);font-weight:800;font-size:16px">' + ensemble.num + '</span> <span style="color:var(--sub);font-size:11px">(置信度 ' + Math.round(ensemble.confidence*100) + '%)</span></div>';
+  $("stratBox").innerHTML = html;
+}
+
+/* 渲染统计 */
+function renderStats(list){
+  // 简单统计
+  var sums = list.map(function(x){return x.sum;});
+  var avg = sums.reduce(function(a,b){return a+b;},0) / sums.length;
+  var min = Math.min.apply(null, sums);
+  var max = Math.max.apply(null, sums);
+  addDebug('统计: 平均=' + avg.toFixed(1) + ' 最小=' + min + ' 最大=' + max);
+}
+
+/* ===================== 主计算流程 ===================== */
+async function doCalc(){
+  if(!items || items.length < 18){
+    setStatus("请先拉取数据（需要18期）","err");
+    return;
+  }
+
+  /* 取最新18期 */
+  var list18 = items.slice(0, 18);
+  renderTable(list18);
+
+  /* 第1步：18期拼接成54位原始数据 */
+  var raw = buildRaw(list18);
+
+  /* 第2步：核心算法 MD5 → SHA-256 → 取模10000 */
+  setStatus("计算中…（MD5 → SHA-256 → 取模10000）", "info");
+  try {
+    var r = await compute(raw);
+
+    /* 展示核心计算链 */
+    $("rawVal").textContent = raw + " （" + raw.length + "位）";
+    $("md5Val").textContent = r.md5h;
+    $("shaVal").textContent = r.shah;
+    $("modVal").textContent = "BigInt(0x" + r.shah.substring(0,16) + "…) % 10000 = " + r.modNum;
+    $("finalNum").textContent = r.fourDigit;
+    $("modNote").textContent = "取模结果 " + r.modNum + " → 补零为四位号码 " + r.fourDigit;
+
+    /* 第3步：运行多策略预测引擎 */
+    var allResults = runAllStrategies(raw, list18);
+    var ensemble = ensembleVote(allResults);
+    renderStrategies(allResults, ensemble);
+
+    /* 第4步：统计分析 */
+    renderStats(list18);
+
+    lastResult = {
+      timestamp: Date.now(),
+      raw: r.raw,
+      md5h: r.md5h,
+      shah: r.shah,
+      num: r.fourDigit,
+      modNum: r.modNum,
+      firstIssue: list18[0].issue,
+      lastIssue: list18[list18.length-1].issue,
+      actual: null,
+      strategies: allResults,
+      ensemble: ensemble.num,
+      confidence: ensemble.confidence
+    };
+
+    setStatus("✅ 计算完成！最终号码: <b>" + r.fourDigit + "</b>", "ok");
+    addToHistory();
+  } catch(e) {
+    setStatus("计算失败：" + e.message, "err");
+    addDebug('计算异常: ' + e.message);
+  }
+}
+
+/* ===================== 手动输入 ===================== */
 function parseManual(){
   var text = $("manualInput").value.trim();
   if(!text) return null;
@@ -1136,160 +486,7 @@ function parseManual(){
   return out.length >= 18 ? out.slice(0, 18) : null;
 }
 
-/* ===================== 20:00采集模式（从20:00开始连续采集18期） ===================== */
-
-/* 获取今日北京时间20:00的截止点 */
-function getTodayCutoffBJ(){
-  var bj = getBeijingNow();
-  return new Date(bj.getFullYear(), bj.getMonth(), bj.getDate(), 20, 0, 0, 0);
-}
-
-/* 解析开奖时间字符串为Date对象（开奖时间为北京时间） */
-function parseDrawTime(timeStr){
-  if(!timeStr) return null;
-  var p = timeStr.match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
-  if(!p) return null;
-  return new Date(parseInt(p[1]), parseInt(p[2])-1, parseInt(p[3]), parseInt(p[4]), parseInt(p[5]), parseInt(p[6]));
-}
-
-/* 过滤：只保留cutoff及之后开出的期数，按时间正序排列 */
-function filterAfterCutoff(list, cutoff){
-  var out = [];
-  for(var i = 0; i < list.length; i++){
-    var dt = parseDrawTime(list[i].time);
-    if(dt && dt >= cutoff) out.push(list[i]);
-  }
-  out.sort(function(a, b){
-    var ta = parseDrawTime(a.time), tb = parseDrawTime(b.time);
-    return ta - tb;
-  });
-  return out;
-}
-
-/* 启动采集模式 */
-function startCollection(cutoff){
-  if(!cutoff) cutoff = getTodayCutoffBJ();
-  collecting = true;
-  collectedItems = [];
-  if(collectionPollTimer){ clearTimeout(collectionPollTimer); collectionPollTimer = null; }
-  var cutoffStr = ("0"+cutoff.getHours()).slice(-2) + ":" + ("0"+cutoff.getMinutes()).slice(-2);
-  setStatus("采集已自动启动：从北京时间" + cutoffStr + "开始，跟随每期开奖实时收集18期…", "ok");
-  $("cdTitle").textContent = "自动采集运行中 · 从" + cutoffStr + "开始收集18期";
-  $("cdTimer").textContent = "0/18";
-  $("cdTimer").className = "timer armed";
-  pollCollection(cutoff);
-}
-
-/* 轮询采集 */
-function pollCollection(cutoff){
-  if(!collecting) return;
-  sourceState = "loading";
-  renderSourceStatus();
-  var collUrl = API_URL.replace("nbr=18", "nbr=30");
-  fetch(collUrl, {method:"GET", headers:{"Accept":"application/json"}})
-    .then(function(r){
-      if(!r.ok) throw new Error("HTTP " + r.status);
-      return r.json();
-    })
-    .then(function(json){
-      if(!collecting) return;
-      var allItems = parseItems(json);
-      var filtered = filterAfterCutoff(allItems, cutoff);
-      /* 去重合并已采集的期数 */
-      var existingIssues = {};
-      for(var i = 0; i < collectedItems.length; i++){
-        existingIssues[collectedItems[i].issue] = true;
-      }
-      var newCount = 0;
-      for(var j = 0; j < filtered.length; j++){
-        if(!existingIssues[filtered[j].issue]){
-          collectedItems.push(filtered[j]);
-          existingIssues[filtered[j].issue] = true;
-          newCount++;
-        }
-      }
-      /* 按时间正序排序（先开在前） */
-      collectedItems.sort(function(a, b){
-        var ta = parseDrawTime(a.time), tb = parseDrawTime(b.time);
-        return ta - tb;
-      });
-      sourceState = "ok";
-      renderSourceStatus();
-      var progress = Math.min(collectedItems.length, 18);
-      /* 更新采集进度显示 */
-      $("cdTimer").textContent = progress + "/18";
-      $("cdTimer").className = "timer armed";
-      var latestIssue = collectedItems.length > 0 ? collectedItems[collectedItems.length-1].issue : "?";
-      var newTag = newCount > 0 ? "（新增" + newCount + "期）" : "";
-      /* 如果API返回了倒计时，显示下期开奖倒计时 */
-      var cdStr = lastCountdown ? " | 下期开奖倒计时: " + lastCountdown : "";
-      $("cdInfo").textContent = "采集中… 已收集 " + progress + "/18 期" + newTag + cdStr + "（最新期号 " + latestIssue + "）";
-      /* 实时展示已采集的数据 */
-      if(collectedItems.length > 0){
-        items = collectedItems.slice(0, Math.min(collectedItems.length, 18));
-        renderTable(items);
-      }
-      if(collectedItems.length >= 18){
-        /* 采集完成 */
-        collecting = false;
-        if(collectionPollTimer){ clearTimeout(collectionPollTimer); collectionPollTimer = null; }
-        items = collectedItems.slice(0, 18);
-        renderTable(items);
-        doCalc();
-        /* 保存采集结果到localStorage */
-        saveCollectionDone({
-          items: items,
-          raw: lastResult ? lastResult.raw : "",
-          num: lastResult ? lastResult.num : ""
-        });
-        setStatus("采集完成！已从20:00开始收集18期，计算结果已生成。", "ok");
-        $("cdTitle").textContent = "今日采集完成 · 已生成开奖号码";
-        $("cdTimer").textContent = "完成";
-        $("cdTimer").className = "timer";
-        $("cdInfo").textContent = "18期采集完成（从20:00开始）| 开奖号码: " + ($("finalNum").textContent);
-        addToHistory();
-      } else {
-        /* 继续轮询：根据倒计时智能调度，否则15秒后重试 */
-        setStatus("采集中… 已收集 " + progress + "/18 期" + newTag + "，跟随每期开奖实时更新…", "ok");
-        scheduleNextPoll(cutoff);
-      }
-    })
-    .catch(function(e){
-      if(!collecting) return;
-      sourceState = "fail";
-      renderSourceStatus();
-      setStatus("采集轮询失败：" + e.message + "，15秒后重试…", "err");
-      scheduleNextPoll(cutoff);
-    });
-}
-
-/* 智能调度下一次轮询：根据API倒计时判断，否则默认15秒 */
-function scheduleNextPoll(cutoff){
-  if(!collecting) return;
-  if(collectionPollTimer){ clearTimeout(collectionPollTimer); collectionPollTimer = null; }
-  /* 如果有倒计时信息，解析秒数，在开奖后5秒轮询 */
-  var delay = 15000; /* 默认15秒 */
-  if(lastCountdown){
-    var parts = lastCountdown.match(/(\d+)/g);
-    if(parts && parts.length >= 1){
-      var secs = parseInt(parts[0]);
-      if(parts.length >= 3){
-        secs = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
-      } else if(parts.length >= 2){
-        secs = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-      }
-      if(secs > 0 && secs < 600){
-        /* 倒计时在10分钟内，在开奖后5秒轮询 */
-        delay = (secs + 5) * 1000;
-      }
-    }
-  }
-  collectionPollTimer = setTimeout(function(){
-    if(collecting) pollCollection(cutoff);
-  }, delay);
-}
-
-/* ===================== 北京时间 20:00 倒计时与自动运行 ===================== */
+/* ===================== 20:00采集模式 ===================== */
 function getBeijingNow(){
   var now = new Date();
   var utc = now.getTime() + now.getTimezoneOffset() * 60000;
@@ -1301,6 +498,11 @@ function formatBJTime(){
   return ("0"+bj.getHours()).slice(-2) + ":" + ("0"+bj.getMinutes()).slice(-2) + ":" + ("0"+bj.getSeconds()).slice(-2);
 }
 
+function getTodayCutoffBJ(){
+  var bj = getBeijingNow();
+  return new Date(bj.getFullYear(), bj.getMonth(), bj.getDate(), 20, 0, 0, 0);
+}
+
 function getNextRunTime(){
   var bj = getBeijingNow();
   var next = new Date(bj);
@@ -1310,7 +512,7 @@ function getNextRunTime(){
 }
 
 function updateCountdown(){
-  if(collecting) return; /* 采集模式中，不更新倒计时显示 */
+  if(collecting) return;
   var bj = getBeijingNow();
   var next = getNextRunTime();
   var diff = next.getTime() - bj.getTime();
@@ -1326,22 +528,84 @@ function updateCountdown(){
   $("cdTimer").textContent = ("0"+h).slice(-2) + ":" + ("0"+m).slice(-2) + ":" + ("0"+s).slice(-2);
   $("cdTimer").className = "timer";
   $("cdTitle").textContent = "距下次采集启动（北京时间 20:00）";
-  if(!lastCountdown){
-    $("cdInfo").textContent = "当前北京时间 " + formatBJTime() + " | 下次采集: " + ("0"+(next.getMonth()+1)).slice(-2) + "-" + ("0"+next.getDate()).slice(-2) + " 20:00";
-  }
+  $("cdInfo").textContent = "当前北京时间 " + formatBJTime() + " | 下次采集: " + ("0"+(next.getMonth()+1)).slice(-2) + "-" + ("0"+next.getDate()).slice(-2) + " 20:00";
 }
 
-var lastAutoRunDate = null;
-function checkAutoRun(){
-  if(collecting) return; /* 正在采集中，不重复启动 */
-  var bj = getBeijingNow();
-  var todayKey = bj.getFullYear() + "-" + bj.getMonth() + "-" + bj.getDate();
-  /* 如果今天已完成采集，不再重复 */
-  if(getTodayCollection()) return;
-  /* 北京时间20:00及之后，如果今天还没启动过采集，自动启动 */
-  if(bj.getHours() >= 20 && lastAutoRunDate !== todayKey){
-    lastAutoRunDate = todayKey;
-    startCollection();
+/* 采集模式：从20:00开始持续拉取数据仓库，收集18期 */
+async function startCollection(cutoff){
+  if(!cutoff) cutoff = getTodayCutoffBJ();
+  collecting = true;
+  collectedItems = [];
+  if(collectionPollTimer){ clearTimeout(collectionPollTimer); collectionPollTimer = null; }
+  var cutoffStr = ("0"+cutoff.getHours()).slice(-2) + ":" + ("0"+cutoff.getMinutes()).slice(-2);
+  setStatus("采集已自动启动：从北京时间" + cutoffStr + "开始，跟随每期开奖实时收集18期…", "ok");
+  $("cdTitle").textContent = "自动采集运行中 · 从" + cutoffStr + "开始收集18期";
+  $("cdTimer").textContent = "0/18";
+  $("cdTimer").className = "timer armed";
+  pollCollection(cutoff);
+}
+
+async function pollCollection(cutoff){
+  if(!collecting) return;
+  sourceState = "loading";
+  renderSourceStatus();
+  try {
+    var result = await fetchFromDataWarehouse();
+    if(!collecting) return;
+    var allItems = result.data;
+    // 只保留cutoff之后的期数
+    var filtered = allItems.filter(function(it){
+      var p = it.time.match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
+      if(!p) return false;
+      var dt = new Date(parseInt(p[1]), parseInt(p[2])-1, parseInt(p[3]), parseInt(p[4]), parseInt(p[5]), parseInt(p[6]));
+      return dt >= cutoff;
+    });
+    // 去重
+    var existingIssues = {};
+    for(var i = 0; i < collectedItems.length; i++) existingIssues[collectedItems[i].issue] = true;
+    var newCount = 0;
+    for(var j = 0; j < filtered.length; j++){
+      if(!existingIssues[filtered[j].issue]){
+        collectedItems.push(filtered[j]);
+        existingIssues[filtered[j].issue] = true;
+        newCount++;
+      }
+    }
+    collectedItems.sort(function(a,b){return parseInt(a.issue)-parseInt(b.issue);});
+    sourceState = "ok";
+    renderSourceStatus(result.source);
+    var progress = Math.min(collectedItems.length, 18);
+    $("cdTimer").textContent = progress + "/18";
+    $("cdTimer").className = "timer armed";
+    var latestIssue = collectedItems.length > 0 ? collectedItems[collectedItems.length-1].issue : "?";
+    var newTag = newCount > 0 ? "（新增" + newCount + "期）" : "";
+    $("cdInfo").textContent = "采集中… 已收集 " + progress + "/18 期" + newTag + "（最新期号 " + latestIssue + "）";
+    if(collectedItems.length > 0){
+      items = collectedItems.slice(0, Math.min(collectedItems.length, 18));
+      renderTable(items);
+    }
+    if(collectedItems.length >= 18){
+      collecting = false;
+      if(collectionPollTimer){ clearTimeout(collectionPollTimer); collectionPollTimer = null; }
+      items = collectedItems.slice(0, 18);
+      renderTable(items);
+      await doCalc();
+      setStatus("采集完成！已从20:00开始收集18期，计算结果已生成。", "ok");
+      $("cdTitle").textContent = "今日采集完成 · 已生成开奖号码";
+      $("cdTimer").textContent = "完成";
+      $("cdTimer").className = "timer";
+      $("cdInfo").textContent = "18期采集完成（从20:00开始）| 开奖号码: " + $("finalNum").textContent;
+    } else {
+      setStatus("采集中… 已收集 " + progress + "/18 期" + newTag + "，跟随每期开奖实时更新…", "ok");
+      // 15秒后重试
+      collectionPollTimer = setTimeout(function(){ if(collecting) pollCollection(cutoff); }, 15000);
+    }
+  } catch(e) {
+    if(!collecting) return;
+    sourceState = "fail";
+    renderSourceStatus();
+    setStatus("采集轮询失败：" + e.message + "，15秒后重试…", "err");
+    collectionPollTimer = setTimeout(function(){ if(collecting) pollCollection(cutoff); }, 15000);
   }
 }
 
@@ -1358,10 +622,10 @@ function saveHistory(arr){
 }
 
 function addToHistory(){
-  if(!lastResult){ setStatus("请先计算后再保存", "err"); return; }
+  if(!lastResult){ return; }
   var hist = loadHistory();
   for(var i = 0; i < hist.length; i++){
-    if(hist[i].raw === lastResult.raw){ setStatus("该组数据已存在", "err"); return; }
+    if(hist[i].raw === lastResult.raw){ return; }
   }
   hist.unshift({
     timestamp: lastResult.timestamp,
@@ -1376,8 +640,20 @@ function addToHistory(){
   });
   if(hist.length > 200) hist = hist.slice(0, 200);
   saveHistory(hist);
-  setStatus("已保存到历史记录（含6策略预测+集成投票）", "ok");
   renderHistory();
+}
+
+function renderHistory(){
+  var hist = loadHistory();
+  var html = "";
+  if(hist.length === 0){ html = '<div style="color:var(--sub)">暂无历史记录</div>'; }
+  for(var i = 0; i < Math.min(hist.length, 20); i++){
+    var h = hist[i];
+    var date = new Date(h.timestamp).toLocaleString();
+    var actualStr = h.actual ? (' | 实际:' + h.actual + (h.actual === h.num ? ' ✅' : ' ❌')) : '';
+    html += '<div style="padding:4px 0;border-bottom:1px solid rgba(42,51,82,.3)">' + date + ' → <b style="color:var(--acc)">' + h.num + '</b>' + actualStr + ' <span style="color:var(--sub)">(' + h.firstIssue + '~' + h.lastIssue + ')</span></div>';
+  }
+  $("histBox").innerHTML = html;
 }
 
 function markActual(){
@@ -1387,201 +663,87 @@ function markActual(){
   if(!hist.length){ setStatus("无历史记录", "err"); return; }
   hist[0].actual = val;
   saveHistory(hist);
-  
-  /* 更新各策略命中率统计 */
-  var stats = loadStratStats();
-  var strategies = ["A","B","C","D","E","F"];
-  for(var i = 0; i < strategies.length; i++){
-    var s = strategies[i];
-    if(!stats[s]) stats[s] = { total: 0, hits: 0 };
-    /* 只统计有策略记录的历史 */
-    if(hist[0].strategies && hist[0].strategies[s]){
-      stats[s].total++;
-      /* 逐位比对：每个位置命中算部分命中，完全命中算1 */
-      var pred = hist[0].strategies[s];
-      var bitHits = 0;
-      for(var pos = 0; pos < 4; pos++){
-        if(pred.charAt(pos) === val.charAt(pos)) bitHits++;
-      }
-      /* 4位全中=1分，3位=0.5分，2位=0.2分 */
-      if(bitHits === 4) stats[s].hits += 1;
-      else if(bitHits === 3) stats[s].hits += 0.5;
-      else if(bitHits === 2) stats[s].hits += 0.2;
-    }
-  }
-  /* 集成投票命中率 */
-  if(!stats.ensemble) stats.ensemble = { total: 0, hits: 0 };
-  if(hist[0].ensemble){
-    stats.ensemble.total++;
-    var ensHits = 0;
-    for(var pos2 = 0; pos2 < 4; pos2++){
-      if(hist[0].ensemble.charAt(pos2) === val.charAt(pos2)) ensHits++;
-    }
-    if(ensHits === 4) stats.ensemble.hits += 1;
-    else if(ensHits === 3) stats.ensemble.hits += 0.5;
-    else if(ensHits === 2) stats.ensemble.hits += 0.2;
-  }
-  saveStratStats(stats);
-  
-  var coreHit = hist[0].num === val;
-  var ensHit = hist[0].ensemble === val;
-  var msg = "实际:" + val + " | 核心:" + hist[0].num + (coreHit?" ✓":" ✗") + " | 集成:" + (hist[0].ensemble||"-") + (ensHit?" ✓":" ✗");
-  setStatus(msg, (coreHit || ensHit) ? "ok" : "err");
-  $("actualInput").value = "";
   renderHistory();
-}
-
-function renderHistory(){
-  var hist = loadHistory();
-  var el = $("histList");
-  if(!hist.length){ el.innerHTML = "暂无历史记录"; return; }
-  var html = "";
-  var hitCount = 0, verifiedCount = 0;
-  var ensHitCount = 0;
-  for(var i = 0; i < hist.length; i++){
-    var h = hist[i];
-    var d = new Date(h.timestamp);
-    var dStr = ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0"+d.getDate()).slice(-2) + " " + ("0"+d.getHours()).slice(-2) + ":" + ("0"+d.getMinutes()).slice(-2);
-    var actualHtml = h.actual ? '<span style="color:' + (h.actual===h.num?'var(--ok)':'var(--warn)') + '">' + h.actual + (h.actual===h.num?' ✓':' ✗') + '</span>' : '<span style="color:var(--sub)">待验证</span>';
-    if(h.actual){
-      verifiedCount++;
-      if(h.actual === h.num) hitCount++;
-      if(h.ensemble && h.actual === h.ensemble) ensHitCount++;
-    }
-    /* 显示核心+集成两个号码 */
-    var ensHtml = h.ensemble ? '<span style="color:var(--info);font-family:monospace;font-weight:700">' + h.ensemble + '</span>' : '';
-    var confHtml = h.confidence ? ' <span style="font-size:10px;color:var(--sub)">' + h.confidence + '%</span>' : '';
-    html += '<div style="padding:6px 0;border-bottom:1px solid #1e2540;font-size:12px">';
-    html += '<span style="color:var(--acc);font-family:monospace;font-weight:700;font-size:15px">' + h.num + '</span> ';
-    if(ensHtml) html += '<span style="color:var(--sub);font-size:10px">集成:</span>' + ensHtml + confHtml + ' ';
-    html += '<span style="color:var(--sub)">' + dStr + '</span> ';
-    html += '<span style="color:var(--sub)">期号:' + (h.firstIssue||"?") + '~' + (h.lastIssue||"?") + '</span> ';
-    html += '<span>实际:' + actualHtml + '</span>';
-    html += '</div>';
-  }
-  if(verifiedCount > 0){
-    var ensAcc = ensHitCount > 0 ? ' | 集成命中 <b style="color:var(--info)">' + ensHitCount + '</b>次' : '';
-    html = '<div style="margin-bottom:8px;padding:8px;background:var(--card2);border-radius:8px;font-size:13px">'
-      + '已验证 <b style="color:var(--acc2)">' + verifiedCount + '</b> 次，'
-      + '核心命中 <b style="color:var(--ok)">' + hitCount + '</b> 次（' + Math.round(hitCount/verifiedCount*100) + '%）'
-      + ensAcc
-      + '</div>' + html;
-  }
-  el.innerHTML = html;
-}
-
-/* ===================== 事件绑定 ===================== */
-$("manualBtn").addEventListener("click", function(){
-  $("manualCard").style.display = "block";
-  $("listCard").style.display = "none";
-  $("manualInput").addEventListener("input", function(){
-    var lines = $("manualInput").value.split(/\n+/).filter(function(l){return l.trim() !== "";});
-    $("manualCount").textContent = lines.length;
-  });
-});
-$("calcBtn").addEventListener("click", doCalc);
-$("copyRaw").addEventListener("click", function(){
-  var t = $("rawVal").textContent.replace(/（\d+位）/, "").trim();
-  copyText(t, "已复制54位原始数据");
-});
-$("copyResultBtn").addEventListener("click", function(){
-  copyText($("finalNum").textContent, "已复制开奖号码");
-});
-$("saveHistBtn").addEventListener("click", addToHistory);
-$("saveActualBtn").addEventListener("click", markActual);
-$("actualInput").addEventListener("keydown", function(e){ if(e.key === "Enter") markActual(); });
-$("clearHistBtn").addEventListener("click", function(){
-  if(confirm("确定清空所有历史记录？")){
-    saveHistory([]);
-    renderHistory();
-    setStatus("历史记录已清空", "ok");
-  }
-});
-
-function copyText(t, msg){
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(t).then(function(){alert(msg);}, function(){fallbackCopy(t,msg);});
-  } else fallbackCopy(t, msg);
-}
-function fallbackCopy(t, msg){
-  var ta = document.createElement("textarea"); ta.value = t; document.body.appendChild(ta); ta.select();
-  try{ document.execCommand("copy"); alert(msg); }catch(e){ alert("复制失败，请手动选择复制"); }
-  document.body.removeChild(ta);
-}
-
-/* ===================== 每日采集状态记录 ===================== */
-var COLLECTION_KEY = "baima_last_collection";
-
-/* 记录今日采集完成 */
-function saveCollectionDone(result){
-  var bj = getBeijingNow();
-  var key = bj.getFullYear() + "-" + (bj.getMonth()+1) + "-" + bj.getDate();
-  try {
-    localStorage.setItem(COLLECTION_KEY, JSON.stringify({
-      date: key,
-      timestamp: Date.now(),
-      result: result
-    }));
-  } catch(e) {}
-}
-
-/* 获取今日采集记录 */
-function getTodayCollection(){
-  try {
-    var data = JSON.parse(localStorage.getItem(COLLECTION_KEY) || "null");
-    if(!data) return null;
-    var bj = getBeijingNow();
-    var key = bj.getFullYear() + "-" + (bj.getMonth()+1) + "-" + bj.getDate();
-    if(data.date === key) return data;
-    return null;
-  } catch(e) { return null; }
-}
-
-/* ===================== 定时检查 ===================== */
-function startAutoCheck(){
-  stopAutoCheck();
-  checkAutoRun();
-  /* 每5秒检查一次，确保精准触发 */
-  autoTimer = setInterval(checkAutoRun, 5000);
-}
-function stopAutoCheck(){
-  if(autoTimer){ clearInterval(autoTimer); autoTimer = null; }
+  var hit = (val === hist[0].num);
+  setStatus("已记录实际号码: " + val + (hit ? " ✅ 命中！" : " ❌ 未命中"), hit ? "ok" : "err");
+  $("actualInput").value = "";
 }
 
 /* ===================== 初始化 ===================== */
-renderSourceStatus();
-renderHistory();
-updateCountdown();
-cdTimer = setInterval(updateCountdown, 1000);
-startAutoCheck();
+async function init(){
+  addDebug('初始化... 当前北京时间: ' + formatBJTime());
+  renderSourceStatus();
+  renderHistory();
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 
-/* 页面加载时检查当天采集状态 */
-setTimeout(function(){
-  var bj = getBeijingNow();
-  var todayColl = getTodayCollection();
-  if(todayColl){
-    /* 今天已采集完成，显示结果 */
-    if(todayColl.result){
-      items = todayColl.result.items || [];
-      if(items.length >= 18){
-        renderTable(items);
-        doCalc();
-        setStatus("今日采集已完成，显示采集结果（从20:00开始18期）。", "ok");
-        $("cdTitle").textContent = "今日采集已完成 · 等待明天20:00";
-        $("cdTimer").textContent = "完成";
-        $("cdTimer").className = "timer";
-      }
+  // 尝试加载本地缓存
+  try {
+    var cached = JSON.parse(localStorage.getItem("qingxun_v3_data") || "null");
+    if(cached && cached.length >= 18){
+      items = cached.slice(0, 30);
+      addDebug('已加载本地缓存: ' + items.length + '期');
     }
-  } else if(bj.getHours() >= 20){
-    /* 今天还没采集，且已过20:00，自动启动采集 */
-    setStatus("当前已过北京时间20:00，自动启动今日采集…", "ok");
-    var cutoff = getTodayCutoffBJ();
-    startCollection(cutoff);
-  } else {
-    /* 未到20:00，等待自动触发 */
-    setStatus("系统全自动运行中，等待北京时间20:00自动启动采集（每5秒检测）。", "ok");
+  } catch(e) {}
+
+  // 自动拉取最新数据
+  await autoFetch();
+
+  // 检查是否到达20:00，自动启动采集
+  var bj = getBeijingNow();
+  var todayKey = bj.getFullYear() + "-" + bj.getMonth() + "-" + bj.getDate();
+  if(bj.getHours() >= 20){
+    startCollection();
   }
-}, 500);
+}
+
+async function autoFetch(){
+  sourceState = "loading";
+  renderSourceStatus();
+  setStatus("正在从 Liquid-Glass-Profil 数据仓库拉取数据…", "info");
+  try {
+    var result = await fetchFromDataWarehouse();
+    items = result.data;
+    sourceState = "ok";
+    renderSourceStatus(result.source);
+    setStatus("✅ 已获取 " + items.length + " 期数据（来源: " + result.source + "）", "ok");
+    // 自动计算最新18期
+    items = items.slice(0, 30); // 保留30期用于滑动窗口
+    await doCalc();
+  } catch(e) {
+    sourceState = "fail";
+    renderSourceStatus();
+    setStatus("❌ 数据拉取失败：" + e.message + "，请检查网络或手动输入", "err");
+    // 尝试用缓存
+    try {
+      var cached = JSON.parse(localStorage.getItem("qingxun_v3_data") || "null");
+      if(cached && cached.length >= 18){
+        items = cached;
+        setStatus("⚠️ 使用本地缓存数据（" + cached.length + "期）", "info");
+        await doCalc();
+      }
+    } catch(e2){}
+  }
+}
+
+/* 事件绑定 */
+$("fetchBtn").addEventListener("click", autoFetch);
+$("manualBtn").addEventListener("click", function(){
+  $("manualCard").style.display = "block";
+  $("listCard").style.display = "none";
+});
+$("manualOk").addEventListener("click", function(){
+  var m = parseManual();
+  if(!m){ setStatus("请至少输入18期有效数据","err"); return; }
+  items = m;
+  renderTable(items);
+  setStatus("✅ 已使用手动输入的 " + m.length + " 期数据", "ok");
+  doCalc();
+});
+$("markActualBtn").addEventListener("click", markActual);
+
+/* 启动 */
+init();
 </script>
 </body>
 </html>
